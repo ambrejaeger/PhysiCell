@@ -236,7 +236,9 @@ class Microenvironment
 	// use the global list of cells 
 	void simulate_cell_sources_and_sinks( double dt ); 
 	
-	void display_information( std::ostream& os ); 
+	void display_information( std::ostream& os );
+	friend std::ostream& operator<<(std::ostream& os, Microenvironment& S); 
+	friend std::istream& operator>>(std::istream& is, Microenvironment& microenv); 
 	
 	void add_dirichlet_node( int voxel_index, std::vector<double>& value ); 
 	void update_dirichlet_node( int voxel_index , std::vector<double>& new_value ); 
@@ -363,7 +365,6 @@ extern Microenvironment_Options default_microenvironment_options;
 extern Microenvironment microenvironment;
 
 void initialize_microenvironment( void );
-void set_microenvironment_initial_condition( void );
 
 void load_initial_conditions_from_matlab( std::string filename );
 void load_initial_conditions_from_csv( std::string filename );

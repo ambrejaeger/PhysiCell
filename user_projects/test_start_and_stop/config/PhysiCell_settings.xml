@@ -23,7 +23,7 @@
     </domain>
 
     <overall>
-        <max_time units="min">64800</max_time>
+        <max_time units="min">2000</max_time>
         <time_units>min</time_units>
         <space_units>micron</space_units>
         <dt_diffusion units="min">0.01</dt_diffusion>
@@ -229,6 +229,15 @@
     </initial_conditions>
 
     <user_parameters>
+
+        <random_seed type="int" units="dimensionless">0</random_seed> 
+		<read_init type="bool">false</read_init>
+		<init_cells_filename type="string" units="">./start_and_stop_saving_files/initial.tsv</init_cells_filename>
+		
+		<start_stop type="bool" units="">true</start_stop>
+		<auto_stop type="bool" units="">true</auto_stop>
+		<auto_stop_alive type="bool" units="">true</auto_stop_alive>
+
         <number_of_cells type="int" units="none" description="initial number of cells (for each cell type)">0</number_of_cells>
         <tumor_radius type="double" units="micron" description="">250</tumor_radius>
         <oncoprotein_mean type="double" units="" description="">1</oncoprotein_mean>

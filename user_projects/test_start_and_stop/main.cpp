@@ -74,6 +74,7 @@
 #include <fstream>
 
 #include "./core/PhysiCell.h"
+#include "./core/PhysiCell_utilities.h"
 #include "./modules/PhysiCell_standard_modules.h" 
 
 // put custom code modules here! 
@@ -85,7 +86,13 @@ using namespace PhysiCell;
 
 int main( int argc, char* argv[] )
 {
+	// Keeping track of time when starting stopping and reloading the simulation
+	clock_t T_save_start, T_save_stop, T_reload_start, T_reload_stop, T_total_start, T_total_stop, T_main_start, T_main_stop;
+	T_total_start = clock();
+	T_reload_start = clock();
+
 	// load and parse settings file(s)
+	std::ofstream file_times("output/interesting_times.txt", std::ios::app);
 	
 	bool XML_status = false; 
 	char copy_command [1024]; 
@@ -98,6 +105,7 @@ int main( int argc, char* argv[] )
 	{
 		XML_status = load_PhysiCell_config_file( "./config/PhysiCell_settings.xml" );
 		sprintf( copy_command , "cp ./config/PhysiCell_settings.xml %s" , PhysiCell_settings.folder.c_str() ); 
+		
 	}
 	if( !XML_status )
 	{ exit(-1); }
@@ -107,6 +115,9 @@ int main( int argc, char* argv[] )
 	
 	// OpenMP setup
 	omp_set_num_threads(PhysiCell_settings.omp_num_threads);
+
+	// PNRG setup (Following line added in main.cpp of example project in start and stop folder)
+	//SeedRandom(); // or specify a seed here
 	
 	// time setup 
 	std::string time_units = "min"; 
@@ -114,6 +125,13 @@ int main( int argc, char* argv[] )
 	/* Microenvironment setup */ 
 	
 	setup_microenvironment(); // modify this in the custom code 
+	// Getting the value of start_stop from user_parameters in the .xml setting file 
+	bool start_stop = parameters.bools("start_stop");
+
+	//User Parameters
+		//Additional parameters in the setting .xml file that will be used as condition to stop the simulation
+	//double stop_time = parameters.doubles("stop_time");
+	//double epi_total_thickness = parameters.doubles("max_thickness");
 	
 	/* PhysiCell setup */ 
  	
@@ -122,10 +140,28 @@ int main( int argc, char* argv[] )
 	Cell_Container* cell_container = create_cell_container_for_microenvironment( microenvironment, mechanics_voxel_size );
 	
 	/* Users typically start modifying here. START USERMODS */ 
-	
 	create_cell_types();
+
+	if( start_stop ){
+
+		parameters.bools("read_init") = true;
+
+		// reset cells as they were in the previous simulation
+		setup_tissue();
+		reset_cell(cell_container->last_cell_cycle_time);
+
+		//exit(-1);
+
+
+		reset_global_parameters(cell_container);
+
+		reset_microenv();
+
+
+	} else{
+		setup_tissue(); //death model index = 1 == necrotic...= 0 == apoptotic.
+	}
 	
-	setup_tissue();
 
 	/* Users typically stop modifying here. END USERMODS */ 
 	
@@ -163,6 +199,7 @@ int main( int argc, char* argv[] )
 
 	BioFVM::RUNTIME_TIC();
 	BioFVM::TIC();
+	T_reload_stop = clock();
 	
 	std::ofstream report_file;
 	if( PhysiCell_settings.enable_legacy_saves == true )
@@ -173,11 +210,21 @@ int main( int argc, char* argv[] )
 		report_file<<"simulated time\tnum cells\tnum division\tnum death\twall time"<<std::endl;
 	}
 	
+	//put here reset randomness
+	if( start_stop ){
+		reset_randomness();
+	}
+
+	//define auto stop variable
+	bool stop = false;
+
+	T_main_start = clock();
+	
 	// main loop 
 	
 	try 
 	{		
-		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt )
+		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt && stop!=true)
 		{
 			// save data if it's time. 
 			if( PhysiCell_globals.current_time > PhysiCell_globals.next_full_save_time - 0.5 * diffusion_dt )
@@ -193,11 +240,24 @@ int main( int argc, char* argv[] )
 					sprintf( filename , "%s/output%08u" , PhysiCell_settings.folder.c_str(),  PhysiCell_globals.full_output_index ); 
 					
 					save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , PhysiCell_globals.current_time ); 
-				}
 				
+				
+				// INSERT HERE YOUR AUTO STOP FUNCTION
+
+				if(parameters.bools("auto_stop")){
+
+					int alive = total_live_cell_count();
+
+					//auto stop condition (alive)
+					stop = auto_stop_alive(alive);
+					if (stop){
+						std::cout << "auto stop alive condition activated, simulation interrupted." << std::endl;
+					}
+				}
+			}
 				PhysiCell_globals.full_output_index++; 
 				PhysiCell_globals.next_full_save_time += PhysiCell_settings.full_save_interval;
-			}
+		}
 			
 			// save SVG plot if it's time
 			if( PhysiCell_globals.current_time > PhysiCell_globals.next_SVG_save_time - 0.5 * diffusion_dt )
@@ -236,6 +296,7 @@ int main( int argc, char* argv[] )
 		std::cout << e.what(); // information from length_error printed
 	}
 	
+	T_main_stop = clock();
 	// save a final simulation snapshot 
 	
 	sprintf( filename , "%s/final" , PhysiCell_settings.folder.c_str() ); 
@@ -244,10 +305,25 @@ int main( int argc, char* argv[] )
 	sprintf( filename , "%s/final.svg" , PhysiCell_settings.folder.c_str() ); 
 	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
 	
+	// Save all the files needed for Start & Stop at the right point.
+	T_save_start = clock();
+	save_cell_microenv_data(cell_container);
+	std::cout << "cells data saved successfully" << std::endl;
+	T_save_stop = clock();
+
 	// timer 
 	
 	std::cout << std::endl << "Total simulation runtime: " << std::endl; 
 	BioFVM::display_stopwatch_value( std::cout , BioFVM::runtime_stopwatch_value() ); 
+
+	T_total_stop = clock();
+	double T_save, T_reload, T_total, T_main;
+	T_save = (double)(T_save_stop - T_save_start)/CLOCKS_PER_SEC;
+	T_reload = (double)(T_reload_stop - T_reload_start)/CLOCKS_PER_SEC;
+	T_total = (double)(T_total_stop - T_total_start)/CLOCKS_PER_SEC;
+	T_main = (double)(T_main_stop - T_main_start)/CLOCKS_PER_SEC;
+	file_times << T_save << " " << T_reload << " " << T_total <<" " << T_main <<  std::endl;
+	file_times.close();
 
 	return 0; 
 }

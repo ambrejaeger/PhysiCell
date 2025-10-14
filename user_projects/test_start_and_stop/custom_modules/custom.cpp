@@ -65,6 +65,16 @@
 ###############################################################################
 */
 
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <unordered_set>
+#include <cstdlib>
+
+#include <sstream>
+#include <vector>
+#include <string>
+
 #include "./custom.h"
 
 void create_cell_types( void )
@@ -390,4 +400,266 @@ void tumor_cell_phenotype_with_oncoprotein( Cell* pCell, Phenotype& phenotype, d
 	set_single_behavior( pCell, "cycle entry" , cycle_rate ); 
 	
 	return; 
+}
+
+
+/*******************************************/
+/*  FUNCTIONS FOR SPHEROID INITIALIZATION  */
+/*******************************************/
+
+std::vector<std::vector<double>> read_cells_positions(std::string filename, char delimiter, bool header)
+{
+	// File pointer
+	std::fstream fin;
+	std::vector<std::vector<double>> positions;
+
+	// Open an existing file
+	fin.open(filename, std::ios::in);
+
+	// Read the Data from the file
+	// as String Vector
+	std::vector<std::string> row;
+	std::string line, word;
+
+	if (header)
+	{ getline(fin, line); }
+
+	do
+	{
+		row.clear();
+
+		// read an entire row and
+		// store it in a string variable 'line'
+		getline(fin, line);
+
+		// used for breaking words
+		std::stringstream s(line);
+
+		while (getline(s, word, delimiter))
+		{ 
+			row.push_back(word); 
+		}
+
+		std::vector<double> tempPoint(3,0.0);
+		tempPoint[0]= std::stof(row[0]);
+		tempPoint[1]= std::stof(row[1]);
+		tempPoint[2]= std::stof(row[2]);
+
+		positions.push_back(tempPoint);
+	} while (!fin.eof());
+
+	return positions;
+}
+
+
+std::vector<std::vector<double>> create_cell_sphere_positions(double cell_radius, double sphere_radius)
+{
+	std::vector<std::vector<double>> cells;
+	int xc=0,yc=0,zc=0;
+	double x_spacing= cell_radius*sqrt(3);
+	double y_spacing= cell_radius*2;
+	double z_spacing= cell_radius*sqrt(3);
+	
+	std::vector<double> tempPoint(3,0.0);
+	// std::vector<double> cylinder_center(3,0.0);
+	
+	for(double z=-sphere_radius;z<sphere_radius;z+=z_spacing, zc++)
+	{
+		for(double x=-sphere_radius;x<sphere_radius;x+=x_spacing, xc++)
+		{
+			for(double y=-sphere_radius;y<sphere_radius;y+=y_spacing, yc++)
+			{
+				tempPoint[0]=x + (zc%2) * 0.5 * cell_radius;
+				tempPoint[1]=y + (xc%2) * cell_radius;
+				tempPoint[2]=z;
+				
+				if(sqrt(norm_squared(tempPoint))< sphere_radius)
+				{ cells.push_back(tempPoint); }
+			}
+			
+		}
+	}
+	return cells;
+	
+}
+
+
+std::vector<std::vector<double>> create_cell_disc_positions(double cell_radius, double disc_radius)
+{	 
+	double cell_spacing = 0.95 * 2.0 * cell_radius; 
+	
+	double x = 0.0; 
+	double y = 0.0; 
+	double x_outer = 0.0;
+
+	std::vector<std::vector<double>> positions;
+	std::vector<double> tempPoint(3,0.0);
+	
+	int n = 0; 
+	while( y < disc_radius )
+	{
+		x = 0.0; 
+		if( n % 2 == 1 )
+		{ x = 0.5 * cell_spacing; }
+		x_outer = sqrt( disc_radius*disc_radius - y*y ); 
+		
+		while( x < x_outer )
+		{
+			tempPoint[0]= x; tempPoint[1]= y;	tempPoint[2]= 0.0;
+			positions.push_back(tempPoint);			
+			if( fabs( y ) > 0.01 )
+			{
+				tempPoint[0]= x; tempPoint[1]= -y;	tempPoint[2]= 0.0;
+				positions.push_back(tempPoint);
+			}
+			if( fabs( x ) > 0.01 )
+			{ 
+				tempPoint[0]= -x; tempPoint[1]= y;	tempPoint[2]= 0.0;
+				positions.push_back(tempPoint);
+				if( fabs( y ) > 0.01 )
+				{
+					tempPoint[0]= -x; tempPoint[1]= -y;	tempPoint[2]= 0.0;
+					positions.push_back(tempPoint);
+				}
+			}
+			x += cell_spacing; 
+		}		
+		y += cell_spacing * sqrt(3.0)/2.0; 
+		n++; 
+	}
+	return positions;
+}
+
+void inject_density_sphere(int density_index, double concentration, double membrane_lenght)
+{
+	// Inject given concentration on the extremities only
+	#pragma omp parallel for
+	for (int n = 0; n < microenvironment.number_of_voxels(); n++)
+	{
+		auto current_voxel = microenvironment.voxels(n);
+		std::vector<double> cent = {current_voxel.center[0], current_voxel.center[1], current_voxel.center[2]};
+
+		if ((membrane_lenght - norm(cent)) <= 0)
+			microenvironment.density_vector(n)[density_index] = concentration;
+	}
+}
+
+void remove_density(int density_index)
+{
+	for (int n = 0; n < microenvironment.number_of_voxels(); n++)
+		microenvironment.density_vector(n)[density_index] = 0;
+}
+
+
+double total_live_cell_count()
+{
+        double out = 0.0;
+
+        for( int i=0; i < (*all_cells).size() ; i++ )
+        {
+                if( (*all_cells)[i]->phenotype.death.dead == false && (*all_cells)[i]->type == 0 )
+                { out += 1.0; }
+        }
+
+        return out;
+}
+
+double total_dead_cell_count()
+{
+        double out = 0.0;
+
+        for( int i=0; i < (*all_cells).size() ; i++ )
+        {
+                if( (*all_cells)[i]->phenotype.death.dead == true && (*all_cells)[i]->phenotype.death.current_death_model_index == 0 )
+                { out += 1.0; }
+        }
+
+        return out;
+}
+
+
+/****************************************/
+/* START AND STOP FUNCTIONS DEFINITIONS */
+/****************************************/
+
+using namespace std;
+
+vector<double> vector_alives;
+
+bool auto_stop_resistance(int alive_cells, int resistant_cells) {
+    // Define stable states and nodes as vectors instead of unordered_sets
+
+	vector_alives.push_back(alive_cells);
+	std::cout << "Steps: " << vector_alives.size() << std::endl;
+
+    double threshold = 0.8;
+    double percentage_of_resistant = static_cast<double>(resistant_cells) / alive_cells;
+	std::cout << "Number of resistant: " << resistant_cells << std::endl;	
+
+    bool stop;
+	bool condition = false;
+	if (vector_alives.size() >= 4){
+	condition = percentage_of_resistant >= threshold;
+	}
+
+    if (condition) {
+        stop = true;
+    } else {
+        stop = false;
+    }
+    return stop;
+}
+
+bool auto_stop_alive(int alive_cells) {
+    //concatenate the number of alive cells to the vector
+	vector_alives.push_back(alive_cells);
+	std::cout << "Steps: " << vector_alives.size() << std::endl;
+
+	bool condition = false;
+	// check the number of elements inside the vector to decide if process it and compute the derivative
+	if (vector_alives.size() >= 8) {
+		std::vector<double> derivative;
+
+		// compute the derivative only for the last three steps
+		for (size_t i = vector_alives.size() - 4; i < vector_alives.size(); ++i) {
+			double slope = vector_alives[i] - vector_alives[i - 1];
+			derivative.push_back(slope);
+		}
+
+		condition = true;
+		for (double slope : derivative) {
+			// if the slope is less than or equal to zero, set condition to false
+			if (slope > 100) {
+				condition = false;
+				break;
+			}
+		}
+
+	} else {
+		condition = false;
+	}
+
+	bool stop;
+
+    if (condition) {
+        stop = true;
+    } else {
+        stop = false;
+    }
+    return stop;
+}
+
+
+bool auto_stop() {
+
+	bool condition = false;
+	bool stop;
+	// implement here your condition to stop the simulation
+
+    if (condition) {
+        stop = true;
+    } else {
+        stop = false;
+    }
+    return stop;
 }

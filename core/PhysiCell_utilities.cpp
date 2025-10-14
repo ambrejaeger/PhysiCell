@@ -71,6 +71,9 @@
 #include "PhysiCell.h" 
 
 namespace PhysiCell{
+int counter_normal_random = 0;
+int counter_int_random = 0;
+int counter_double_random = 0;
 
 thread_local std::mt19937_64 physicell_PRNG_generator; 
 thread_local bool local_pnrg_setup_done = false; 
@@ -163,6 +166,7 @@ double UniformRandom( void )
 		}
 */
 	}
+	counter_double_random++;
     return distribution(physicell_PRNG_generator);
 
 	// helpful info: https://stackoverflow.com/a/29710970
@@ -178,6 +182,7 @@ double UniformRandom( void )
 
 int UniformInt()
 {
+	counter_int_random++;
 	static std::uniform_int_distribution<int> int_dis;
 	return int_dis(physicell_PRNG_generator);
 }
@@ -185,6 +190,7 @@ int UniformInt()
 
 double NormalRandom( double mean, double standard_deviation )
 {
+	counter_normal_random++;
 	std::normal_distribution<double> d(mean,standard_deviation);
 	return d(physicell_PRNG_generator); 
 }
@@ -383,6 +389,53 @@ void copy_file_to_output(std::string filename)
 	sprintf(copy_command, "cp %s %s", filename.c_str(), output_filename.c_str());
 	std::cout << "Copy command: " << copy_command << std::endl;
 	(void)system(copy_command); // make it explicit that we are ignoring the return value
+}
+
+void save_counters(std::ostream& out_stream)
+{
+	out_stream << "counter_double_random: " << counter_double_random << std::endl;
+	out_stream << "counter_int_random: " << counter_int_random << std::endl;
+	out_stream << "counter_normal_random: " << counter_normal_random << std::endl;
+}
+
+void print_counters()
+{
+	std::cout << "counter_double_random: " << counter_double_random << std::endl;
+	std::cout << "counter_int_random: " << counter_int_random << std::endl;
+	std::cout << "counter_normal_random: " << counter_normal_random << std::endl;
+}
+
+void set_counter_double_random(int value)
+{
+    if (counter_double_random > value){
+		std::cout << "UniformRandom counter still greater than value" << std::endl;
+        return;
+    }
+    while (counter_double_random != value){
+        UniformRandom();
+    }
+}
+
+void set_counter_int_random(int value)
+{
+    if (counter_int_random > value){
+		std::cout << "UniformInt counter still greater than value" << std::endl;
+        return;
+    }
+    while (counter_int_random != value){
+        UniformInt();
+    }
+}
+
+void set_counter_normal_random(int value)
+{
+    if (counter_normal_random > value){
+		std::cout << "NormalRandom counter still greater than value" << std::endl;
+        return;
+    }
+    while (counter_normal_random != value){
+        NormalRandom(0.5, 1);
+    }
 }
 
 };

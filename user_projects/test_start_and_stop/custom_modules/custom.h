@@ -64,9 +64,13 @@
 #                                                                             #
 ###############################################################################
 */
+#include <sstream>
+#include <vector>
+#include <string>
 
 #include "../core/PhysiCell.h"
 #include "../modules/PhysiCell_standard_modules.h" 
+#include "../addons/start_and_stop/start_and_stop.h"
 
 using namespace BioFVM; 
 using namespace PhysiCell;
@@ -74,7 +78,8 @@ using namespace PhysiCell;
 // setup functions to help us along 
 
 void create_cell_types( void );
-void setup_tissue( void ); 
+void setup_tissue( void );
+void setup_tissue_input(void); //Necessary to restrat simulation from input
 
 // set up the BioFVM microenvironment 
 void setup_microenvironment( void ); 
@@ -83,7 +88,30 @@ void setup_microenvironment( void );
 
 std::vector<std::string> my_coloring_function( Cell* );
 
-// custom functions can go here 
+/**********************/ 
+/* CUSTOM FUNCTIONS   */ 
+/**********************/ 
+
+
+//functions for initialization
+
+// helper function to read init files
+std::vector<std::vector<double>>  read_cells_positions(std::string filename, char delimiter, bool header);
+
+// helper function to create a sphere of cells of a given radius
+std::vector<std::vector<double>> create_cell_sphere_positions(double cell_radius, double sphere_radius);
+
+// helper function to create a disc of cells of a given radius
+std::vector<std::vector<double>> create_cell_disc_positions(double cell_radius, double disc_radius);
+
+// helper function that calculates phere volume
+inline float sphere_volume_from_radius(float radius) {return 4/3 * PhysiCell_constants::pi * std::pow(radius, 3);}
+
+// helper function to inject density surrounding a spheroid
+void inject_density_sphere(int density_index, double concentration, double membrane_lenght);
+
+// helper function to remove a density
+void remove_density( int density_index );
 
 void phenotype_function( Cell* pCell, Phenotype& phenotype, double dt );
 void custom_function( Cell* pCell, Phenotype& phenotype , double dt );
@@ -93,4 +121,14 @@ void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& 
 std::vector<std::string> heterogeneity_coloring_function( Cell* );
 
 void tumor_cell_phenotype_with_oncoprotein( Cell* pCell, Phenotype& phenotype, double dt ); 
+double total_live_cell_count();
+
+// count the number of total dead cells at current time step
+double total_dead_cell_count();
+
+// function to auto stop the simulation
+bool auto_stop_resistance(int alive_cells, int resistant_cells);
+bool auto_stop_alive(int alive_cells);
+int save_resistant_cells(std::ofstream& file_resistant);
+bool auto_stop();
 
