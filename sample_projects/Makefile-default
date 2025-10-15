@@ -431,7 +431,7 @@ reset:
 	rm ALL_CITATIONS.txt 
 	cp ./config/PhysiCell_settings-backup.xml ./config/PhysiCell_settings.xml 
 	touch ./config/empty.csv
-	rm ./config/*.csv	
+	rm ./config/*.csv
 	
 clean:
 	rm -f *.o
@@ -536,7 +536,17 @@ load:
 	cp ./user_projects/$(PROJ)/main.cpp .
 	cp ./user_projects/$(PROJ)/Makefile .
 	cp -r ./user_projects/$(PROJ)/config/* ./config/ 
-	cp -r ./user_projects/$(PROJ)/custom_modules/* ./custom_modules/ 
+	cp -r ./user_projects/$(PROJ)/custom_modules/* ./custom_modules/
+	if [ -r "./user_projects/$(PROJ)/script/" ]; then\
+		if [ ! -r "./script" ]; then\
+			mkdir ./script/;\
+			cp -r ./user_projects/$(PROJ)/script/* ./script/; else\
+			rm -r ./script;\
+			mkdir ./script/;\
+			cp -r ./user_projects/$(PROJ)/script/* ./script/;\
+		fi;\
+	fi
+
 
 pack:
 	@echo " "
