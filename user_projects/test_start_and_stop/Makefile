@@ -188,6 +188,7 @@ reset:
 	cp ./config/PhysiCell_settings-backup.xml ./config/PhysiCell_settings.xml 
 	touch ./config/empty.csv
 	rm -f ./config/*.csv
+	if [ -r "./script" ]; then rm -r ./script; fi
 	
 clean:
 	rm -f *.o
@@ -197,6 +198,11 @@ data-cleanup:
 	rm -rf ./output
 	mkdir ./output
 	touch ./output/empty.txt
+
+saveddata-cleanup:
+	rm -rf ./start_and_stop_saving_files
+	mkdir ./start_and_stop_saving_files
+	touch ./start_and_stop_saving_files/empty.txt
 	
 # archival 
 	
