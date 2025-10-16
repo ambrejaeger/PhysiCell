@@ -1,0 +1,47 @@
+{
+    "z_min": {
+        "value": -500,
+        "path": "domain/z_min"
+    },
+    "z_max": {
+        "value": 500,
+        "path": "domain/z_max"
+    },
+    "use_2D": {
+        "value": "false",
+        "path": "domain/use_2D"
+    },
+    "max_time": {
+        "value": 1440,
+        "path": "overall/max_time"
+    },
+    "save_time": {
+        "value": 30,
+        "path": "save/full_data/interval"
+    },
+    "read_init": {
+        "value": "false",
+        "path": "user_parameters/read_init"
+    },
+    "start_stop": {
+        "value": "true",
+        "path": "user_parameters/start_stop"
+    },
+    "auto_stop": {
+        "value": "true",
+        "path": "user_parameters/auto_stop"
+    },
+    "random_seed": {
+        "value": "0",
+        "path": "user_parameters/random_seed"
+    },
+    "output_folder": {
+        "value": "output",
+        "path": "save/folder"
+    },
+    "saving_folder": {
+        "value": "./start_and_stop_saving_files",
+        "path": "user_parameters/saving_folder"
+    }
+
+}

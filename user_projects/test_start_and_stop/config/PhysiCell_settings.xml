@@ -232,7 +232,7 @@
 
         <random_seed type="int" units="dimensionless">0</random_seed> 
 		<read_init type="bool">false</read_init>
-        <saving_folder type="string" units="">./start_and_stop_saving_files_2/</saving_folder>
+        <saving_folder type="string" units="">./start_and_stop_saving_files/</saving_folder>
 		
 		<start_stop type="bool" units="">true</start_stop>
 		<auto_stop type="bool" units="">true</auto_stop>
