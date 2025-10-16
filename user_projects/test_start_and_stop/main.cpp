@@ -72,6 +72,7 @@
 #include <cmath>
 #include <omp.h>
 #include <fstream>
+#include <sys/stat.h>
 
 #include "./core/PhysiCell.h"
 #include "./core/PhysiCell_utilities.h"
@@ -91,6 +92,9 @@ int main( int argc, char* argv[] )
 	T_total_start = clock();
 	T_reload_start = clock();
 
+	//Declaring the .xml file path
+	std::string xml_path_str;
+
 	// load and parse settings file(s)
 	std::ofstream file_times("output/interesting_times.txt", std::ios::app);
 	
@@ -98,12 +102,14 @@ int main( int argc, char* argv[] )
 	char copy_command [1024]; 
 	if( argc > 1 )
 	{
-		XML_status = load_PhysiCell_config_file( argv[1] ); 
+		std::string xml_path_str = argv[1];
+		XML_status = load_PhysiCell_config_file( xml_path_str ); 
 		sprintf( copy_command , "cp %s %s" , argv[1] , PhysiCell_settings.folder.c_str() ); 
 	}
 	else
 	{
-		XML_status = load_PhysiCell_config_file( "./config/PhysiCell_settings.xml" );
+		std::string xml_path_str = "./config/PhysiCell_settings.xml"; 
+		XML_status = load_PhysiCell_config_file( xml_path_str );
 		sprintf( copy_command , "cp ./config/PhysiCell_settings.xml %s" , PhysiCell_settings.folder.c_str() ); 
 		
 	}
@@ -127,6 +133,8 @@ int main( int argc, char* argv[] )
 	setup_microenvironment(); // modify this in the custom code 
 	// Getting the value of start_stop from user_parameters in the .xml setting file 
 	bool start_stop = parameters.bools("start_stop");
+	std::string saved_data_folder = parameters.strings("saving_folder");
+	std::cout << "Saved data folder is " << saved_data_folder << std::endl;
 
 	//User Parameters
 		//Additional parameters in the setting .xml file that will be used as condition to stop the simulation
@@ -143,19 +151,20 @@ int main( int argc, char* argv[] )
 	create_cell_types();
 
 	if( start_stop ){
-
+		mkdir(saved_data_folder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		parameters.bools("read_init") = true;
+		
 
 		// reset cells as they were in the previous simulation
 		setup_tissue();
-		reset_cell(cell_container->last_cell_cycle_time);
+		reset_cell( cell_container->last_cell_cycle_time, saved_data_folder, xml_path_str );
 
 		//exit(-1);
 
 
-		reset_global_parameters(cell_container);
+		reset_global_parameters( cell_container, saved_data_folder );
 
-		reset_microenv();
+		reset_microenv( saved_data_folder );
 
 
 	} else{
@@ -212,7 +221,8 @@ int main( int argc, char* argv[] )
 	
 	//put here reset randomness
 	if( start_stop ){
-		reset_randomness();
+		std::string saved_data_folder = parameters.strings("saving_folder");
+		reset_randomness( saved_data_folder );
 	}
 
 	//define auto stop variable
@@ -307,7 +317,7 @@ int main( int argc, char* argv[] )
 	
 	// Save all the files needed for Start & Stop at the right point.
 	T_save_start = clock();
-	save_cell_microenv_data(cell_container);
+	save_cell_microenv_data(cell_container, parameters.strings("saving_folder"));
 	std::cout << "cells data saved successfully" << std::endl;
 	T_save_stop = clock();
 

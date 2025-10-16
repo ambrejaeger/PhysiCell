@@ -5,9 +5,9 @@
 using namespace std; 
 
 // reset microenv
-void reset_microenv(){
+void reset_microenv( std::string saved_files_folder ){
 		
-	string filename = "start_and_stop_saving_files/microenv_data.txt";
+	string filename = saved_files_folder + "microenv_data.txt";
 
     // Open the file for input
     ifstream input_file(filename);
@@ -27,16 +27,16 @@ void reset_microenv(){
 }
 
 // Function to save cell data
-void save_cell_microenv_data(Cell_Container* cell_container)
+void save_cell_microenv_data(Cell_Container* cell_container, std::string saved_files_folder )
 {
 	
 	// decide if restart from a previous point or from the beginning
-	string filename_cells = "start_and_stop_saving_files/cell_data.txt";
-	string filename_bool = "start_and_stop_saving_files/bool_data.txt";
-	string filename_microenv = "start_and_stop_saving_files/microenv_data.txt";
-	string cell_pos_filename = "start_and_stop_saving_files/initial.tsv";
-	string global_param_filename = "start_and_stop_saving_files/global_param.txt";
-	string random_counters_filename = "start_and_stop_saving_files/random_counters.txt";
+	string filename_cells = saved_files_folder + "cell_data.txt";
+	string filename_bool = saved_files_folder + "bool_data.txt";
+	string filename_microenv = saved_files_folder + "microenv_data.txt";
+	string cell_pos_filename = saved_files_folder + "initial.tsv";
+	string global_param_filename = saved_files_folder + "global_param.txt";
+	string random_counters_filename = saved_files_folder + "random_counters.txt";
 
 	// Open the files in write mode
 	ofstream file_cells(filename_cells);
@@ -171,12 +171,12 @@ void save_cell_microenv_data(Cell_Container* cell_container)
 using namespace std;
 
 
-void reset_cell(double last_cell_cycle_time)
+void reset_cell(double last_cell_cycle_time, std::string saved_files_folder, std::string xml_path_str )
 {
 
 	// Specify the path to the input files
-	std::string input_file_cells_path = "start_and_stop_saving_files/cell_data.txt";
-	std::string input_file_bool_path = "start_and_stop_saving_files/bool_data.txt";
+	std::string input_file_cells_path = saved_files_folder + "cell_data.txt";
+	std::string input_file_bool_path = saved_files_folder + "bool_data.txt";
 
 	// Open the files in input mode using std::ifstream
 	std::ifstream input_file_cells(input_file_cells_path);
@@ -300,14 +300,16 @@ void reset_cell(double last_cell_cycle_time)
 			std::string current_bnd_filename;
 			std::string current_cfg_filename;
 
+			const char* xml_path = xml_path_str.c_str();
+
 			// load and parse settings file(s)
 			pugi::xml_document physicell_xml;
 			pugi::xml_node node;
-			pugi::xml_parse_result result = physicell_xml.load_file( "./config/PhysiCell_settings.xml"  );
+			pugi::xml_parse_result result = physicell_xml.load_file( xml_path );
 
 			if( result.status != pugi::xml_parse_status::status_ok )
 			{
-				std::cout << "Error loading " << "./config/PhysiCell_settings.xml" << "!" << std::endl; 
+				std::cout << "Error loading " << xml_path_str << "!" << std::endl; 
 			}
 
 			// navigate to the desired value
@@ -389,9 +391,9 @@ void reset_cell(double last_cell_cycle_time)
 
     }
 
-	void reset_global_parameters(Cell_Container* cell_container)
+	void reset_global_parameters(Cell_Container* cell_container, std::string saved_files_folder)
 	{
-	string global_param_filename = "start_and_stop_saving_files/global_param.txt";
+	string global_param_filename = saved_files_folder + "global_param.txt";
 
 	ifstream global_param_file(global_param_filename);
 
@@ -469,10 +471,10 @@ void reset_cell(double last_cell_cycle_time)
 	return;
 	}
 
-	void reset_randomness()
+	void reset_randomness(std::string saved_files_folder)
 	{
 
-	string random_counters_filename = "start_and_stop_saving_files/random_counters.txt";
+	string random_counters_filename = saved_files_folder + "random_counters.txt";
 
 	ifstream random_counters_file(random_counters_filename);
 
