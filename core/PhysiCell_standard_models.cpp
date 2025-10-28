@@ -69,6 +69,9 @@
 #include "PhysiCell_cell.h" 
 #include "../modules/PhysiCell_pathology.h"
 
+#include <stdexcept>
+#include <algorithm>
+
 namespace PhysiCell{
 	
 bool PhysiCell_standard_models_initialized = false; 
@@ -1201,6 +1204,20 @@ void standard_cell_cell_interactions( Cell* pCell, Phenotype& phenotype, double 
 	for( int n=0; n < pCell->state.neighbors.size(); n++ )
 	{
 		pTarget = pCell->state.neighbors[n]; 
+
+		auto SearchResult = std::find( all_cells->begin(), all_cells->end(),pTarget );  		
+
+		if( SearchResult == all_cells->end() )
+		{
+			std::cout << "This is not okay at all I fear 4" << std::endl;
+			
+			int s = pCell -> state.neighbors.size(); 
+			// copy last entry to current position 
+			pCell -> state.neighbors[n] = pCell -> state.neighbors[s-1]; 
+			// shrink by one 
+			pCell -> state.neighbors.pop_back(); 
+			continue;
+		}
 		type = pTarget->type; 
 		type_name = pTarget->type_name; 
 		
@@ -1485,6 +1502,22 @@ void dynamic_spring_attachments( Cell* pCell , Phenotype& phenotype, double dt )
     while( done == false && j < pCell->state.neighbors.size() )
     {
         Cell* pTest = pCell->state.neighbors[j]; 
+
+		auto SearchResult = std::find( all_cells->begin(), all_cells->end(),pTest );  		
+
+		if( SearchResult == all_cells->end() )
+		{
+			std::cout << "This is not okay at all I fear 3" << std::endl;
+			int n = pCell -> state.neighbors.size(); 
+			// copy last entry to current position 
+			pCell -> state.neighbors[j] = pCell -> state.neighbors[n-1]; 
+			// shrink by one 
+			pCell -> state.neighbors.pop_back(); 
+			j++;
+			continue;
+		
+		}
+
         if( pTest->state.spring_attachments.size() < pTest->phenotype.mechanics.maximum_number_of_attachments )
         {
             // std::string search_string = "adhesive affinity to " + pTest->type_name; 
