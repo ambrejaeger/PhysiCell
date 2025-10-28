@@ -127,7 +127,8 @@ double total_live_cell_count();
 double total_dead_cell_count();
 
 // function to auto stop the simulation
-bool auto_stop_resistance(int alive_cells, int resistant_cells);
+bool auto_stop_resistance(int alive_cells, int resistant_cells);    
+bool auto_stop_epi_size(std::vector<double> vector_epi_pos, double epi_max_size);
 bool auto_stop_alive(int alive_cells);
 int save_resistant_cells(std::ofstream& file_resistant);
 bool auto_stop();

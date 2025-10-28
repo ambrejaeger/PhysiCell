@@ -123,6 +123,12 @@ void create_cell_types( void )
 	*/
 
 	setup_signal_behavior_dictionaries(); 	
+	
+	/*
+       Cell rule definitions 
+	*/
+
+	setup_cell_rules(); 
 
 	/* 
 	   Put any modifications to individual cell definitions here. 
@@ -133,12 +139,7 @@ void create_cell_types( void )
 	cell_defaults.functions.update_phenotype = phenotype_function; 
 	cell_defaults.functions.custom_cell_rule = custom_function; 
 	cell_defaults.functions.contact_function = contact_function; 
-
-	Cell_Definition* pCD = find_cell_definition( "cancer cell"); 
-	pCD->functions.update_phenotype = tumor_cell_phenotype_with_oncoprotein; 
-
-	pCD->parameters.o2_proliferation_saturation = 38; 
-	pCD->parameters.o2_reference = 38; 
+ 
 
 	/*
 	   This builds the map of cell definitions and summarizes the setup. 
@@ -204,119 +205,6 @@ void setup_tissue( void )
 	}
 	std::cout << std::endl; 
 
-	// custom placement 
-
-	Cell_Definition* pCD = find_cell_definition( "cancer cell"); 
-	double cell_radius = pCD->phenotype.geometry.radius; 
-	double cell_spacing = 0.95 * 2.0 * cell_radius; 
-	
-	double tumor_radius = parameters.doubles( "tumor_radius" ); // 250.0; 
-	
-	// Parameter<double> temp; 
-	
-	int i = parameters.doubles.find_index( "tumor_radius" ); 
-	
-	Cell* pCell = NULL; 
-	
-	double x = 0.0; 
-	double x_outer = tumor_radius; 
-	double y = 0.0; 
-	
-	double p_mean = parameters.doubles( "oncoprotein_mean" ); 
-	double p_sd = parameters.doubles( "oncoprotein_sd" ); 
-	double p_min = parameters.doubles( "oncoprotein_min" ); 
-	double p_max = parameters.doubles( "oncoprotein_max" ); 
-	
-	int n = 0; 
-	while( y < tumor_radius )
-	{
-		x = 0.0; 
-		if( n % 2 == 1 )
-		{ x = 0.5*cell_spacing; }
-		x_outer = sqrt( tumor_radius*tumor_radius - y*y ); 
-		
-		while( x < x_outer )
-		{
-			pCell = create_cell( *pCD ); // tumor cell 
-			pCell->assign_position( x , y , 0.0 );
-			double p = NormalRandom( p_mean, p_sd );
-			if( p < p_min )
-			{ p = p_min; }
-			if( p > p_max )
-			{ p = p_max; }
-			set_single_behavior( pCell, "custom:oncoprotein" , p ); 
-			
-			if( fabs( y ) > 0.01 )
-			{
-				pCell = create_cell(*pCD); // tumor cell 
-				pCell->assign_position( x , -y , 0.0 );
-				double p = NormalRandom( p_mean, p_sd );
-				if( p < p_min )
-				{ p = p_min; }
-				if( p > p_max )
-				{ p = p_max; }
-				set_single_behavior( pCell, "custom:oncoprotein" , p ); 
-			}
-			
-			if( fabs( x ) > 0.01 )
-			{ 
-				pCell = create_cell(*pCD); // tumor cell 
-				pCell->assign_position( -x , y , 0.0 );
-				double p = NormalRandom( p_mean, p_sd );
-				if( p < p_min )
-				{ p = p_min; }
-				if( p > p_max )
-				{ p = p_max; }
-				set_single_behavior( pCell, "custom:oncoprotein" , p ); 
-		
-				if( fabs( y ) > 0.01 )
-				{
-					pCell = create_cell(*pCD); // tumor cell 
-					pCell->assign_position( -x , -y , 0.0 );
-					double p = NormalRandom( p_mean, p_sd );
-					if( p < p_min )
-					{ p = p_min; }
-					if( p > p_max )
-					{ p = p_max; }
-					set_single_behavior( pCell, "custom:oncoprotein" , p ); 
-
-				}
-			}
-			x += cell_spacing; 
-			
-		}
-		
-		y += cell_spacing * sqrt(3.0)/2.0; 
-		n++; 
-	}
-	
-	double sum = 0.0; 
-	double min = 9e9; 
-	double max = -9e9; 
-	for( int i=0; i < all_cells->size() ; i++ )
-	{
-		double r = get_single_signal( (*all_cells)[i] , "custom:oncoprotein" ); 
-		sum += r;
-		if( r < min )
-		{ min = r; } 
-		if( r > max )
-		{ max = r; }
-	}
-	double mean = sum / ( all_cells->size() + 1e-15 ); 
-	// compute standard deviation 
-	sum = 0.0; 
-	for( int i=0; i < all_cells->size(); i++ )
-	{
-		double r = get_single_signal( (*all_cells)[i] , "custom:oncoprotein" ); 
-		sum +=  ( r - mean )*( r - mean ); 
-	}
-	double standard_deviation = sqrt( sum / ( all_cells->size() - 1.0 + 1e-15 ) ); 
-	
-	std::cout << std::endl << "Oncoprotein summary: " << std::endl
-			  << "===================" << std::endl; 
-	std::cout << "mean: " << mean << std::endl; 
-	std::cout << "standard deviation: " << standard_deviation << std::endl; 
-	std::cout << "[min max]: [" << min << " " << max << "]" << std::endl << std::endl; 	
 	
 	// load cells from your CSV file (if enabled)
 	load_cells_from_pugixml(); 	
@@ -586,21 +474,22 @@ using namespace std;
 
 vector<double> vector_alives;
 
-bool auto_stop_resistance(int alive_cells, int resistant_cells) {
-    // Define stable states and nodes as vectors instead of unordered_sets
+bool auto_stop_epi_size(vector<double> vector_epi_pos, double epi_max_size) {
+    //concatenate the number of alive cells to the vector
+	double epi_average_size = accumulate(vector_epi_pos.begin(), vector_epi_pos.end(), 0);
+	epi_average_size /= vector_epi_pos.size();
 
-	vector_alives.push_back(alive_cells);
-	std::cout << "Steps: " << vector_alives.size() << std::endl;
+	std::cout << "Epithelium thickness: " << epi_average_size << std::endl;
 
-    double threshold = 0.8;
-    double percentage_of_resistant = static_cast<double>(resistant_cells) / alive_cells;
-	std::cout << "Number of resistant: " << resistant_cells << std::endl;	
-
-    bool stop;
 	bool condition = false;
-	if (vector_alives.size() >= 4){
-	condition = percentage_of_resistant >= threshold;
+	// compute the derivative only for the last three steps
+	if (epi_average_size >= epi_max_size) {
+		condition = true;
+	} else {
+		condition = false;
 	}
+
+	bool stop;
 
     if (condition) {
         stop = true;

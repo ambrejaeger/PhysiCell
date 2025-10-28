@@ -73,6 +73,8 @@
 #include <omp.h>
 #include <fstream>
 #include <sys/stat.h>
+#include <functional>
+#include <algorithm>
 
 #include "./core/PhysiCell.h"
 #include "./core/PhysiCell_utilities.h"
@@ -102,13 +104,14 @@ int main( int argc, char* argv[] )
 	char copy_command [1024]; 
 	if( argc > 1 )
 	{
-		std::string xml_path_str = argv[1];
-		XML_status = load_PhysiCell_config_file( xml_path_str ); 
+		xml_path_str = argv[1];
+		std::cout << argv[1] << std::endl;
+		XML_status = load_PhysiCell_config_file( argv[1] ); 
 		sprintf( copy_command , "cp %s %s" , argv[1] , PhysiCell_settings.folder.c_str() ); 
 	}
 	else
 	{
-		std::string xml_path_str = "./config/PhysiCell_settings.xml"; 
+		xml_path_str = "./config/PhysiCell_settings.xml"; 
 		XML_status = load_PhysiCell_config_file( xml_path_str );
 		sprintf( copy_command , "cp ./config/PhysiCell_settings.xml %s" , PhysiCell_settings.folder.c_str() ); 
 		
@@ -194,7 +197,7 @@ int main( int argc, char* argv[] )
 
 	// for simplicity, set a pathology coloring function 
 	
-	std::vector<std::string> (*cell_coloring_function)(Cell*) = heterogeneity_coloring_function; 
+	std::vector<std::string> (*cell_coloring_function)(Cell*) = my_coloring_function; 
 	
 	sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
 	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
@@ -227,6 +230,7 @@ int main( int argc, char* argv[] )
 
 	//define auto stop variable
 	bool stop = false;
+	
 
 	T_main_start = clock();
 	
@@ -257,11 +261,25 @@ int main( int argc, char* argv[] )
 				if(parameters.bools("auto_stop")){
 
 					int alive = total_live_cell_count();
+					if(parameters.bools("auto_stop")){
+						size_t n = std::min((*all_cells).size(), size_t(100));
+						std::vector<double> y_positions;
+						y_positions.reserve((*all_cells).size());
 
-					//auto stop condition (alive)
-					stop = auto_stop_alive(alive);
-					if (stop){
-						std::cout << "auto stop alive condition activated, simulation interrupted." << std::endl;
+						//auto stop condition (alive)
+						for (Cell *cell : *all_cells){
+							y_positions.push_back(cell->position[1]);
+						}
+
+						// Partially sort to get top 100 largest elements
+						std::partial_sort(y_positions.begin(), y_positions.begin() + n, y_positions.end(), std::greater<double>());
+						
+						std::vector<double> vector_epi_size = std::vector<double>(y_positions.begin(), y_positions.begin() + n);
+						stop = auto_stop_epi_size(vector_epi_size, parameters.doubles("epi_max_size"));
+
+						if (stop){
+							std::cout << "auto stop epithelium size condition activated, simulation interrupted." << std::endl;
+						}
 					}
 				}
 			}
