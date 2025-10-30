@@ -162,50 +162,78 @@ void setup_microenvironment( void )
 
 void setup_tissue( void )
 {
-	double Xmin = microenvironment.mesh.bounding_box[0]; 
-	double Ymin = microenvironment.mesh.bounding_box[1]; 
-	double Zmin = microenvironment.mesh.bounding_box[2]; 
-
-	double Xmax = microenvironment.mesh.bounding_box[3]; 
-	double Ymax = microenvironment.mesh.bounding_box[4]; 
-	double Zmax = microenvironment.mesh.bounding_box[5]; 
-	
-	if( default_microenvironment_options.simulate_2D == true )
+	std::vector<std::vector<double>> positions;
+	//Check first if cells are initialized as to end of other simulation
+	if ( parameters.bools("read_init") )
 	{
-		Zmin = 0.0; 
-		Zmax = 0.0; 
-	}
-	
-	double Xrange = Xmax - Xmin; 
-	double Yrange = Ymax - Ymin; 
-	double Zrange = Zmax - Zmin; 
-	
-	// create some of each type of cell 
-	
-	Cell* pC;
-	
-	for( int k=0; k < cell_definitions_by_index.size() ; k++ )
-	{
-		Cell_Definition* pCD = cell_definitions_by_index[k]; 
-		std::cout << "Placing cells of type " << pCD->name << " ... " << std::endl; 
-		for( int n = 0 ; n < parameters.ints("number_of_cells") ; n++ )
+		std::string csv_fname = parameters.strings("init_cells_filename");
+		positions = read_cells_positions(csv_fname, '\t', true);
+		if (positions.empty()) 
 		{
-			std::vector<double> position = {0,0,0}; 
-			position[0] = Xmin + UniformRandom()*Xrange; 
-			position[1] = Ymin + UniformRandom()*Yrange; 
-			position[2] = Zmin + UniformRandom()*Zrange; 
-			
-			pC = create_cell( *pCD ); 
-			pC->assign_position( position );
+			std::cout << "Unproper initialization from " << csv_fname << std::endl;
+			return;
+		}
+		//Creating cells at position from init.tsv or random positions
+		Cell* pC; 
+		for (int i = 0; i < positions.size(); i++)
+		{
+
+			pC = create_cell(get_cell_definition("default"));
+			pC->assign_position(positions[i]);
+		}
+
+		std::cout << positions.size() << " cells positioned from previous simulation" << std::endl;
+		return; 
+	}
+	else
+	{
+		//Check if cells have to be initialized by csv
+		bool loaded = load_cells_from_pugixml();
+		if (loaded) 
+		{ 
+			std::cout << "Cells loaded from .csv" << std::endl;
+			return; 
+		}
+		else
+		{
+			double Xmin = microenvironment.mesh.bounding_box[0]; 
+			double Ymin = microenvironment.mesh.bounding_box[1]; 
+			double Zmin = microenvironment.mesh.bounding_box[2]; 
+
+			double Xmax = microenvironment.mesh.bounding_box[3]; 
+			double Ymax = microenvironment.mesh.bounding_box[4]; 
+			double Zmax = microenvironment.mesh.bounding_box[5]; 
+		
+			if( default_microenvironment_options.simulate_2D == true )
+			{
+				Zmin = 0.0; 
+				Zmax = 0.0; 
+			}
+		
+			double Xrange = Xmax - Xmin; 
+			double Yrange = Ymax - Ymin; 
+			double Zrange = Zmax - Zmin; 
+		
+			// create some of each type of cell 
+			Cell* pC;
+
+			for( int k=0; k < cell_definitions_by_index.size() ; k++ )
+			{
+				Cell_Definition* pCD = cell_definitions_by_index[k];  
+				for( int n = 0 ; n < parameters.ints("number_of_cells") ; n++ )
+				{
+					std::vector<double> position = {0,0,0}; 
+					position[0] = Xmin + UniformRandom()*Xrange; 
+					position[1] = Ymin + UniformRandom()*Yrange; 
+					position[2] = Zmin + UniformRandom()*Zrange; 
+					
+					pC = create_cell( *pCD ); 
+					pC->assign_position( position );
+					
+				}
+			}
 		}
 	}
-	std::cout << std::endl; 
-
-	
-	// load cells from your CSV file (if enabled)
-	load_cells_from_pugixml(); 	
-	
-	return; 
 }
 
 std::vector<std::string> my_coloring_function( Cell* pCell )
