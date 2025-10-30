@@ -75,6 +75,7 @@
 #include <sys/stat.h>
 #include <functional>
 #include <algorithm>
+#include <deque>
 
 #include "./core/PhysiCell.h"
 #include "./core/PhysiCell_utilities.h"
@@ -114,11 +115,11 @@ int main( int argc, char* argv[] )
 		xml_path_str = "./config/PhysiCell_settings.xml"; 
 		XML_status = load_PhysiCell_config_file( xml_path_str );
 		sprintf( copy_command , "cp ./config/PhysiCell_settings.xml %s" , PhysiCell_settings.folder.c_str() ); 
-		
 	}
 	if( !XML_status )
-	{ exit(-1); }
-	
+
+		{ exit(-1); }
+
 	// copy config file to output directry 
 	system( copy_command ); 
 	
@@ -134,7 +135,8 @@ int main( int argc, char* argv[] )
 	/* Microenvironment setup */ 
 	
 	setup_microenvironment(); // modify this in the custom code 
-	// Getting the value of start_stop from user_parameters in the .xml setting file 
+	
+	// Getting the value of start_stop from user_parameters in the .xml setting file
 	bool start_stop = parameters.bools("start_stop");
 	std::string saved_data_folder = parameters.strings("saving_folder");
 	std::cout << "Saved data folder is " << saved_data_folder << std::endl;
@@ -149,15 +151,12 @@ int main( int argc, char* argv[] )
 	// set mechanics voxel size, and match the data structure to BioFVM
 	double mechanics_voxel_size = 30; 
 	Cell_Container* cell_container = create_cell_container_for_microenvironment( microenvironment, mechanics_voxel_size );
-	
+
 	/* Users typically start modifying here. START USERMODS */ 
 	create_cell_types();
 
 	if( start_stop ){
-		mkdir(saved_data_folder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		parameters.bools("read_init") = true;
-		
-
 		// reset cells as they were in the previous simulation
 		setup_tissue();
 		reset_cell( cell_container->last_cell_cycle_time, saved_data_folder, xml_path_str );
@@ -223,13 +222,19 @@ int main( int argc, char* argv[] )
 	}
 	
 	//put here reset randomness
-	if( start_stop ){
+	if( start_stop )
+	{
 		std::string saved_data_folder = parameters.strings("saving_folder");
 		reset_randomness( saved_data_folder );
+	}
+	if (parameters.bools("auto_stop"))
+	{
+		mkdir(saved_data_folder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	}
 
 	//define auto stop variable
 	bool stop = false;
+	std::deque<double> deque_epi_average_size;
 	
 
 	T_main_start = clock();
@@ -256,36 +261,43 @@ int main( int argc, char* argv[] )
 					save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , PhysiCell_globals.current_time ); 
 				
 				
-				// INSERT HERE YOUR AUTO STOP FUNCTION
-
-				if(parameters.bools("auto_stop")){
-
-					int alive = total_live_cell_count();
+					// INSERT HERE YOUR AUTO STOP FUNCTION
+					// This test is happening only at full save saving time perhaps not enough sampling
 					if(parameters.bools("auto_stop")){
-						size_t n = std::min((*all_cells).size(), size_t(100));
-						std::vector<double> y_positions;
-						y_positions.reserve((*all_cells).size());
 
-						//auto stop condition (alive)
-						for (Cell *cell : *all_cells){
-							y_positions.push_back(cell->position[1]);
-						}
+						int alive = total_live_cell_count();
+						if(parameters.bools("auto_stop")){
+							size_t n = std::min((*all_cells).size(), size_t(100));
+							std::vector<double> y_positions;
+							y_positions.reserve((*all_cells).size());
 
-						// Partially sort to get top 100 largest elements
-						std::partial_sort(y_positions.begin(), y_positions.begin() + n, y_positions.end(), std::greater<double>());
-						
-						std::vector<double> vector_epi_size = std::vector<double>(y_positions.begin(), y_positions.begin() + n);
-						stop = auto_stop_epi_size(vector_epi_size, parameters.doubles("epi_max_size"));
+							//auto stop condition (alive)
+							for (Cell *cell : *all_cells){
+								y_positions.push_back(cell->position[1]);
+							}
 
-						if (stop){
-							std::cout << "auto stop epithelium size condition activated, simulation interrupted." << std::endl;
+							// Partially sort to get top 100 largest elements
+							std::partial_sort(y_positions.begin(), y_positions.begin() + n, y_positions.end(), std::greater<double>());
+							
+							std::vector<double> vector_epi_size = std::vector<double>(y_positions.begin(), y_positions.begin() + n);
+							std::cout << "This is happenning" << std::endl;
+							stop = auto_stop_epi_size(vector_epi_size, parameters.doubles("epi_max_size"));
+							
+							if (stop){
+								std::cout << "auto stop epithelium size condition activated, simulation interrupted." << std::endl;
+							}
+							//auto stop condition stable epi size
+							stop = auto_stop_epi_stable(vector_epi_size, deque_epi_average_size, 10, 10);
+							if (stop){
+								std::cout << "auto stop stable epithelium size condition activated, simulation interrupted." << std::endl;
+							}
+							
 						}
 					}
 				}
-			}
 				PhysiCell_globals.full_output_index++; 
 				PhysiCell_globals.next_full_save_time += PhysiCell_settings.full_save_interval;
-		}
+			}
 			
 			// save SVG plot if it's time
 			if( PhysiCell_globals.current_time > PhysiCell_globals.next_SVG_save_time - 0.5 * diffusion_dt )

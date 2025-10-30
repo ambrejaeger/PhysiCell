@@ -2462,17 +2462,16 @@
     </cell_rules>
 
     <user_parameters>
-
-        <random_seed type="int" units="dimensionless">0</random_seed> 
 		<read_init type="bool">false</read_init>
         <saving_folder type="string" units="">./start_and_stop_saving_files/</saving_folder>
+        <init_cells_filename type="string" units="">./start_and_stop_saving_files/initial.tsv</init_cells_filename>
 		
-		<start_stop type="bool" units="">true</start_stop>
-		<auto_stop type="bool" units="">true</auto_stop>
-		<auto_stop_alive type="bool" units="">true</auto_stop_alive>
+		<start_stop type="bool" units="">false</start_stop>
+		<auto_stop type="bool" units="">false</auto_stop>
+		<auto_stop_alive type="bool" units="">false</auto_stop_alive>
+        <auto_stop_epi_size type="bool" units="">false</auto_stop_epi_size>
         <epi_max_size type="double" units="micron">300</epi_max_size>
 
         <number_of_cells type="int" units="none" description="initial number of cells (for each cell type)">0</number_of_cells>
-
     </user_parameters>
 </PhysiCell_settings>

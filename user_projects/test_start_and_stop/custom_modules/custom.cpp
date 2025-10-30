@@ -74,17 +74,13 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include<deque>
 
 #include "./custom.h"
 
 void create_cell_types( void )
 {
-	// set the random seed 
-	if (parameters.ints.find_index("random_seed") != -1)
-	{
-		SeedRandom(parameters.ints("random_seed"));
-	}
-	
+	// Setting the random seed in load_xml_file as of PhysiCell 1.14.0
 	/* 
 	   Put any modifications to default cell definition here if you 
 	   want to have "inherited" by other cell types. 
@@ -319,23 +315,40 @@ std::vector<std::vector<double>> read_cells_positions(std::string filename, char
 		// read an entire row and
 		// store it in a string variable 'line'
 		getline(fin, line);
+		if (line.empty()) {continue;}
 
 		// used for breaking words
 		std::stringstream s(line);
 
 		while (getline(s, word, delimiter))
 		{ 
-			row.push_back(word); 
+			row.push_back(word);
+		}
+		try
+		{
+			if (row.size() == 3)
+			{ 
+				std::vector<double> tempPoint(3,0.0);
+				tempPoint[0]= std::stof(row[0]);
+				tempPoint[1]= std::stof(row[1]);
+				tempPoint[2]= std::stof(row[2]);
+
+				positions.push_back(tempPoint);
+			}
+			else
+			{
+				throw std::runtime_error("");
+			}
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << "Improper formatting of " << filename << " - possible empty lines or invalid data. Error: " << e.what() << std::endl;
+			positions.clear();
+			return positions;
 		}
 
-		std::vector<double> tempPoint(3,0.0);
-		tempPoint[0]= std::stof(row[0]);
-		tempPoint[1]= std::stof(row[1]);
-		tempPoint[2]= std::stof(row[2]);
-
-		positions.push_back(tempPoint);
 	} while (!fin.eof());
-
+	
 	return positions;
 }
 
@@ -497,6 +510,44 @@ bool auto_stop_epi_size(vector<double> vector_epi_pos, double epi_max_size) {
         stop = false;
     }
     return stop;
+}
+
+
+bool auto_stop_epi_stable(vector<double> vector_epi_pos, deque<double> &deque_epi_average_size, double steps, double tolerance)
+{
+	double epi_average_size = accumulate(vector_epi_pos.begin(), vector_epi_pos.end(), 0);
+	epi_average_size /= vector_epi_pos.size();
+	deque_epi_average_size.push_back(epi_average_size);
+
+	bool stable = true;
+	if ( deque_epi_average_size.size() == steps )
+	{
+		for (int i = 1; i < deque_epi_average_size.size(); i++)
+		{
+			if (abs(deque_epi_average_size[i] - deque_epi_average_size[i-1]) > tolerance )
+			{
+				stable = false;
+			}
+		}
+	}
+	else
+	{
+		stable = false;
+	}
+
+	bool stop;
+
+    if (stable) {
+        stop = true;
+    } else {
+        stop = false;
+		if (deque_epi_average_size.size() >= steps)
+		{
+			deque_epi_average_size.pop_front();
+		}
+    }
+    return stop;
+
 }
 
 bool auto_stop_alive(int alive_cells) {

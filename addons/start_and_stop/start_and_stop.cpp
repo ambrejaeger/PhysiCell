@@ -119,9 +119,9 @@ void save_cell_microenv_data(Cell_Container* cell_container, std::string saved_f
 		file_cells << std::endl;
 
 		// Write the positions in the cell file
-		cell_pos_file << pCell->position[0] << "	";
-		cell_pos_file << pCell->position[1] << "	";
-		cell_pos_file << pCell->position[2];
+		cell_pos_file << pCell->position[0] << "\t";
+		cell_pos_file << pCell->position[1] << "\t";
+		cell_pos_file << pCell->position[2] << "\n";
 
 		
 		if (pCell->phenotype.intracellular){
@@ -159,6 +159,7 @@ void save_cell_microenv_data(Cell_Container* cell_container, std::string saved_f
 	//save random counters
 	save_counters(random_counters_file);
 
+
 	//close all the files
 	file_cells.close();
 	file_bool.close();
@@ -173,7 +174,7 @@ using namespace std;
 
 void reset_cell(double last_cell_cycle_time, std::string saved_files_folder, std::string xml_path_str )
 {
-
+	
 	// Specify the path to the input files
 	std::string input_file_cells_path = saved_files_folder + "cell_data.txt";
 	std::string input_file_bool_path = saved_files_folder + "bool_data.txt";
@@ -181,7 +182,7 @@ void reset_cell(double last_cell_cycle_time, std::string saved_files_folder, std
 	// Open the files in input mode using std::ifstream
 	std::ifstream input_file_cells(input_file_cells_path);
 	std::ifstream input_file_bool(input_file_bool_path);
-
+	
 
 
 	// Check if the files was opened successfully
@@ -200,7 +201,6 @@ void reset_cell(double last_cell_cycle_time, std::string saved_files_folder, std
 	for (int i = 0; i < (*all_cells).size(); i++)
 	{
 	  // Use the extraction operator >> to read data from the file line into the cell
-
 		// Access the current cell
 		Cell *pCell = (*all_cells)[i];
 		//read header

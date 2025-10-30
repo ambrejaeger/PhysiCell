@@ -1963,6 +1963,11 @@ Cell_Definition& get_cell_definition( std::string search_string )
 	{ 
 		return *(cell_definitions_by_name.find( search_string )->second ); 
 	} 
+
+	if ( search_string == "default")
+	{
+		return cell_defaults; 
+	}
 	
 	std::cout << "Warning! Cell_Definition for " << search_string << " not found!" << std::endl; 
 	std::cout << "Returning the default cell definition instead ... " << std::endl; 
