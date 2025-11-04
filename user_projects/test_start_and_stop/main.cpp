@@ -78,7 +78,9 @@
 #include <deque>
 
 #include "./core/PhysiCell.h"
+#include "./core/PhysiCell_cell.h"
 #include "./core/PhysiCell_utilities.h"
+#include "./modules/PhysiCell_settings.h"
 #include "./modules/PhysiCell_standard_modules.h" 
 
 // put custom code modules here! 
@@ -90,19 +92,29 @@ using namespace PhysiCell;
 
 int main( int argc, char* argv[] )
 {
+	//Declaring the .xml file path
+	std::string xml_path_str;
+	
+	bool XML_status = false; 
+	char copy_command [1024]; 
+	
+	if( argc > 3 )
+	{
+		create_pre_epithelium(argc, argv);
+		return 0;
+		
+	}
+	
+
+
 	// Keeping track of time when starting stopping and reloading the simulation
 	clock_t T_save_start, T_save_stop, T_reload_start, T_reload_stop, T_total_start, T_total_stop, T_main_start, T_main_stop;
 	T_total_start = clock();
 	T_reload_start = clock();
 
-	//Declaring the .xml file path
-	std::string xml_path_str;
+	std::ofstream file_times("output/interesting_times.txt", std::ios::app);
 
 	// load and parse settings file(s)
-	std::ofstream file_times("output/interesting_times.txt", std::ios::app);
-	
-	bool XML_status = false; 
-	char copy_command [1024]; 
 	if( argc > 1 )
 	{
 		xml_path_str = argv[1];
@@ -267,7 +279,7 @@ int main( int argc, char* argv[] )
 
 						int alive = total_live_cell_count();
 						if(parameters.bools("auto_stop")){
-							size_t n = std::min((*all_cells).size(), size_t(100));
+							size_t n = std::min((*all_cells).size(), size_t(50));
 							std::vector<double> y_positions;
 							y_positions.reserve((*all_cells).size());
 
@@ -280,16 +292,19 @@ int main( int argc, char* argv[] )
 							std::partial_sort(y_positions.begin(), y_positions.begin() + n, y_positions.end(), std::greater<double>());
 							
 							std::vector<double> vector_epi_size = std::vector<double>(y_positions.begin(), y_positions.begin() + n);
-							std::cout << "This is happenning" << std::endl;
 							stop = auto_stop_epi_size(vector_epi_size, parameters.doubles("epi_max_size"));
 							
 							if (stop){
 								std::cout << "auto stop epithelium size condition activated, simulation interrupted." << std::endl;
 							}
 							//auto stop condition stable epi size
-							stop = auto_stop_epi_stable(vector_epi_size, deque_epi_average_size, 10, 10);
-							if (stop){
-								std::cout << "auto stop stable epithelium size condition activated, simulation interrupted." << std::endl;
+							//Only check after a certain time
+							if (PhysiCell_globals.current_time > PhysiCell_settings.full_save_interval * 20)
+							{
+									stop = auto_stop_epi_stable(vector_epi_size, deque_epi_average_size, 10, 3);
+								if (stop){
+									std::cout << "auto stop stable epithelium size condition activated, simulation interrupted." << std::endl;
+								}
 							}
 							
 						}

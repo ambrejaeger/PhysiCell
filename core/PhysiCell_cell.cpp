@@ -1999,11 +1999,13 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 	Cell_Definition* pCD; 
 	
 	// if this is not "default" then create a new one 
-	if( std::strcmp( cd_node.attribute( "name" ).value() , "default" ) != 0 
-	    && std::strcmp( cd_node.attribute( "ID" ).value() , "0" ) != 0 )
-	{ pCD = new Cell_Definition; }
+	if( std::string(cd_node.attribute("name").value()) == "default" 
+    	&& std::string(cd_node.attribute("ID").value()) == "0" )
+	{ pCD = &cell_defaults;
+	std::cout << "This is happening for epi-basal" << std::endl; 
+		}
 	else
-	{ pCD = &cell_defaults; }
+	{ pCD = new Cell_Definition;  }
 	
 	// set the name 
 	pCD->name = cd_node.attribute("name").value();
@@ -2267,7 +2269,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 				node = node.next_sibling( "duration" ); 
 			}
 		}
-
+		
 		node = cd_node.child( "phenotype" );
 		node = node.child( "cycle" );
 		node = node.child( "standard_asymmetric_division" );
@@ -2318,7 +2320,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 	// otherwise, modify properties of that model 
 	
 	// set up the death models 
-//	int death_model_index = 0; 
+	//	int death_model_index = 0; 
 	node = cd_node.child( "phenotype" );
 	node = node.child( "death" ); 
 	if( node )
@@ -2776,7 +2778,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 				// std::cout << pMot->chemotaxis_direction << " * grad( " << actual_name << " )" << std::endl; 
 
 			}
-
+			
 			// automated advanced chemotaxis setup 
 			node_mot1 = node_mot.child( "advanced_chemotaxis" ); 
 			if( node_mot1 )
@@ -2793,49 +2795,60 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 					pCD->functions.update_migration_bias = advanced_chemotaxis_function;
 					if( xml_get_bool_value( node_mot1, "normalize_each_gradient" ) )
 					{ pCD->functions.update_migration_bias = advanced_chemotaxis_function_normalized; }
-				}	
+					
+					
+					// now process the chemotactic sensitivities 
 
-				// now process the chemotactic sensitivities 
-
-				pugi::xml_node node_cs = node_mot1.child( "chemotactic_sensitivities"); 
-				if( node_cs  )
-				{
-					node_cs = node_cs.child("chemotactic_sensitivity"); 
-
-					while( node_cs )
+					pugi::xml_node node_cs = node_mot1.child( "chemotactic_sensitivities"); 
+					if( node_cs  )
 					{
-						std::string substrate_name = node_cs.attribute( "substrate").value(); 
-						int index = microenvironment.find_density_index( substrate_name ); 
-						std::string actual_name = ""; 
-						if( index > -1 )
-						{ actual_name = microenvironment.density_names[ index ]; }
-			
-						// error check 
-						if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )						
+						node_cs = node_cs.child("chemotactic_sensitivity"); 
+
+						while( node_cs )
 						{
-							std::cout << "Warning: when processing advanced chemotaxis for " << pCD->name << " cells: " << std::endl 
-									  << "\tInvalid substrate " << substrate_name << " specified." << std::endl
-						          	  << "\tIgnoring this invalid substrate in the chemotaxis function .. " << std::endl; 
+							std::string substrate_name = node_cs.attribute( "substrate").value(); 
+							int index = microenvironment.find_density_index( substrate_name ); 
+							std::string actual_name = ""; 
+							if( index > -1 )
+							{ actual_name = microenvironment.density_names[ index ]; }
+				
+							// error check 
+							if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )						
+							{
+								std::cout << "Warning: when processing advanced chemotaxis for " << pCD->name << " cells: " << std::endl 
+										<< "\tInvalid substrate " << substrate_name << " specified." << std::endl
+										<< "\tIgnoring this invalid substrate in the chemotaxis function .. " << std::endl; 
+							}
+							else
+							{ 
+								if (index >= 0 && index < pCD->phenotype.motility.chemotactic_sensitivities.size())
+								{
+									pCD->phenotype.motility.chemotactic_sensitivities[index] = xml_get_my_double_value(node_cs);
+								}
+								else
+								{
+									std::cout << "Warning: when processing advanced chemotaxis for " << pCD->name << " cells: " << std::endl 
+											<< "\tInvalid index " << index << " for substrate " << substrate_name << std::endl
+											<< "\tVector size: " << pCD->phenotype.motility.chemotactic_sensitivities.size() << std::endl
+											<< "\tIgnoring this substrate in the chemotaxis function .. " << std::endl; 
+								}
+							}
+							node_cs = node_cs.next_sibling( "chemotactic_sensitivity" ); 
 						}
-						else
-						{ pCD->phenotype.motility.chemotactic_sensitivities[index] = xml_get_my_double_value(node_cs); }
-						node_cs = node_cs.next_sibling( "chemotactic_sensitivity" ); 
+
+					}
+					else
+					{
+						std::cout << "Warning: when processing motility for " << pCD->name << " cells: " << std::endl 
+									<< "\tAdvanced chemotaxis requries chemotactic_sensitivities." << std::endl
+									<< "\tBut you have none. Your migration bias will be the zero vector." << std::endl; 
 					}
 
 				}
-				else
-				{
-					std::cout << "Warning: when processing motility for " << pCD->name << " cells: " << std::endl 
-								<< "\tAdvanced chemotaxis requries chemotactic_sensitivities." << std::endl
-								<< "\tBut you have none. Your migration bias will be the zero vector." << std::endl; 
-				}
-
-			}
-
-
+			}	
 
 		}
-
+		std::cout << "This is occuring" << std::endl; 
 		// display summary for diagnostic help 
 		if( pCD->functions.update_migration_bias == chemotaxis_function && pMot->is_motile == true )
 		{
@@ -3270,7 +3283,7 @@ void initialize_cell_definitions_from_pugixml( pugi::xml_node root )
 	{
 		std::cout << "Processing " << node.attribute( "name" ).value() << " ... " << std::endl; 
 		
-		initialize_cell_definition_from_pugixml( node );	
+		initialize_cell_definition_from_pugixml( node );
 		build_cell_definitions_maps(); 
 		
 		node = node.next_sibling( "cell_definition" ); 

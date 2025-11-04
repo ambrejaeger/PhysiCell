@@ -631,3 +631,53 @@ bool auto_stop() {
     }
     return stop;
 }
+
+//Functions to create pre-epithelium
+void create_pre_epithelium( int argc, char* argv[] ) {
+		
+		std::string xml_path_str = argv[1];	
+		std::cout << "This runs 2" << std::endl;
+		read_PhysiCell_config_file( xml_path_str );
+		std::cout << "This runs 3" << std::endl;
+		PhysiCell_settings.read_from_pugixml();
+		std::cout << "This runs 4" << std::endl;
+		setup_microenvironment_from_XML( physicell_config_root );
+		std::cout << "This runs 5" << std::endl;
+		initialize_default_cell_definition();
+		initialize_cell_definitions_from_pugixml();
+
+		//Create nbr of .csv for epithelium initialization
+		int nbr = 1;
+		std::string func = "default";
+
+		if ( argc > 2 ) { nbr = std::stoi(argv[2]); }
+		if ( argc > 3 ) { func = argv[3]; }
+		create_epithelium_csv(nbr, func);
+
+		//char filename[1024];
+		//std::cout << "It also runs" << std::endl;
+		//sprintf( filename , "%s/initial" , PhysiCell_settings.folder.c_str() ); 
+		//std::cout << "It also runs 2" << std::endl;
+		//save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , PhysiCell_globals.current_time );
+		std::cout << "All functions completed successfully" << std::endl;
+
+		return ;
+}
+
+void create_epithelium_csv(int nbr, std::string func ) {
+
+	if (func == "custom") 
+	{
+		return;
+	}
+	else 
+	{ 
+		create_epithelium_csv(nbr);
+		return;
+	}
+}
+
+void create_epithelium_csv(int nbr) {
+	std::cout << "It runs" << std::endl;
+	return;
+}

@@ -134,3 +134,7 @@ bool auto_stop_alive(int alive_cells);
 int save_resistant_cells(std::ofstream& file_resistant);
 bool auto_stop();
 
+//Functions to create an pre-epithelium
+void create_pre_epithelium(int argc, char* argv[]);
+void create_epithelium_csv(int nbr, std::string func);
+void create_epithelium_csv(int nbr);
