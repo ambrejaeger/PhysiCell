@@ -96,11 +96,34 @@ int main( int argc, char* argv[] )
 	std::string xml_path_str;
 	
 	bool XML_status = false; 
-	char copy_command [1024]; 
+	char copy_command[1024]; 
 	
 	if( argc > 3 )
 	{
 		create_pre_epithelium(argc, argv);
+
+		sprintf( copy_command , "cp %s %s" , argv[1] , PhysiCell_settings.folder.c_str() );
+		system( copy_command );
+
+		char filename[1024];
+		sprintf( filename , "%s/initial" , PhysiCell_settings.folder.c_str() ); 
+
+		save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , 0.0 ); 
+		// save a quick SVG cross section through z = 0, after setting its 
+		// length bar to 200 microns 
+
+		PhysiCell_SVG_options.length_bar = 200; 
+
+		// for simplicity, set a pathology coloring function 
+		
+		std::vector<std::string> (*cell_coloring_function)(Cell*) = my_coloring_function; 
+		sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
+		SVG_plot( filename , microenvironment, 0.0 , 0.0 , cell_coloring_function );
+		
+		//sprintf( filename , "%s/legend.svg" , PhysiCell_settings.folder.c_str() ); 
+		//create_plot_legend( filename , cell_coloring_function ); 
+		//std::cout << "This is going on 4" << std::endl;
+
 		return 0;
 		
 	}

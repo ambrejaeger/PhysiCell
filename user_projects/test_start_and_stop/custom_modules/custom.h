@@ -138,3 +138,4 @@ bool auto_stop();
 void create_pre_epithelium(int argc, char* argv[]);
 void create_epithelium_csv(int nbr, std::string func);
 void create_epithelium_csv(int nbr);
+void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence);

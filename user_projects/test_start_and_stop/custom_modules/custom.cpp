@@ -70,13 +70,16 @@
 #include <fstream>
 #include <unordered_set>
 #include <cstdlib>
+#include <cmath>
 
 #include <sstream>
 #include <vector>
 #include <string>
-#include<deque>
+#include <deque>
+#include <unordered_set>
 
 #include "./custom.h"
+#include "../modules/PhysiCell_geometry.h"
 
 void create_cell_types( void )
 {
@@ -637,15 +640,23 @@ void create_pre_epithelium( int argc, char* argv[] ) {
 		
 		std::string xml_path_str = argv[1];	
 		std::cout << "This runs 2" << std::endl;
-		read_PhysiCell_config_file( xml_path_str );
+		load_PhysiCell_config_file( xml_path_str);
 		std::cout << "This runs 3" << std::endl;
-		PhysiCell_settings.read_from_pugixml();
-		std::cout << "This runs 4" << std::endl;
-		setup_microenvironment_from_XML( physicell_config_root );
-		std::cout << "This runs 5" << std::endl;
-		initialize_default_cell_definition();
-		initialize_cell_definitions_from_pugixml();
+		std::string time_units = "min"; 
 
+		/* Microenvironment setup */ 
+	
+		setup_microenvironment();
+		double mechanics_voxel_size = 30; 
+		Cell_Container* cell_container = create_cell_container_for_microenvironment( microenvironment, mechanics_voxel_size );
+
+		/* Users typically start modifying here. START USERMODS */ 
+		create_cell_types();
+
+		std::cout << "This runs 4" << std::endl;
+
+		std::vector<std::vector<double>> positions;
+	
 		//Create nbr of .csv for epithelium initialization
 		int nbr = 1;
 		std::string func = "default";
@@ -654,18 +665,13 @@ void create_pre_epithelium( int argc, char* argv[] ) {
 		if ( argc > 3 ) { func = argv[3]; }
 		create_epithelium_csv(nbr, func);
 
-		//char filename[1024];
-		//std::cout << "It also runs" << std::endl;
-		//sprintf( filename , "%s/initial" , PhysiCell_settings.folder.c_str() ); 
-		//std::cout << "It also runs 2" << std::endl;
-		//save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , PhysiCell_globals.current_time );
 		std::cout << "All functions completed successfully" << std::endl;
 
 		return ;
 }
 
 void create_epithelium_csv(int nbr, std::string func ) {
-
+	//add posibility to differentiate between 2D and 3D
 	if (func == "custom") 
 	{
 		return;
@@ -678,6 +684,81 @@ void create_epithelium_csv(int nbr, std::string func ) {
 }
 
 void create_epithelium_csv(int nbr) {
-	std::cout << "It runs" << std::endl;
+	//Function for 2D pre-epithelium creation
+
+	std::vector<std::string> epi_cell_types = {"epi_basal", "conjonctif", "membrane"};
+	
+	try{
+		for (auto type : epi_cell_types)
+		{
+			if (cell_definition_indices_by_name.find(type) == cell_definition_indices_by_name.end())
+			{
+				throw std::runtime_error("Missing cell type: " + type);
+			}
+		}
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	Cell_Definition *pCD_c = find_cell_definition("conjonctif");
+	Cell_Definition *pCD_e = find_cell_definition("epi_basal");
+	Cell_Definition *pCD_m = find_cell_definition("membrane");
+
+	double conjonctive_layer_thickness = 100;
+	double epi_basal_layer_thickness = pCD_e->phenotype.geometry.radius * 2;
+	double membrane_layer_thickness = pCD_m->phenotype.geometry.radius * 4;
+
+	//Get size of the microenvironment
+	double xmin = default_microenvironment_options.X_range[0];
+	double xmax = default_microenvironment_options.X_range[1];
+	double ymin = default_microenvironment_options.Y_range[0];
+	double ymax = default_microenvironment_options.Y_range[1];
+
+
+	//Creating conjonctive layer
+	std::vector<double> bounds_c = {xmin,ymin,xmax,ymin + conjonctive_layer_thickness};
+	random_fill_rectangle(bounds_c, pCD_c, 0.5);
+
+	//Creating membrane layer
+	std::vector<double> bounds_m = {xmin, ymin + conjonctive_layer_thickness, 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness, 0};
+	fill_rectangle(bounds_m, pCD_m);
+
+	//Creating epi_basal layer
+	std::vector<double> bounds_e = {xmin,ymin + conjonctive_layer_thickness + membrane_layer_thickness - (pCD_e->phenotype.geometry.radius * 0.5), 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness + epi_basal_layer_thickness,0};
+	fill_rectangle(bounds_e, pCD_e);
+	
 	return;
+}
+
+void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence) {
+	//confluence is the proportion of the microenvironment / part of the microenvironment surface occupied by cells
+
+	double cell_radius = pCD->phenotype.geometry.radius;
+	double cell_surface = cell_radius * cell_radius * M_PI;
+		
+	double Xrange = bounds[2] - bounds[0]; 
+	double Yrange = bounds[3] - bounds[1]; 
+
+	int number_of_cells;
+	double rectangle_surface = Xrange * Yrange;
+
+	number_of_cells = std::round(rectangle_surface / cell_surface * confluence);
+
+	// create some of each type of cell 
+	Cell* pC;
+
+	for( int k=0; k < number_of_cells ; k++ )
+	{ 
+		std::vector<double> position = {0,0,0}; 
+		position[0] = bounds[0] + UniformRandom()*Xrange; 
+		position[1] = bounds[1] + UniformRandom()*Yrange; 
+					
+		pC = create_cell( *pCD ); 
+		pC->assign_position( position );
+					
+	}
+
+	return; 
 }
