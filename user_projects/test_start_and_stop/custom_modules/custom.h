@@ -137,5 +137,6 @@ bool auto_stop();
 //Functions to create an pre-epithelium
 void create_pre_epithelium(int argc, char* argv[]);
 void create_epithelium_csv(int nbr, std::string func);
-void create_epithelium_csv(int nbr);
+void position_epithelium_cells(void);
 void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence);
+void save_cells_csv(std::string filename);

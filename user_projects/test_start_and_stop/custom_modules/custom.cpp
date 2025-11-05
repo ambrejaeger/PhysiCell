@@ -665,25 +665,25 @@ void create_pre_epithelium( int argc, char* argv[] ) {
 		if ( argc > 3 ) { func = argv[3]; }
 		create_epithelium_csv(nbr, func);
 
-		std::cout << "All functions completed successfully" << std::endl;
-
 		return ;
 }
 
 void create_epithelium_csv(int nbr, std::string func ) {
 	//add posibility to differentiate between 2D and 3D
-	if (func == "custom") 
-	{
-		return;
+	for (int i = 0; i < nbr; i++) {
+		if (func == "custom"){
+		
+		}
+		else { 
+			std::string filename = "cells_" + std::to_string(i) + ".csv";
+			position_epithelium_cells();
+			save_cells_csv(filename);
+		}
 	}
-	else 
-	{ 
-		create_epithelium_csv(nbr);
-		return;
-	}
+	return;
 }
 
-void create_epithelium_csv(int nbr) {
+void position_epithelium_cells() {
 	//Function for 2D pre-epithelium creation
 
 	std::vector<std::string> epi_cell_types = {"epi_basal", "conjonctif", "membrane"};
@@ -761,4 +761,30 @@ void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition 
 	}
 
 	return; 
+}
+
+void save_cells_csv(std::string filename) {
+
+	std::string full_path = PhysiCell_settings.folder + "/" + filename;
+    
+    // Create and open file
+    std::ofstream fileout(full_path);
+    
+    // Check if file opened successfully
+    if (!fileout.is_open()) {
+        std::cerr << "Error: Could not create file " << full_path << std::endl;
+        return;
+    }
+
+	// Write to file
+    fileout << "x,y,z,type,volume,cycle entry,custom:GFP,custom:sample" << std::endl;
+
+	for (auto cell : *all_cells) {
+		fileout << cell->position[0] << "," << cell->position[1] << "," << cell->position[2] << "," << cell->type_name << std::endl;
+	}
+
+	fileout.close();
+	std::cout << "Saving cells position at " << full_path << std::endl;
+
+	return;
 }

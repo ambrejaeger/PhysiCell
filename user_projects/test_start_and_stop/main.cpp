@@ -120,9 +120,9 @@ int main( int argc, char* argv[] )
 		sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
 		SVG_plot( filename , microenvironment, 0.0 , 0.0 , cell_coloring_function );
 		
-		//sprintf( filename , "%s/legend.svg" , PhysiCell_settings.folder.c_str() ); 
-		//create_plot_legend( filename , cell_coloring_function ); 
-		//std::cout << "This is going on 4" << std::endl;
+		sprintf( filename , "%s/legend.svg" , PhysiCell_settings.folder.c_str() ); 
+		create_plot_legend( filename , cell_coloring_function ); 
+
 
 		return 0;
 		
