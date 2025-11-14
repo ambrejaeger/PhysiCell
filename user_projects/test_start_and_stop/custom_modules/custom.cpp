@@ -71,7 +71,8 @@
 #include <unordered_set>
 #include <cstdlib>
 #include <cmath>
-
+#include <queue>
+#include <functional>
 #include <sstream>
 #include <vector>
 #include <string>
@@ -122,12 +123,13 @@ void create_cell_types( void )
 	*/
 
 	setup_signal_behavior_dictionaries(); 	
-	
+	std::cout << "This ran" << std::endl;
 	/*
        Cell rule definitions 
 	*/
 
 	setup_cell_rules(); 
+		std::cout << "This ran 2" << std::endl;
 
 	/* 
 	   Put any modifications to individual cell definitions here. 
@@ -727,7 +729,7 @@ void position_epithelium_cells() {
 
 	//Creating epi_basal layer
 	std::vector<double> bounds_e = {xmin,ymin + conjonctive_layer_thickness + membrane_layer_thickness - (pCD_e->phenotype.geometry.radius * 0.5), 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness + epi_basal_layer_thickness,0};
-	fill_rectangle(bounds_e, pCD_e);
+	fill_rectangle(bounds_e, pCD_e, 1.5);
 	
 	return;
 }
@@ -788,3 +790,140 @@ void save_cells_csv(std::string filename) {
 
 	return;
 }
+
+/*************************************/
+/*  DIVISION ORIENTATATION FUNCTIONS */
+/*************************************/
+
+double cell_neighbor_distance(Cell* pC1, Cell*pC2)
+{
+	return abs(sqrt(pow((pC1->position[0] - pC2->position[0]), 2) + pow((pC1->position[1] - pC2->position[1]), 2) + pow((pC1->position[2] - pC2->position[2]), 2)));
+}
+
+std::vector<Cell*> find_closest_neighbors(const std::vector<Cell*>& cells, Cell* pC) {
+		// Using priority queue approach
+		auto comp = [pC](Cell* pC1, Cell* pC2) {
+			return cell_neighbor_distance(pC1, pC) < cell_neighbor_distance(pC2, pC);
+		};
+		
+		std::priority_queue<Cell*, std::vector<Cell*>, decltype(comp)> pq(comp);
+		
+		for (Cell* c : cells) {
+			pq.push(c);
+			if (pq.size() > 3) {
+				pq.pop();
+			}
+		}
+		
+    std::vector<Cell*> result;
+    while (!pq.empty()) {
+        result.push_back(pq.top());
+        pq.pop();
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+//Used instead of UniformOnUnitSphere for cell_division_orientation
+std::vector<double> custom_division_orientation( Cell* pC)
+{
+	std::vector<double> orientation_vec;
+
+	if (pC->type_name == "epi_basal")
+	{
+		std::vector<Cell*> membrane_neighbors;
+		for (Cell* neighbor : pC->state.neighbors)
+		{
+			if ( neighbor->type_name == "membrane" )
+			{ 
+				membrane_neighbors.push_back(neighbor); 
+			}
+		}
+		/*std::cout << "There are " << membrane_neighbors.size() << " membrane neighbors." << std::endl;
+		std::cout << "Cell in x position: " << pC->position[0] << std::endl;
+		std::cout << "In x position: " ;
+		for ( int i = 0; i < membrane_neighbors.size(); i++)
+		{
+		std::cout << membrane_neighbors[i]->position[0] << ", ";
+		} 
+		std::cout << std::endl;
+		*/
+		if ( membrane_neighbors.size() > 2)
+		{
+			//TO TEST FOR 3D, doesn't occur in 3D in our configuration
+			find_closest_neighbors(membrane_neighbors, pC);
+			//std::cout << "This ran" << std::endl;
+			return UniformOnUnitSphere();
+		}
+		else if ( membrane_neighbors.size() == 2 )
+		{
+			//This appear to work
+			int a = UniformInt();
+			if ( a%2 == 0)
+			{
+				orientation_vec = {membrane_neighbors[0]->position[0] - membrane_neighbors[1]->position[0], membrane_neighbors[0]->position[1] - membrane_neighbors[1]->position[1], membrane_neighbors[0]->position[2] - membrane_neighbors[1]->position[2]};
+			}
+			else
+			{
+				orientation_vec = {membrane_neighbors[1]->position[0] - membrane_neighbors[0]->position[0], membrane_neighbors[1]->position[1] - membrane_neighbors[0]->position[1], membrane_neighbors[1]->position[2] - membrane_neighbors[0]->position[2]};
+			}
+			normalize(&orientation_vec);
+			//std::cout << "Orientation vec: " << orientation_vec[0] << "," << orientation_vec[1] << "," << orientation_vec[2] << std::endl;
+			//std::cout << "This ran" << std::endl;
+			return orientation_vec;
+		}
+		else if ( membrane_neighbors.size() == 1 )
+		{
+			std::vector<double> membrane_basal_vector = {membrane_neighbors[0]->position[0] - pC->position[0], membrane_neighbors[0]->position[1] - pC->position[1], membrane_neighbors[0]->position[2] - pC->position[2]};
+			// In 2D
+			if ( default_microenvironment_options.simulate_2D )
+			{ 
+				std::vector<double> vect_Z = {0,0,1};
+				int a = UniformInt();
+				if ( a%2 == 0)
+				{
+					orientation_vec = cross_product(membrane_basal_vector, vect_Z);
+				}
+				else
+				{
+					//not tested yet
+					orientation_vec = cross_product(vect_Z, membrane_basal_vector);
+				}
+				return orientation_vec;
+			}
+			//In 3D
+			else
+			{
+				//Any vector in the plane perpendicular to membrane_basal_vector will do
+				std::vector<double> rand_vec = UniformOnUnitSphere();
+				orientation_vec = cross_product(membrane_basal_vector, rand_vec);
+
+				return orientation_vec;
+			}
+		}
+		else
+		{
+			std::cout << "No membrane neighbor should this epi basal cell really divide ? " << std::endl;
+			return UniformOnUnitSphere();
+		}
+		//Look for for Cells Neighbors of type membrane
+		//if 2D, 
+			//if more than 2 membrane neighbours
+				//draw line going through 3 or 2 closest memebrane cells centers
+			//if one membrane neighbour 
+				//compute perpendicular axis to cell center neighbour center in xy plane
+		
+		//if 3D, 
+			//if 2 or more neighbour
+				//find plane from one segment and 1 point
+			//if 1 neighbour
+				// Find plane perpendicular to cell membrane cell center
+
+		
+	}
+	else
+	{
+		return UniformOnUnitSphere();
+	}
+}
+

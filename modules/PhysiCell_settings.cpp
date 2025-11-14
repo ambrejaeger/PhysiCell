@@ -257,9 +257,9 @@ void PhysiCell_Settings::read_from_pugixml( void )
 		settings = xml_get_bool_value(node_options, "legacy_random_points_on_sphere_in_divide");
 		if (settings)
 		{
-			std::cout << "setting legacy unif" << std::endl;
-			extern std::vector<double> (*cell_division_orientation)(void);
-			cell_division_orientation = LegacyRandomOnUnitSphere;
+			std::cout << "NOT setting legacy unif. Currently disabled" << std::endl;
+			//extern std::vector<double> (*cell_division_orientation)(void);
+			//cell_division_orientation = LegacyRandomOnUnitSphere;
 		}
 
 		settings = xml_get_bool_value(node_options, "disable_automated_spring_adhesions");

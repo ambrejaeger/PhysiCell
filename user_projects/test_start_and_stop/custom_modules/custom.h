@@ -67,6 +67,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <deque>
 
 #include "../core/PhysiCell.h"
 #include "../modules/PhysiCell_standard_modules.h" 
@@ -140,3 +141,9 @@ void create_epithelium_csv(int nbr, std::string func);
 void position_epithelium_cells(void);
 void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence);
 void save_cells_csv(std::string filename);
+
+//Functions for divisions orientation
+double cell_neighbor_distance(Cell* pC1, Cell*pC2);
+std::vector<Cell*> find_closest_neighbors(const std::vector<Cell*>& cells, Cell* pC); // Not tested yet
+
+std::vector<double> custom_division_orientation(Cell* pC);

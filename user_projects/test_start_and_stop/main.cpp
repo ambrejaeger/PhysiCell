@@ -384,10 +384,14 @@ int main( int argc, char* argv[] )
 	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
 	
 	// Save all the files needed for Start & Stop at the right point.
-	T_save_start = clock();
-	save_cell_microenv_data(cell_container, parameters.strings("saving_folder"));
-	std::cout << "cells data saved successfully" << std::endl;
-	T_save_stop = clock();
+	
+	if (parameters.bools("auto_stop")) 
+	{
+		T_save_start = clock();
+		save_cell_microenv_data(cell_container, parameters.strings("saving_folder"));
+		std::cout << "cells data saved successfully" << std::endl;
+		T_save_stop = clock();
+	}
 
 	// timer 
 	

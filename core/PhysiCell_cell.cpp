@@ -70,6 +70,7 @@
 #include "PhysiCell_utilities.h"
 #include "PhysiCell_constants.h"
 #include "../BioFVM/BioFVM_vector.h" 
+#include "../custom_modules/custom.h"
 
 #ifdef ADDON_PHYSIBOSS
 #include "../addons/PhysiBoSS/src/maboss_intracellular.h"
@@ -99,7 +100,12 @@ std::unordered_map<int,int> cell_definition_indices_by_type;
 
 // function pointer on how to choose cell orientation at division
 // in case you want the legacy method 
-std::vector<double> (*cell_division_orientation)(void) = UniformOnUnitSphere; // LegacyRandomOnUnitSphere; 
+std::vector<double> cell_division_orientation (void) 
+{ return UniformOnUnitSphere(); }
+
+
+std::vector<double> cell_division_orientation (Cell* pC)
+{ return custom_division_orientation(pC); }
 
 Cell* standard_instantiate_cell()
 { return new Cell; }
@@ -548,7 +554,7 @@ Cell* Cell::divide( )
 {
 	// phenotype.flagged_for_division = false; 
 	// phenotype.flagged_for_removal = false; 
-	
+		
 	// make sure ot remove adhesions 
 	remove_all_attached_cells(); 
 	remove_all_spring_attachments(); 
@@ -572,52 +578,29 @@ Cell* Cell::divide( )
 	child->copy_data( this );	
 	child->copy_function_pointers(this);
 	child->parameters = parameters;
-	
+
 	// evenly divide internalized substrates 
 	// if these are not actively tracked, they are zero anyway 
 	*internalized_substrates *= 0.5; 
 	*(child->internalized_substrates) = *internalized_substrates ; 
+
+	//First, modify the volume of the cell and child, this updates their radius as well
+	phenotype.volume.divide(); 
+	child->phenotype.volume.divide();
+	child->set_total_volume(child->phenotype.volume.total);
+	set_total_volume(phenotype.volume.total);
 	
-	// The following is already performed by create_cell(). JULY 2017 ***
-	// child->register_microenvironment( get_microenvironment() );
-	
-	// randomly place the new agent close to me, accounting for orientation and 
-	// polarity (if assigned)
-		
-	// May 30, 2020: 
-	// Set cell_division_orientation = LegacyRandomOnUnitSphere to 
-	// reproduce this code 
-	/*
-	double temp_angle = 6.28318530717959*UniformRandom();
-	double temp_phi = 3.1415926535897932384626433832795*UniformRandom();
-	
-	double radius= phenotype.geometry.radius;
-	std::vector<double> rand_vec (3, 0.0);
-	
-	rand_vec[0]= cos( temp_angle ) * sin( temp_phi );
-	rand_vec[1]= sin( temp_angle ) * sin( temp_phi );
-	rand_vec[2]= cos( temp_phi );
-	
+	//Then compute their position
+	std::vector<double> rand_vec = cell_division_orientation(this); 
 	rand_vec = rand_vec- phenotype.geometry.polarity*(rand_vec[0]*state.orientation[0]+ 
 		rand_vec[1]*state.orientation[1]+rand_vec[2]*state.orientation[2])*state.orientation;
-	
-	if( norm(rand_vec) < 1e-16 )
-	{
-		std::cout<<"************ERROR********************"<<std::endl;
-	}
-	normalize( &rand_vec ); 
-	rand_vec *= radius; // multiply direction times the displacement 
-	*/
-	
-	std::vector<double> rand_vec = cell_division_orientation(); 
-	rand_vec = rand_vec- phenotype.geometry.polarity*(rand_vec[0]*state.orientation[0]+ 
-		rand_vec[1]*state.orientation[1]+rand_vec[2]*state.orientation[2])*state.orientation;	
+	normalize( &rand_vec ); 	//11.25 : Why was it removed? I put it back
 	rand_vec *= phenotype.geometry.radius;
 
-	child->assign_position(position[0] + rand_vec[0],
-						   position[1] + rand_vec[1],
-						   position[2] + rand_vec[2]);
-						 
+	child->assign_position(position[0] + 0.5*rand_vec[0],
+						   position[1] + 0.5*rand_vec[1],
+						   position[2] + 0.5*rand_vec[2]);
+					 
 	//change my position to keep the center of mass intact 
 	// and then see if I need to update my voxel index
 	static double negative_one_half = -0.5; 
@@ -633,14 +616,8 @@ Cell* Cell::divide( )
 	}	
 	 
 	update_voxel_in_container();
-	phenotype.volume.divide(); 
-	child->phenotype.volume.divide();
-	child->set_total_volume(child->phenotype.volume.total);
-	set_total_volume(phenotype.volume.total);
 	
-	// child->set_phenotype( phenotype ); 
 	child->phenotype = phenotype; 
-
     if (child->phenotype.intracellular){
         child->phenotype.intracellular->start();
 		child->phenotype.intracellular->inherit(this);
@@ -1724,6 +1701,7 @@ void build_cell_definitions_maps( void )
 
 	cell_definitions_by_name_constructed = true; 
 	
+	std::cout << "This also ran to the end" << std::endl;
 	return;
 }
 
@@ -2000,9 +1978,8 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 	
 	// if this is not "default" then create a new one 
 	if( std::string(cd_node.attribute("name").value()) == "default" 
-    	&& std::string(cd_node.attribute("ID").value()) == "0" )
-	{ pCD = &cell_defaults;
-	std::cout << "This is happening for epi-basal" << std::endl; 
+    	|| std::string(cd_node.attribute("ID").value()) == "0" )
+	{ pCD = &cell_defaults; 
 		}
 	else
 	{ pCD = new Cell_Definition;  }
@@ -2701,191 +2678,203 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 	node = node.child( "motility" ); 
 	if( node )
 	{
-		Motility* pMot = &(pCD->phenotype.motility);
-		
-		pugi::xml_node node_mot = node.child( "speed" );
-		if( node_mot )
-		{ pMot->migration_speed = xml_get_my_double_value( node_mot ); }	
-
-		node_mot = node.child( "migration_bias" );
-		if( node_mot )
-		{ pMot->migration_bias = xml_get_my_double_value( node_mot ); }	
-
-		node_mot = node.child( "persistence_time" );
-		if( node_mot )
-		{ pMot->persistence_time = xml_get_my_double_value( node_mot ); }	
-
-		node_mot = node.child( "options" );
-		if( node_mot )
+		pugi::xml_node node_mot = node.child("option");
+		if (node_mot) 
 		{
-			// enable motility? 
-			pugi::xml_node node_mot1 = node_mot.child( "enabled" ); 
-			if( node_mot1 )
+			bool enabled = xml_get_my_bool_value(node_mot.child("enabled"));
+			if (enabled) 
 			{
-				pMot->is_motile = xml_get_my_bool_value( node_mot1 ); 
-			}
-			
-			// restrict to 2D? 
-			node_mot1 = node_mot.child( "use_2D" ); 
-			if( node_mot1 )
-			{
-				pMot->restrict_to_2D = xml_get_my_bool_value( node_mot1 ); 
-			}
-			
-			if( default_microenvironment_options.simulate_2D && pMot->restrict_to_2D == false )
-			{
-				std::cout << "Note: Overriding to set cell motility for " << pCD->name << " to 2D based on " 
-						  << "microenvironment domain settings ... " << std::endl; 				
-				pMot->restrict_to_2D = true; 
-			}
-			
-			// automated chemotaxis setup 
-			node_mot1 = node_mot.child( "chemotaxis" ); 
-			if( node_mot1 )
-			{
-				// enabled? if so, set the standard chemotaxis function
-				if( xml_get_bool_value( node_mot1, "enabled" ) )
-				{
-					pCD->functions.update_migration_bias = chemotaxis_function;
-				}	
+				Motility* pMot = &(pCD->phenotype.motility);
 				
-				// search for the right chemo index 
-				
-				std::string substrate_name = xml_get_string_value( node_mot1 , "substrate" ); 
-				pMot->chemotaxis_index = microenvironment.find_density_index( substrate_name ); 
-				if( pMot->chemotaxis_index < 0)
-				{
-					std::cout << __FUNCTION__ << ": Error: parsing phenotype:motility:options:chemotaxis:  invalid substrate" << std::endl; 
-					std::cout << substrate_name << " was not found in the microenvironment. Please check for typos!" << std::endl << std::endl; 
-					exit(-1); 
-				}
-				
-				std::string actual_name = microenvironment.density_names[ pMot->chemotaxis_index ]; 
-				
-				// error check 
-				if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )
-				{
-					std::cout << "Error: attempted to set chemotaxis to \"" 
-						<< substrate_name << "\", which was not found in the microenvironment." << std::endl 
-					<< "       Please double-check your substrate name in the config file." << std::endl << std::endl; 
-					exit(-1); 
-				}
-				
-				// set the direction 
-				
-				pMot->chemotaxis_direction = xml_get_int_value( node_mot1 , "direction" ); 
-				
-				// std::cout << pMot->chemotaxis_direction << " * grad( " << actual_name << " )" << std::endl; 
+				node_mot = node.child( "speed" );
+				if( node_mot )
+				{ pMot->migration_speed = xml_get_my_double_value( node_mot ); }	
 
-			}
-			
-			// automated advanced chemotaxis setup 
-			node_mot1 = node_mot.child( "advanced_chemotaxis" ); 
-			if( node_mot1 )
-			{
-				// enabled? if so, set the standard chemotaxis function
-				if( xml_get_bool_value( node_mot1, "enabled" ) )
+				node_mot = node.child( "migration_bias" );
+				if( node_mot )
+				{ pMot->migration_bias = xml_get_my_double_value( node_mot ); }	
+
+				node_mot = node.child( "persistence_time" );
+				if( node_mot )
+				{ pMot->persistence_time = xml_get_my_double_value( node_mot ); }	
+
+				node_mot = node.child( "options" );
+				if( node_mot )
 				{
-					if( pCD->functions.update_migration_bias == chemotaxis_function )
+					// enable motility? 
+					pugi::xml_node node_mot1 = node_mot.child( "enabled" ); 
+					if( node_mot1 )
 					{
-						std::cout << "Warning: when processing motility for " << pCD->name << " cells: " << std::endl 
-								 << "\tBoth chemotaxis and advanced_chemotaxis are enabled." << std::endl
-						          << "\tThe settings for advanced_chemotaxis override those of chemotaxis." << std::endl; 
+						pMot->is_motile = xml_get_my_bool_value( node_mot1 ); 
 					}
-					pCD->functions.update_migration_bias = advanced_chemotaxis_function;
-					if( xml_get_bool_value( node_mot1, "normalize_each_gradient" ) )
-					{ pCD->functions.update_migration_bias = advanced_chemotaxis_function_normalized; }
 					
-					
-					// now process the chemotactic sensitivities 
-
-					pugi::xml_node node_cs = node_mot1.child( "chemotactic_sensitivities"); 
-					if( node_cs  )
+					// restrict to 2D? 
+					node_mot1 = node_mot.child( "use_2D" ); 
+					if( node_mot1 )
 					{
-						node_cs = node_cs.child("chemotactic_sensitivity"); 
-
-						while( node_cs )
+						pMot->restrict_to_2D = xml_get_my_bool_value( node_mot1 ); 
+					}
+					
+					if( default_microenvironment_options.simulate_2D && pMot->restrict_to_2D == false )
+					{
+						std::cout << "Note: Overriding to set cell motility for " << pCD->name << " to 2D based on " 
+								<< "microenvironment domain settings ... " << std::endl; 				
+						pMot->restrict_to_2D = true; 
+					}
+					
+					// automated chemotaxis setup 
+					node_mot1 = node_mot.child( "chemotaxis" ); 
+					if( node_mot1 )
+					{
+						// enabled? if so, set the standard chemotaxis function
+						if( xml_get_bool_value( node_mot1, "enabled" ) )
 						{
-							std::string substrate_name = node_cs.attribute( "substrate").value(); 
-							int index = microenvironment.find_density_index( substrate_name ); 
-							std::string actual_name = ""; 
-							if( index > -1 )
-							{ actual_name = microenvironment.density_names[ index ]; }
-				
-							// error check 
-							if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )						
+							pCD->functions.update_migration_bias = chemotaxis_function;
+						}	
+						
+						// search for the right chemo index 
+						
+						std::string substrate_name = xml_get_string_value( node_mot1 , "substrate" ); 
+						pMot->chemotaxis_index = microenvironment.find_density_index( substrate_name ); 
+						if( pMot->chemotaxis_index < 0)
+						{
+							std::cout << __FUNCTION__ << ": Error: parsing phenotype:motility:options:chemotaxis:  invalid substrate" << std::endl; 
+							std::cout << substrate_name << " was not found in the microenvironment. Please check for typos!" << std::endl << std::endl; 
+							exit(-1); 
+						}
+						
+						std::string actual_name = microenvironment.density_names[ pMot->chemotaxis_index ]; 
+						
+						// error check 
+						if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )
+						{
+							std::cout << "Error: attempted to set chemotaxis to \"" 
+								<< substrate_name << "\", which was not found in the microenvironment." << std::endl 
+							<< "       Please double-check your substrate name in the config file." << std::endl << std::endl; 
+							exit(-1); 
+						}
+						
+						// set the direction 
+						
+						pMot->chemotaxis_direction = xml_get_int_value( node_mot1 , "direction" ); 
+						
+						// std::cout << pMot->chemotaxis_direction << " * grad( " << actual_name << " )" << std::endl; 
+
+					}
+					
+					// automated advanced chemotaxis setup 
+					node_mot1 = node_mot.child( "advanced_chemotaxis" ); 
+					if( node_mot1 )
+					{
+						// enabled? if so, set the standard chemotaxis function
+						if( xml_get_bool_value( node_mot1, "enabled" ) )
+						{
+							if( pCD->functions.update_migration_bias == chemotaxis_function )
 							{
-								std::cout << "Warning: when processing advanced chemotaxis for " << pCD->name << " cells: " << std::endl 
-										<< "\tInvalid substrate " << substrate_name << " specified." << std::endl
-										<< "\tIgnoring this invalid substrate in the chemotaxis function .. " << std::endl; 
+								std::cout << "Warning: when processing motility for " << pCD->name << " cells: " << std::endl 
+										<< "\tBoth chemotaxis and advanced_chemotaxis are enabled." << std::endl
+										<< "\tThe settings for advanced_chemotaxis override those of chemotaxis." << std::endl; 
+							}
+							pCD->functions.update_migration_bias = advanced_chemotaxis_function;
+							if( xml_get_bool_value( node_mot1, "normalize_each_gradient" ) )
+							{ pCD->functions.update_migration_bias = advanced_chemotaxis_function_normalized; }
+							
+							
+							// now process the chemotactic sensitivities 
+
+							pugi::xml_node node_cs = node_mot1.child( "chemotactic_sensitivities"); 
+							if( node_cs  )
+							{
+								node_cs = node_cs.child("chemotactic_sensitivity"); 
+
+								while( node_cs )
+								{
+									std::string substrate_name = node_cs.attribute( "substrate").value(); 
+									int index = microenvironment.find_density_index( substrate_name ); 
+									std::string actual_name = ""; 
+									if( index > -1 )
+									{ actual_name = microenvironment.density_names[ index ]; }
+						
+									// error check 
+									if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )						
+									{
+										std::cout << "Warning: when processing advanced chemotaxis for " << pCD->name << " cells: " << std::endl 
+												<< "\tInvalid substrate " << substrate_name << " specified." << std::endl
+												<< "\tIgnoring this invalid substrate in the chemotaxis function .. " << std::endl; 
+									}
+									else
+									{ 
+										if (index >= 0 && index < pCD->phenotype.motility.chemotactic_sensitivities.size())
+										{
+											pCD->phenotype.motility.chemotactic_sensitivities[index] = xml_get_my_double_value(node_cs);
+										}
+										else
+										{
+											std::cout << "Warning: when processing advanced chemotaxis for " << pCD->name << " cells: " << std::endl 
+													<< "\tInvalid index " << index << " for substrate " << substrate_name << std::endl
+													<< "\tVector size: " << pCD->phenotype.motility.chemotactic_sensitivities.size() << std::endl
+													<< "\tIgnoring this substrate in the chemotaxis function .. " << std::endl; 
+										}
+									}
+									node_cs = node_cs.next_sibling( "chemotactic_sensitivity" ); 
+								}
+
 							}
 							else
-							{ 
-								if (index >= 0 && index < pCD->phenotype.motility.chemotactic_sensitivities.size())
-								{
-									pCD->phenotype.motility.chemotactic_sensitivities[index] = xml_get_my_double_value(node_cs);
-								}
-								else
-								{
-									std::cout << "Warning: when processing advanced chemotaxis for " << pCD->name << " cells: " << std::endl 
-											<< "\tInvalid index " << index << " for substrate " << substrate_name << std::endl
-											<< "\tVector size: " << pCD->phenotype.motility.chemotactic_sensitivities.size() << std::endl
-											<< "\tIgnoring this substrate in the chemotaxis function .. " << std::endl; 
-								}
+							{
+								std::cout << "Warning: when processing motility for " << pCD->name << " cells: " << std::endl 
+											<< "\tAdvanced chemotaxis requries chemotactic_sensitivities." << std::endl
+											<< "\tBut you have none. Your migration bias will be the zero vector." << std::endl; 
 							}
-							node_cs = node_cs.next_sibling( "chemotactic_sensitivity" ); 
-						}
 
-					}
-					else
-					{
-						std::cout << "Warning: when processing motility for " << pCD->name << " cells: " << std::endl 
-									<< "\tAdvanced chemotaxis requries chemotactic_sensitivities." << std::endl
-									<< "\tBut you have none. Your migration bias will be the zero vector." << std::endl; 
-					}
+						}
+					}	
 
 				}
-			}	
+				std::cout << "This is occuring" << std::endl; 
+				// display summary for diagnostic help 
+				if( pCD->functions.update_migration_bias == chemotaxis_function && pMot->is_motile == true )
+				{
+					std::cout << "Cells of type " << pCD->name << " use standard chemotaxis: " << std::endl 
+					<< "\t d_bias (before normalization) = " << pMot->chemotaxis_direction << " * grad(" 
+					<< microenvironment.density_names[pMot->chemotaxis_index] << ")" << std::endl; 
+				}
 
-		}
-		std::cout << "This is occuring" << std::endl; 
-		// display summary for diagnostic help 
-		if( pCD->functions.update_migration_bias == chemotaxis_function && pMot->is_motile == true )
-		{
-			std::cout << "Cells of type " << pCD->name << " use standard chemotaxis: " << std::endl 
-			<< "\t d_bias (before normalization) = " << pMot->chemotaxis_direction << " * grad(" 
-			<< microenvironment.density_names[pMot->chemotaxis_index] << ")" << std::endl; 
-		}
+				if( pCD->functions.update_migration_bias == advanced_chemotaxis_function && pMot->is_motile == true )
+				{
+					int number_of_substrates = microenvironment.density_names.size(); 
 
-		if( pCD->functions.update_migration_bias == advanced_chemotaxis_function && pMot->is_motile == true )
-		{
-			int number_of_substrates = microenvironment.density_names.size(); 
+					std::cout << "Cells of type " << pCD->name << " use advanced chemotaxis: " << std::endl 
+					<< "\t d_bias (before normalization) = " 
+					<< pMot->chemotactic_sensitivities[0] << " * grad(" << microenvironment.density_names[0] << ")"; 
 
-			std::cout << "Cells of type " << pCD->name << " use advanced chemotaxis: " << std::endl 
-			<< "\t d_bias (before normalization) = " 
-			<< pMot->chemotactic_sensitivities[0] << " * grad(" << microenvironment.density_names[0] << ")"; 
+					for( int n=1; n < number_of_substrates; n++ )
+					{ std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << microenvironment.density_names[n] << ")"; }
+					std::cout << std::endl; 
+				}		
 
-			for( int n=1; n < number_of_substrates; n++ )
-			{ std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << microenvironment.density_names[n] << ")"; }
-			std::cout << std::endl; 
-		}		
+				if( pCD->functions.update_migration_bias == advanced_chemotaxis_function_normalized && pMot->is_motile == true )
+				{
+					int number_of_substrates = microenvironment.density_names.size(); 
 
-		if( pCD->functions.update_migration_bias == advanced_chemotaxis_function_normalized && pMot->is_motile == true )
-		{
-			int number_of_substrates = microenvironment.density_names.size(); 
+					std::cout << "Cells of type " << pCD->name << " use normalized advanced chemotaxis: " << std::endl 
+					<< "\t d_bias (before normalization) = " 
+					<< pMot->chemotactic_sensitivities[0] << " * grad(" << microenvironment.density_names[0] << ")" 
+					<< " / ||grad(" << microenvironment.density_names[0] << ")||"; 
 
-			std::cout << "Cells of type " << pCD->name << " use normalized advanced chemotaxis: " << std::endl 
-			<< "\t d_bias (before normalization) = " 
-			<< pMot->chemotactic_sensitivities[0] << " * grad(" << microenvironment.density_names[0] << ")" 
-			<< " / ||grad(" << microenvironment.density_names[0] << ")||"; 
-
-			for( int n=1; n < number_of_substrates; n++ )
-			{
-				std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << microenvironment.density_names[n] << ")"
-				<< " / ||grad(" << microenvironment.density_names[n] << ")||"; 
+					for( int n=1; n < number_of_substrates; n++ )
+					{
+						std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << microenvironment.density_names[n] << ")"
+						<< " / ||grad(" << microenvironment.density_names[n] << ")||"; 
+					}
+					std::cout << std::endl; 
+				}		
 			}
-			std::cout << std::endl; 
-		}		
+			else
+			{
+				std::cout << "Motility is disabled, therefore there is also no chemotaxis" << std::endl;
+			}
+		}
 	}
 
 	// secretion
@@ -3284,11 +3273,9 @@ void initialize_cell_definitions_from_pugixml( pugi::xml_node root )
 		std::cout << "Processing " << node.attribute( "name" ).value() << " ... " << std::endl; 
 		
 		initialize_cell_definition_from_pugixml( node );
-		build_cell_definitions_maps(); 
-		
 		node = node.next_sibling( "cell_definition" ); 
+		std::cout << "This ran to the end" << std::endl;
 	}
-	
 /*	
 	// now, make sure cell_defaults gets synced correctly. 
 	// It was declared long before we built this map, so it's not synced. 

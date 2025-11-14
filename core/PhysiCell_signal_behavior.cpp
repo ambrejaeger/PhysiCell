@@ -88,7 +88,7 @@ void setup_signal_behavior_dictionaries( void )
 	// set key parameters on number of signals, etc. 
 	// make registry of signals 
 	// make registry of responses 
-
+	std::cout << "This is running 1" << std::endl;
 	static bool setup_done = false; 
 	if( setup_done == true )
 	{ return; }
@@ -96,6 +96,7 @@ void setup_signal_behavior_dictionaries( void )
 
 	int m = microenvironment.number_of_densities(); 
 	int n = cell_definition_indices_by_name.size(); 
+	std::cout << "Number of definition : " << cell_definition_indices_by_type.size() << std::endl;
 
 	signal_to_int.clear(); 
 	int_to_signal.clear(); 
@@ -110,6 +111,7 @@ void setup_signal_behavior_dictionaries( void )
 		int_to_signal[i] = name; 
 	}
 
+	std::cout << "This is running 2" << std::endl;
     // internalized substrates 
     int map_index = m; 
     for( int i=0; i < m ; i++ )
@@ -141,6 +143,7 @@ void setup_signal_behavior_dictionaries( void )
 
         map_index++; 
 	}    
+	std::cout << "This is running 3" << std::endl;
 	
 	// mechanical pressure 
 	// int map_index = m; 
@@ -152,19 +155,25 @@ void setup_signal_behavior_dictionaries( void )
 	map_index++; 
 	signal_to_int[ "volume"] = map_index; 
 	int_to_signal[map_index] = "volume"; 
+	std::cout << "This is running 4" << std::endl;
 
 	// contact with each cell type 
-	for( int i=0; i < n ; i++ )
-	{
+	for( const auto& pair : cell_definitions_by_type ) // WARNING!!! Changing n, currently this implies that cell type must be numbered in int (if 4 from 0 to 3 for instance) NOT ROBUST
+	{std::cout << "Entering the loop" << std::endl; 
 		map_index++; 
-		Cell_Definition* pCD = cell_definitions_by_type[i]; 
+		Cell_Definition* pCD = pair.second; 
+		std::cout << "Running for :" << pCD->name << std::endl; 
+		
 		std::string temp =  "contact with " + pCD->name; 
 		signal_to_int[temp] = map_index; 
+		std::cout << "This is running 5" << std::endl;
 		// synonym 
 		std::string temp1 = "contact with cell type " + std::to_string( pCD->type ); 
 		signal_to_int[temp1] = map_index; 
 		int_to_signal[map_index] = temp; 
+		std::cout << "This is running 6" << std::endl;
 	}
+	
 	
 	// contact with (any) live cell 
 	map_index++; 
@@ -207,8 +216,10 @@ void setup_signal_behavior_dictionaries( void )
 	int_to_signal[map_index] = "contact with basement membrane"; 
 	// synonym
 	signal_to_int["contact with BM"] = map_index; 
+	std::cout << "This is running 5" << std::endl;
 	
 	// damage state 
+	std::cout << "This is running 6" << std::endl;
 
 	map_index++; 
 	signal_to_int["damage"] = map_index; 
@@ -246,6 +257,7 @@ void setup_signal_behavior_dictionaries( void )
 	// synonyms 
 	signal_to_int["current time"] = map_index; 
 	signal_to_int["global time"] = map_index; 
+	std::cout << "This is running 7" << std::endl;
 
 	// custom signals
 	for( int nc=0 ; nc < cell_defaults.custom_data.variables.size() ; nc++ )
@@ -265,6 +277,7 @@ void setup_signal_behavior_dictionaries( void )
 		custom_signal_name += std::to_string(nc); 
 		signal_to_int[custom_signal_name] = map_index; 
 	}
+	std::cout << "This is running 8" << std::endl;
 
 	map_index++; 
 	signal_to_int["apoptotic"] = map_index; 
@@ -335,7 +348,7 @@ void setup_signal_behavior_dictionaries( void )
 		behavior_to_int[ map_name ] = map_index;
 		int_to_behavior[map_index] = map_name; 
 	}
-	
+	std::cout << "This is running 9" << std::endl;
 	map_index = 4*m; 
 	map_name = "cycle entry";
 	behavior_to_int[ map_name ] = map_index;
@@ -390,7 +403,7 @@ void setup_signal_behavior_dictionaries( void )
 		name = "chemotactic sensitivity to " + microenvironment.density_names[i]; 
 		behavior_to_int[ name ] = map_index;
 	}
-	
+	std::cout << "This is running 10" << std::endl;
 	// cell-cell adhesion 
 	map_index++; 
 	map_name = "cell-cell adhesion";
@@ -404,10 +417,10 @@ void setup_signal_behavior_dictionaries( void )
 
     // cell adhesion affinities 
 	// cell-type specific adhesion 
-	for( int i=0; i < n ; i++ )
+	for( const auto& pair: cell_definitions_by_type )
 	{
 		map_index++; 
-		Cell_Definition* pCD = cell_definitions_by_type[i]; 
+		Cell_Definition* pCD = pair.second; 
 		std::string temp =  "adhesive affinity to " + pCD->name; 
 		behavior_to_int[temp] = map_index; 
 		int_to_behavior[map_index] = temp; 
@@ -471,10 +484,10 @@ void setup_signal_behavior_dictionaries( void )
 		behavior_to_int[ "phagocytosis of other dead cells" ] = map_index; 
 	
 	// phagocytosis of each live cell type 
-	for( int i=0; i < n ; i++ )
+	for( const auto& pair : cell_definitions_by_type )
 	{
 		map_index++; 
-		Cell_Definition* pCD = cell_definitions_by_type[i]; 
+		Cell_Definition* pCD = pair.second; 
 		std::string temp =  "phagocytose " + pCD->name; 
 		behavior_to_int[temp] = map_index; 
 		int_to_behavior[map_index] = temp; 
@@ -489,10 +502,10 @@ void setup_signal_behavior_dictionaries( void )
 	}
 
 	// attack of each live cell type 
-	for( int i=0; i < n ; i++ )
+	for( const auto& pair : cell_definitions_by_type )
 	{
 		map_index++; 
-		Cell_Definition* pCD = cell_definitions_by_type[i]; 
+		Cell_Definition* pCD = pair.second; 
 		std::string temp =  "attack " + pCD->name; 
 		behavior_to_int[temp] = map_index; 
 		int_to_behavior[map_index] = temp; 
@@ -502,10 +515,10 @@ void setup_signal_behavior_dictionaries( void )
 	}
 
 	// fusion 
-	for( int i=0; i < n ; i++ )
+	for( const auto& pair : cell_definitions_by_type )
 	{
 		map_index++; 
-		Cell_Definition* pCD = cell_definitions_by_type[i]; 
+		Cell_Definition* pCD = pair.second; 
 		std::string temp =  "fuse to " + pCD->name; 
 		behavior_to_int[temp] = map_index; 
 		int_to_behavior[map_index] = temp; 
@@ -515,11 +528,10 @@ void setup_signal_behavior_dictionaries( void )
 	}	
 	
 	// transformation / transition 
-	for( int i=0; i < n ; i++ )
+	for( const auto& pair : cell_definitions_by_type )
 	{
 		map_index++; 
-		Cell_Definition* pCD = cell_definitions_by_type[i]; 
-		// std::string temp =  "transform to " + pCD->name; 
+		Cell_Definition* pCD = pair.second;  
 		std::string temp =  "transition to " + pCD->name; 
 		behavior_to_int[temp] = map_index; 
 		int_to_behavior[map_index] = temp; 
@@ -539,10 +551,10 @@ void setup_signal_behavior_dictionaries( void )
 	}	
 
 	// asymmetic division
-	for( int i=0; i < n ; i++ )
+	for( const auto& pair : cell_definitions_by_type )
 	{
 		map_index++;
-		Cell_Definition* pCD = cell_definitions_by_type[i];
+		Cell_Definition* pCD = pair.second;
 		std::string temp =  "asymmetric division to " + pCD->name;
 		behavior_to_int[temp] = map_index;
 		int_to_behavior[map_index] = temp;
@@ -576,10 +588,10 @@ void setup_signal_behavior_dictionaries( void )
 	behavior_to_int["is movable"] = map_index; 
 
 	// immunogenicity to each cell type 
-	for( int i=0; i < n ; i++ )
+	for( const auto& pair : cell_definitions_by_type )
 	{
 		map_index++; 
-		Cell_Definition* pCD = cell_definitions_by_type[i]; 
+		Cell_Definition* pCD = pair.second; 
 		std::string map_name =  "immunogenicity to " + pCD->name; 
 		behavior_to_int[map_name ] = map_index;
 		int_to_behavior[map_index] = map_name; 
