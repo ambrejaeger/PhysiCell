@@ -1766,11 +1766,13 @@ void parse_csv_rule_v3( std::vector<std::string> input )
 		set_behavior_min_value(cell_type,behavior,ref_base_value); 
 		set_behavior_max_value(cell_type,behavior,max_response);
 	}
-	else
+	else if (response == "decreases")
 	{ 
 		set_behavior_min_value(cell_type,behavior,max_response); 
 		set_behavior_max_value(cell_type,behavior,ref_base_value);
 	}
+	else
+	{std::cout << "Error the response indicated in your .csv was neither increases or decreases";}
 	return;  
 }
 

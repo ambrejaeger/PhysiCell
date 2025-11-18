@@ -672,28 +672,30 @@ void Microenvironment::display_information( std::ostream& os )
 	os << std::endl << "Microenvironment summary: " << name << ": " << std::endl; 
 	mesh.display_information( os ); 
 	os << "Densities: (" << number_of_densities() << " total)" << std::endl; 
-	for( unsigned int i = 0 ; i < density_names.size() ; i++ )
+	if ( number_of_densities() > 0 )
 	{
-		os << "   " << density_names[i] << ":" << std::endl
-		<< "     units: " << density_units[i] << std::endl 
-		<< "     diffusion coefficient: " << diffusion_coefficients[i]  
-			<< " " << spatial_units << "^2 / " << time_units << std::endl
-		<< "     decay rate: " << decay_rates[i] 
-			<< " " << time_units << "^-1" << std::endl 
-		<< "     diffusion length scale: " << sqrt( diffusion_coefficients[i] / ( 1e-12 + decay_rates[i] ) ) 
-			<< " " << spatial_units << std::endl 
-		<< "     initial condition: " << default_microenvironment_options.initial_condition_vector[i] 
-			<< " " << density_units[i] << std::endl 
-		<< "     boundary condition: " << default_microenvironment_options.Dirichlet_condition_vector[i] 
-			<< " " << density_units[i] << " (enabled: "; 
-		if( dirichlet_activation_vector[i] == true )
-		{ os << "true"; }
-		else
-		{ os << "false"; }
-		os << ")" << std::endl; 
-	}
-	os << std::endl; 
-	
+		for( unsigned int i = 0 ; i < density_names.size() ; i++ )
+		{
+			os << "   " << density_names[i] << ":" << std::endl
+			<< "     units: " << density_units[i] << std::endl 
+			<< "     diffusion coefficient: " << diffusion_coefficients[i]  
+				<< " " << spatial_units << "^2 / " << time_units << std::endl
+			<< "     decay rate: " << decay_rates[i] 
+				<< " " << time_units << "^-1" << std::endl 
+			<< "     diffusion length scale: " << sqrt( diffusion_coefficients[i] / ( 1e-12 + decay_rates[i] ) ) 
+				<< " " << spatial_units << std::endl 
+			<< "     initial condition: " << default_microenvironment_options.initial_condition_vector[i] 
+				<< " " << density_units[i] << std::endl 
+			<< "     boundary condition: " << default_microenvironment_options.Dirichlet_condition_vector[i] 
+				<< " " << density_units[i] << " (enabled: "; 
+			if( dirichlet_activation_vector[i] == true )
+			{ os << "true"; }
+			else
+			{ os << "false"; }
+			os << ")" << std::endl; 
+		}
+		os << std::endl; 
+		}
 	return; 
 }
 	
