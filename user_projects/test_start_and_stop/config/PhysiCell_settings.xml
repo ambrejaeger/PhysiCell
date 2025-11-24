@@ -653,7 +653,7 @@
 		<auto_stop type="bool" units="">false</auto_stop>
 		<auto_stop_alive type="bool" units="">false</auto_stop_alive>
         <auto_stop_epi_size type="bool" units="">false</auto_stop_epi_size>
-        <auto_stop_epi_stable type="bool" units="">false</auto_stop_epi_size>
+        <auto_stop_epi_stable type="bool" units="">false</auto_stop_epi_stable>
         <epi_max_size type="double" units="micron">300</epi_max_size>
 
         <number_of_cells type="int" units="none" description="initial number of cells (for each cell type)">0</number_of_cells>
