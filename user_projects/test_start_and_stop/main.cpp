@@ -234,7 +234,7 @@ int main( int argc, char* argv[] )
 	std::vector<std::string> (*cell_coloring_function)(Cell*) = my_coloring_function; 
 	
 	sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
-	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
+	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, 50.0 );
 	
 	sprintf( filename , "%s/legend.svg" , PhysiCell_settings.folder.c_str() ); 
 	create_plot_legend( filename , cell_coloring_function ); 
@@ -297,11 +297,13 @@ int main( int argc, char* argv[] )
 				
 				
 					// INSERT HERE YOUR AUTO STOP FUNCTION
-					// This test is happening only at full save saving time perhaps not enough sampling
-					if(parameters.bools("auto_stop")){
-
+					//These conditions are evaluated only at full_save times
+					if(auto_stop_param("auto_stop")) {
 						int alive = total_live_cell_count();
-						if(parameters.bools("auto_stop")){
+						std::vector<double> vector_epi_size;
+
+						//Computation necessary for both auto_stop_epi_size and auto_stop_epi_stable
+						if(parameters.bools("auto_stop_epi_size") || parameters.bools("auto_stop_epi_stable")){
 							size_t n = std::min((*all_cells).size(), size_t(50));
 							std::vector<double> y_positions;
 							y_positions.reserve((*all_cells).size());
@@ -313,23 +315,21 @@ int main( int argc, char* argv[] )
 
 							// Partially sort to get top 100 largest elements
 							std::partial_sort(y_positions.begin(), y_positions.begin() + n, y_positions.end(), std::greater<double>());
-							
 							std::vector<double> vector_epi_size = std::vector<double>(y_positions.begin(), y_positions.begin() + n);
-							stop = auto_stop_epi_size(vector_epi_size, parameters.doubles("epi_max_size"));
-							
-							if (stop){
-								std::cout << "auto stop epithelium size condition activated, simulation interrupted." << std::endl;
-							}
-							//auto stop condition stable epi size
+						}
+
+						//auto stop when the epithelium reaches a given size
+						if(parameters.bools("auto_stop_epi_size")){
+								stop = auto_stop_epi_size(vector_epi_size, parameters.doubles("epi_max_size"));
+						}
+
+						//auto stop condition stable epi size
+						if(parameters.bools("auto_stop_epi_stable")){
 							//Only check after a certain time
 							if (PhysiCell_globals.current_time > PhysiCell_settings.full_save_interval * 20)
 							{
-									stop = auto_stop_epi_stable(vector_epi_size, deque_epi_average_size, 10, 3);
-								if (stop){
-									std::cout << "auto stop stable epithelium size condition activated, simulation interrupted." << std::endl;
-								}
+								stop = auto_stop_epi_stable(vector_epi_size, deque_epi_average_size, 10, 3);
 							}
-							
 						}
 					}
 				}
@@ -343,7 +343,7 @@ int main( int argc, char* argv[] )
 				if( PhysiCell_settings.enable_SVG_saves == true )
 				{	
 					sprintf( filename , "%s/snapshot%08u.svg" , PhysiCell_settings.folder.c_str() , PhysiCell_globals.SVG_output_index ); 
-					SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
+					SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, 50.0 );
 					
 					PhysiCell_globals.SVG_output_index++; 
 					PhysiCell_globals.next_SVG_save_time  += PhysiCell_settings.SVG_save_interval;
@@ -381,7 +381,7 @@ int main( int argc, char* argv[] )
 	save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , PhysiCell_globals.current_time ); 
 	
 	sprintf( filename , "%s/final.svg" , PhysiCell_settings.folder.c_str() ); 
-	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
+	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, 50.0 );
 	
 	// Save all the files needed for Start & Stop at the right point.
 	

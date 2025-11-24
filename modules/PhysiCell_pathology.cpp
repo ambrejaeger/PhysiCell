@@ -402,13 +402,13 @@ std::string formatted_minutes_to_DDHHMM( double minutes )
 	return output ;
 }
 
-void SVG_plot(std::string filename, Microenvironment &M, double z_slice, double time, std::vector<std::string> (*cell_coloring_function)(Cell *), std::string (*substrate_coloring_function)(double, double, double), void(cell_counts_function)(char *))
+void SVG_plot(std::string filename, Microenvironment &M, double z_slice, double time, std::vector<std::string> (*cell_coloring_function)(Cell *), double x_border , double y_border, std::string (*substrate_coloring_function)(double, double, double), void(cell_counts_function)(char *))
 {
-	double X_lower = M.mesh.bounding_box[0];
-	double X_upper = M.mesh.bounding_box[3];
+	double X_lower = M.mesh.bounding_box[0] + x_border;
+	double X_upper = M.mesh.bounding_box[3] - x_border;
 
-	double Y_lower = M.mesh.bounding_box[1];
-	double Y_upper = M.mesh.bounding_box[4];
+	double Y_lower = M.mesh.bounding_box[1] + y_border;
+	double Y_upper = M.mesh.bounding_box[4] - y_border;
 
 	double plot_width = X_upper - X_lower;
 	double plot_height = Y_upper - Y_lower;
