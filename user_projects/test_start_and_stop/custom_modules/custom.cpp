@@ -122,14 +122,13 @@ void create_cell_types( void )
 	   This intializes cell signal and response dictionaries 
 	*/
 
-	setup_signal_behavior_dictionaries(); 	
-	std::cout << "This ran" << std::endl;
+	setup_signal_behavior_dictionaries(); 
+
 	/*
        Cell rule definitions 
 	*/
 
 	setup_cell_rules(); 
-		std::cout << "This ran 2" << std::endl;
 
 	/* 
 	   Put any modifications to individual cell definitions here. 
@@ -520,6 +519,23 @@ using namespace std;
 
 vector<double> vector_alives;
 
+//std::unordered_map<std::string, bool> auto_stop_param = {{"auto_stop", false}, {"auto_stop_alive", false}, {"auto_stop_epi_stable", false}, {"auto_stop_epi_size", false}};
+/*
+void evaluate_auto_stop() {
+	//auto stop parameters should be be boolean in the user_parameters section of your .xml config files
+
+	std::cout << "Auto stop user parameters evaluation: " << std::endl;
+	if (parameters.bools.size() > 0) {
+		for ( auto &p : auto_stop_param ) {
+			if ( parameters.bools.find_index(p.first) != -1 ) {
+				p.second = parameters.bools(p.first); 
+				std::cout << p.first << " enabled" << std::endl;
+			}
+		}
+	}
+	return ; 
+}
+*/
 bool auto_stop_epi_size(vector<double> vector_epi_pos, double epi_max_size) {
     //concatenate the number of alive cells to the vector
 	double epi_average_size = accumulate(vector_epi_pos.begin(), vector_epi_pos.end(), 0);
@@ -572,6 +588,7 @@ bool auto_stop_epi_stable(vector<double> vector_epi_pos, deque<double> &deque_ep
 
     if (stable) {
         stop = true;
+		std::cout << "auto stop stable epithelium size condition activated, simulation interrupted." << std::endl;
     } else {
         stop = false;
 		if (deque_epi_average_size.size() >= steps)
@@ -637,7 +654,9 @@ bool auto_stop() {
     return stop;
 }
 
-//Functions to create pre-epithelium
+/*****************************************/
+/*  FUNCTIONS TO CREATE PRE-EPITHELIUM  */
+/*****************************************/
 void create_pre_epithelium( int argc, char* argv[] ) {
 		
 		std::string xml_path_str = argv[1];	
@@ -721,20 +740,21 @@ void position_epithelium_cells() {
 
 	//Creating conjonctive layer
 	std::vector<double> bounds_c = {xmin,ymin,xmax,ymin + conjonctive_layer_thickness};
-	random_fill_rectangle(bounds_c, pCD_c, 0.5);
+	random_fill_rectangle(bounds_c, pCD_c);
 
 	//Creating membrane layer
 	std::vector<double> bounds_m = {xmin, ymin + conjonctive_layer_thickness, 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness, 0};
 	fill_rectangle(bounds_m, pCD_m);
 
 	//Creating epi_basal layer
-	std::vector<double> bounds_e = {xmin,ymin + conjonctive_layer_thickness + membrane_layer_thickness - (pCD_e->phenotype.geometry.radius * 0.5), 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness + epi_basal_layer_thickness,0};
-	fill_rectangle(bounds_e, pCD_e, 1.5);
+	std::vector<double> bounds_e = {xmin,ymin + conjonctive_layer_thickness + membrane_layer_thickness - (pCD_e->phenotype.geometry.radius * 0.5), 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness + epi_basal_layer_thickness, 0};
+	fill_rectangle(bounds_e, pCD_e);
+	
 	
 	return;
 }
 
-void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence) {
+void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence ) {
 	//confluence is the proportion of the microenvironment / part of the microenvironment surface occupied by cells
 
 	double cell_radius = pCD->phenotype.geometry.radius;
@@ -827,103 +847,164 @@ std::vector<Cell*> find_closest_neighbors(const std::vector<Cell*>& cells, Cell*
 //Used instead of UniformOnUnitSphere for cell_division_orientation
 std::vector<double> custom_division_orientation( Cell* pC)
 {
-	std::vector<double> orientation_vec;
-
-	if (pC->type_name == "epi_basal")
-	{
-		std::vector<Cell*> membrane_neighbors;
-		for (Cell* neighbor : pC->state.neighbors)
+	if( default_microenvironment_options.simulate_2D == true )
+	{		
+		std::vector<double> orientation_vec;
+		if (pC->type_name == "epi_basal")
 		{
-			if ( neighbor->type_name == "membrane" )
-			{ 
-				membrane_neighbors.push_back(neighbor); 
-			}
-		}
-		/*std::cout << "There are " << membrane_neighbors.size() << " membrane neighbors." << std::endl;
-		std::cout << "Cell in x position: " << pC->position[0] << std::endl;
-		std::cout << "In x position: " ;
-		for ( int i = 0; i < membrane_neighbors.size(); i++)
-		{
-		std::cout << membrane_neighbors[i]->position[0] << ", ";
-		} 
-		std::cout << std::endl;
-		*/
-		if ( membrane_neighbors.size() > 2)
-		{
-			//TO TEST FOR 3D, doesn't occur in 3D in our configuration
-			find_closest_neighbors(membrane_neighbors, pC);
-			//std::cout << "This ran" << std::endl;
-			return UniformOnUnitSphere();
-		}
-		else if ( membrane_neighbors.size() == 2 )
-		{
-			//This appear to work
-			int a = UniformInt();
-			if ( a%2 == 0)
+			std::vector<Cell*> membrane_neighbors;
+			for (Cell* neighbor : pC->state.neighbors)
 			{
-				orientation_vec = {membrane_neighbors[0]->position[0] - membrane_neighbors[1]->position[0], membrane_neighbors[0]->position[1] - membrane_neighbors[1]->position[1], membrane_neighbors[0]->position[2] - membrane_neighbors[1]->position[2]};
+				if ( neighbor->type_name == "membrane" )
+				{ 
+					membrane_neighbors.push_back(neighbor); 
+				}
 			}
-			else
+			/*std::cout << "There are " << membrane_neighbors.size() << " membrane neighbors." << std::endl;
+			std::cout << "Cell in x position: " << pC->position[0] << std::endl;
+			std::cout << "In x position: " ;
+			for ( int i = 0; i < membrane_neighbors.size(); i++)
 			{
-				orientation_vec = {membrane_neighbors[1]->position[0] - membrane_neighbors[0]->position[0], membrane_neighbors[1]->position[1] - membrane_neighbors[0]->position[1], membrane_neighbors[1]->position[2] - membrane_neighbors[0]->position[2]};
+			std::cout << membrane_neighbors[i]->position[0] << ", ";
+			} 
+			std::cout << std::endl;
+			*/
+			if ( membrane_neighbors.size() > 2)
+			{
+				//TO TEST FOR 3D, doesn't occur in 3D in our configuration
+				std::vector<Cell*> closest_neighbors = find_closest_neighbors(membrane_neighbors, pC);
+				std::vector<double> X = {closest_neighbors[0]->position[0], closest_neighbors[1]->position[0], closest_neighbors[2]->position[0]};
+				std::vector<double> Y = {closest_neighbors[0]->position[1], closest_neighbors[1]->position[1], closest_neighbors[2]->position[1]};
+				std::vector<double> abr2;
+				if(X.size() == Y.size())
+				{
+					abr2 = linreg(X.size(), X, Y);
+					std::cout << abr2[0] << ", " << abr2[1] << ", " << abr2[2] << std::endl;
+				}
+				std::cout << "I am a dum dum this is occuring" << std::endl;
+				std::vector<double> result_vec = {-1, abr2[0], 0};
+				normalize(&result_vec);
+				return result_vec;
 			}
-			normalize(&orientation_vec);
-			//std::cout << "Orientation vec: " << orientation_vec[0] << "," << orientation_vec[1] << "," << orientation_vec[2] << std::endl;
-			//std::cout << "This ran" << std::endl;
-			return orientation_vec;
-		}
-		else if ( membrane_neighbors.size() == 1 )
-		{
-			std::vector<double> membrane_basal_vector = {membrane_neighbors[0]->position[0] - pC->position[0], membrane_neighbors[0]->position[1] - pC->position[1], membrane_neighbors[0]->position[2] - pC->position[2]};
-			// In 2D
-			if ( default_microenvironment_options.simulate_2D )
-			{ 
-				std::vector<double> vect_Z = {0,0,1};
+			else if ( membrane_neighbors.size() == 2 )
+			{
+				//This appear to work
 				int a = UniformInt();
 				if ( a%2 == 0)
 				{
-					orientation_vec = cross_product(membrane_basal_vector, vect_Z);
+					orientation_vec = {membrane_neighbors[0]->position[0] - membrane_neighbors[1]->position[0], membrane_neighbors[0]->position[1] - membrane_neighbors[1]->position[1], membrane_neighbors[0]->position[2] - membrane_neighbors[1]->position[2]};
 				}
 				else
 				{
-					//not tested yet
-					orientation_vec = cross_product(vect_Z, membrane_basal_vector);
+					orientation_vec = {membrane_neighbors[1]->position[0] - membrane_neighbors[0]->position[0], membrane_neighbors[1]->position[1] - membrane_neighbors[0]->position[1], membrane_neighbors[1]->position[2] - membrane_neighbors[0]->position[2]};
 				}
+				normalize(&orientation_vec);
+				//std::cout << "Orientation vec: " << orientation_vec[0] << "," << orientation_vec[1] << "," << orientation_vec[2] << std::endl;
+				//std::cout << "This ran" << std::endl;
 				return orientation_vec;
 			}
-			//In 3D
+			else if ( membrane_neighbors.size() == 1 )
+			{
+				std::vector<double> membrane_basal_vector = {membrane_neighbors[0]->position[0] - pC->position[0], membrane_neighbors[0]->position[1] - pC->position[1], membrane_neighbors[0]->position[2] - pC->position[2]};
+				// In 2D
+				if ( default_microenvironment_options.simulate_2D )
+				{ 
+					std::vector<double> vect_Z = {0,0,1};
+					int a = UniformInt();
+					if ( a%2 == 0)
+					{
+						orientation_vec = cross_product(membrane_basal_vector, vect_Z);
+					}
+					else
+					{
+						//not tested yet
+						orientation_vec = cross_product(vect_Z, membrane_basal_vector);
+					}
+					return orientation_vec;
+				}
+				//In 3D
+				else
+				{
+					//Any vector in the plane perpendicular to membrane_basal_vector will do
+					std::vector<double> rand_vec = UniformOnUnitSphere();
+					orientation_vec = cross_product(membrane_basal_vector, rand_vec);
+
+					return orientation_vec;
+				}
+			}
 			else
 			{
-				//Any vector in the plane perpendicular to membrane_basal_vector will do
-				std::vector<double> rand_vec = UniformOnUnitSphere();
-				orientation_vec = cross_product(membrane_basal_vector, rand_vec);
-
-				return orientation_vec;
+				std::cout << "No membrane neighbor should this epi basal cell really divide ? " << std::endl;
+				return UniformOnUnitSphere();
 			}
+			//Look for for Cells Neighbors of type membrane
+			//if 2D, 
+				//if more than 2 membrane neighbours
+					//draw line going through 3 or 2 closest memebrane cells centers
+				//if one membrane neighbour 
+					//compute perpendicular axis to cell center neighbour center in xy plane
+			
+			//if 3D, 
+				//if 2 or more neighbour
+					//find plane from one segment and 1 point
+				//if 1 neighbour
+					// Find plane perpendicular to cell membrane cell center
+
+			
 		}
 		else
 		{
-			std::cout << "No membrane neighbor should this epi basal cell really divide ? " << std::endl;
 			return UniformOnUnitSphere();
 		}
-		//Look for for Cells Neighbors of type membrane
-		//if 2D, 
-			//if more than 2 membrane neighbours
-				//draw line going through 3 or 2 closest memebrane cells centers
-			//if one membrane neighbour 
-				//compute perpendicular axis to cell center neighbour center in xy plane
-		
-		//if 3D, 
-			//if 2 or more neighbour
-				//find plane from one segment and 1 point
-			//if 1 neighbour
-				// Find plane perpendicular to cell membrane cell center
-
-		
 	}
-	else
+	else 
 	{
 		return UniformOnUnitSphere();
 	}
 }
 
+/***********************/
+/*  LINEAR REGRESSION  */
+/***********************/
+
+std::vector<double> linreg(int n, std::vector<double> X, std::vector<double> Y)
+{
+	double a;
+	double b;
+	double r;
+
+	double sumx = 0.0;
+	double sumx2 = 0.0;
+	double sumxy = 0.0;
+	double sumy = 0.0;
+	double sumy2 = 0.0;
+
+	for (int i=0; i<n; i++)
+	{
+		sumx += X[i];
+		sumx2 += X[i]*X[i];
+		sumxy += X[i]*Y[i];
+		sumy += Y[i];
+		sumy2 += Y[i]*Y[i];
+	}
+	double denom = (n * sumx2 - sumx*sumx);
+	if (denom == 0)
+	{
+		std::cout << "Error cannot solve the linear regression problem" << std::endl;
+		double a = 0.0;
+		double b = 0.0;
+		double r = 0.0;
+	}
+	else
+	{
+		a = (n * sumxy - sumx * sumy)/denom;
+		b = (sumy - a * sumx)/n;
+		r = (sumxy - sumx * sumy / n)/sqrt((sumx2 - sumx*sumx/n) * (sumy2 - sumy*sumy/n));
+
+		//double a1 = (n * sumxy - sumx * sumy)/denom;
+		//double b1 = (sumy * sumx2 - sumxy * sumx)/denom;
+		//double r1 = (sumxy - sumx * sumy / n)/sqrt((sumx2 - sumx*sumx/n) * (sumy2 - sumy*sumy/n));
+		//std::cout << a1 << ", " << b1 << ", " << r1 << std::endl;
+	}
+	return {a, b, r*r};
+}

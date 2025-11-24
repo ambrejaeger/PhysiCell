@@ -148,6 +148,7 @@ int main( int argc, char* argv[] )
 	else
 	{
 		xml_path_str = "./config/PhysiCell_settings.xml"; 
+		std::cout << "Running" << std::endl;
 		XML_status = load_PhysiCell_config_file( xml_path_str );
 		sprintf( copy_command , "cp ./config/PhysiCell_settings.xml %s" , PhysiCell_settings.folder.c_str() ); 
 	}
@@ -170,6 +171,8 @@ int main( int argc, char* argv[] )
 	/* Microenvironment setup */ 
 	
 	setup_microenvironment(); // modify this in the custom code 
+
+	//evaluate_auto_stop(); //evaluate the auto_stop related parameters loaded from the .xml file
 	
 	// Getting the value of start_stop from user_parameters in the .xml setting file
 	bool start_stop = parameters.bools("start_stop");
@@ -298,7 +301,7 @@ int main( int argc, char* argv[] )
 				
 					// INSERT HERE YOUR AUTO STOP FUNCTION
 					//These conditions are evaluated only at full_save times
-					if(auto_stop_param("auto_stop")) {
+					if(auto_stop_param["auto_stop"]) {
 						int alive = total_live_cell_count();
 						std::vector<double> vector_epi_size;
 

@@ -128,6 +128,10 @@ double total_live_cell_count();
 double total_dead_cell_count();
 
 // function to auto stop the simulation
+//extern std::unordered_map<std::string, bool> auto_stop_param;
+
+//void evaluate_auto_stop(void);
+
 bool auto_stop_resistance(int alive_cells, int resistant_cells);    
 bool auto_stop_epi_size(std::vector<double> vector_epi_pos, double epi_max_size);
 bool auto_stop_epi_stable(std::vector<double> vector_epi_pos, std::deque<double> &deque_epi_average_size, double steps, double tolerance);
@@ -139,7 +143,7 @@ bool auto_stop();
 void create_pre_epithelium(int argc, char* argv[]);
 void create_epithelium_csv(int nbr, std::string func);
 void position_epithelium_cells(void);
-void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence);
+void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence = 1.0);
 void save_cells_csv(std::string filename);
 
 //Functions for divisions orientation
@@ -147,3 +151,6 @@ double cell_neighbor_distance(Cell* pC1, Cell*pC2);
 std::vector<Cell*> find_closest_neighbors(const std::vector<Cell*>& cells, Cell* pC); // Not tested yet
 
 std::vector<double> custom_division_orientation(Cell* pC);
+
+//Linear regression
+std::vector<double> linreg(int n, std::vector<double> X, std::vector<double> Y);
