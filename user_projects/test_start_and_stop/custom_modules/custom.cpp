@@ -519,8 +519,8 @@ using namespace std;
 
 vector<double> vector_alives;
 
-//std::unordered_map<std::string, bool> auto_stop_param = {{"auto_stop", false}, {"auto_stop_alive", false}, {"auto_stop_epi_stable", false}, {"auto_stop_epi_size", false}};
-/*
+std::unordered_map<std::string, bool> auto_stop_param = {{"auto_stop", false}, {"auto_stop_alive", false}, {"auto_stop_epi_stable", false}, {"auto_stop_epi_size", false}};
+
 void evaluate_auto_stop() {
 	//auto stop parameters should be be boolean in the user_parameters section of your .xml config files
 
@@ -535,7 +535,7 @@ void evaluate_auto_stop() {
 	}
 	return ; 
 }
-*/
+
 bool auto_stop_epi_size(vector<double> vector_epi_pos, double epi_max_size) {
     //concatenate the number of alive cells to the vector
 	double epi_average_size = accumulate(vector_epi_pos.begin(), vector_epi_pos.end(), 0);
