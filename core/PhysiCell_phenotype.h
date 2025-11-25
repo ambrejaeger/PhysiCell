@@ -548,7 +548,9 @@ class Cell_Functions
 	double (*calculate_distance_to_membrane)( Cell* pCell, Phenotype& phenotype, double dt );
 	
 	void (*set_orientation)(Cell* pCell, Phenotype& phenotype, double dt );
-	
+
+	std::vector<double> (*division_orientation)(Cell* pMyself);
+
 	void (*contact_function)(Cell* pMyself, Phenotype& my_phenotype, 
 		Cell* pOther, Phenotype& other_phenotype, double dt ); 
 

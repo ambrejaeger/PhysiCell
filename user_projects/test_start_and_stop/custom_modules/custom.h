@@ -64,6 +64,9 @@
 #                                                                             #
 ###############################################################################
 */
+#ifndef __custom_h__
+#define __custom_h__
+
 #include <sstream>
 #include <vector>
 #include <string>
@@ -154,3 +157,5 @@ std::vector<double> custom_division_orientation(Cell* pC);
 
 //Linear regression
 std::vector<double> linreg(int n, std::vector<double> X, std::vector<double> Y);
+
+#endif

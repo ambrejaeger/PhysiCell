@@ -724,6 +724,9 @@ void up_orientation( Cell* pCell, Phenotype& phenotype, double dt )
 	return; 
 }
 
+std::vector<double> standard_division_orientation ( Cell* pC )
+{ return UniformInUnitSphere(); }
+
 void initialize_default_cell_definition( void )
 {
 	// If the standard models have not yet been created, do so now. 
@@ -761,6 +764,7 @@ void initialize_default_cell_definition( void )
 	cell_defaults.functions.add_cell_basement_membrane_interactions = NULL; 
 	cell_defaults.functions.calculate_distance_to_membrane = NULL; 
 	
+	cell_defaults.functions.division_orientation = standard_division_orientation;
 	cell_defaults.functions.set_orientation = NULL;
 	
 	cell_defaults.functions.plot_agent_SVG = standard_agent_SVG;

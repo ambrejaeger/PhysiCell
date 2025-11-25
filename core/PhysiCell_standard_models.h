@@ -120,6 +120,7 @@ double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dt);
 void empty_function( Cell* pCell, Phenotype& phenotype, double dt ); // done 
 void up_orientation( Cell* pCell, Phenotype& phenotype, double dt ); // done
 
+std::vector<double> standard_division_orientation ( Cell* pC );
 // standard o2-based phenotype changes 
 
 void update_cell_and_death_parameters_O2_based( Cell* pCell, Phenotype& phenotype, double dt ); 

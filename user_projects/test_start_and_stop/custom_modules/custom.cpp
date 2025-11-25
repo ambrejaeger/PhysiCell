@@ -91,13 +91,13 @@ void create_cell_types( void )
 	   
 	   This is a good place to set default functions. 
 	*/ 
-	
+
 	initialize_default_cell_definition(); 
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
 	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
-
+	
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
 	cell_defaults.functions.custom_cell_rule = NULL; 
@@ -139,7 +139,7 @@ void create_cell_types( void )
 	cell_defaults.functions.update_phenotype = phenotype_function; 
 	cell_defaults.functions.custom_cell_rule = custom_function; 
 	cell_defaults.functions.contact_function = contact_function; 
- 
+	cell_defaults.functions.division_orientation = custom_division_orientation;
 
 	/*
 	   This builds the map of cell definitions and summarizes the setup. 

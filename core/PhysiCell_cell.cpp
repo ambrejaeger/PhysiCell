@@ -98,14 +98,6 @@ std::vector<Cell_Definition*> cell_definitions_by_index;
 std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 std::unordered_map<int,int> cell_definition_indices_by_type; 
 
-// function pointer on how to choose cell orientation at division
-// in case you want the legacy method 
-std::vector<double> cell_division_orientation (void) 
-{ return UniformOnUnitSphere(); }
-
-
-std::vector<double> cell_division_orientation (Cell* pC)
-{ return custom_division_orientation(pC); }
 
 Cell* standard_instantiate_cell()
 { return new Cell; }
@@ -174,6 +166,9 @@ Cell_Definition::Cell_Definition()
 	// bug fix July 31 2023
 	
 	functions.set_orientation = NULL;
+
+	//Modification 24 November 2025
+	functions.division_orientation = standard_division_orientation;
 	
 	// new March 2022 : make sure Cell_Interactions and Cell_Transformations 
 	// 					are appropriately sized. Same on motiltiy. 
@@ -447,9 +442,7 @@ Cell::~Cell()
 	auto result = std::find( std::begin(*all_cells),std::end(*all_cells),this );
 	if( result != std::end(*all_cells) )
 	{
-		std::cout << "Warning: Cell was never removed from data structure " << std::endl ; 
-		std::cout << "I am of type " << this->type << " at " << this->position << std::endl; 
-
+	
 		int temp_index = -1; 
 		bool found = false; 
 		for( int n= 0 ; n < (*all_cells).size() ; n++ )
@@ -591,7 +584,7 @@ Cell* Cell::divide( )
 	set_total_volume(phenotype.volume.total);
 	
 	//Then compute their position
-	std::vector<double> rand_vec = cell_division_orientation(this); 
+	std::vector<double> rand_vec = functions.division_orientation(this); 
 	rand_vec = rand_vec- phenotype.geometry.polarity*(rand_vec[0]*state.orientation[0]+ 
 		rand_vec[1]*state.orientation[1]+rand_vec[2]*state.orientation[2])*state.orientation;
 	normalize( &rand_vec ); 	//11.25 : Why was it removed? I put it back
@@ -1499,14 +1492,14 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 
 		static double zL = get_default_microenvironment()->mesh.bounding_box[2];		 
 		static double zU = get_default_microenvironment()->mesh.bounding_box[5]; 
-
+		/*
 		if( new_position[0] < xL || new_position[0] > xU || 
 		    new_position[1] < yL || new_position[1] > yU || 
 			new_position[2] < zL || new_position[2] > zU )
 		{
 			std::cout << "cell fusion at " << new_position << " violates domain bounds" << std::endl; 
-			std::cout << get_default_microenvironment()->mesh.bounding_box << std::endl << std::endl; 
 		}
+			*/
 		position = new_position; 
 		update_voxel_in_container();
 
