@@ -14,7 +14,7 @@
     </domain>
 
     <overall>
-        <max_time units="min">2000</max_time>
+        <max_time units="min">10000</max_time>
         <time_units>min</time_units>
         <space_units>micron</space_units>
         <dt_diffusion units="min">0.01</dt_diffusion>
@@ -29,11 +29,11 @@
     <save>
         <folder>output</folder>
         <full_data>
-            <interval units="min">6</interval>
+            <interval units="min">10</interval>
             <enable>true</enable>
         </full_data>
         <SVG>
-            <interval units="min">6</interval>
+            <interval units="min">10</interval>
             <enable>true</enable>
             <plot_substrate enabled="false" limits="false">
                 <min_conc />
@@ -58,7 +58,7 @@
             <phenotype>
                 <cycle code="5" name="live">
                     <phase_transition_rates units="min">
-                        <rate index="0" fixed_duration="true">0.01</rate>
+                        <rate index="0" fixed_duration="true">0.00028769841</rate>
                     </phase_transition_rates>
                     <standard_asymmetric_division enabled="False">
                         <asymmetric_division_probability name="epi_basal" units="dimensionless">1.0</asymmetric_division_probability>
@@ -633,9 +633,9 @@
 		<start_stop type="bool" units="">false</start_stop>
 		<auto_stop type="bool" units="">false</auto_stop>
 		<auto_stop_alive type="bool" units="">false</auto_stop_alive>
-        <auto_stop_epi_size type="bool" units="">false</auto_stop_epi_size>
+        <auto_stop_epi_size type="bool" units="">true</auto_stop_epi_size>
         <auto_stop_epi_stable type="bool" units="">false</auto_stop_epi_stable>
-        <epi_max_size type="double" units="micron">300</epi_max_size>
+        <epi_max_size type="double" units="micron">0</epi_max_size>
 
         <number_of_cells type="int" units="none" description="initial number of cells (for each cell type)">0</number_of_cells>
     </user_parameters>

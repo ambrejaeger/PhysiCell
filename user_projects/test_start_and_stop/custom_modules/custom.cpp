@@ -78,6 +78,8 @@
 #include <string>
 #include <deque>
 #include <unordered_set>
+#include <filesystem>
+#include <sys/stat.h>
 
 #include "./custom.h"
 #include "../modules/PhysiCell_geometry.h"
@@ -159,7 +161,11 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 	
+	initialize_microenvironment(); 
+	if (evaluate_start_stop_parameters() != -1) {
+		std::cout << "Evaluate start stop parameters completed" << std::endl;
+	}
+		
 	
 	return; 
 }
@@ -519,21 +525,64 @@ using namespace std;
 
 vector<double> vector_alives;
 
-std::unordered_map<std::string, bool> auto_stop_param = {{"auto_stop", false}, {"auto_stop_alive", false}, {"auto_stop_epi_stable", false}, {"auto_stop_epi_size", false}};
+std::unordered_map<std::string, bool> auto_stop_param = {{"start_stop", false}, {"read_init", false},{"saving_folder", false}, {"init_cells_filename", false}, {"auto_stop", false}, {"auto_stop_alive", false}, {"auto_stop_epi_stable", false}, {"auto_stop_epi_size", false}};
 
-void evaluate_auto_stop() {
-	//auto stop parameters should be be boolean in the user_parameters section of your .xml config files
-
+int evaluate_start_stop_parameters() {
+	int result = 1;
+	//auto stop parameters should be boolean or string in the user_parameters section of your .xml config files
 	std::cout << "Auto stop user parameters evaluation: " << std::endl;
+	
 	if (parameters.bools.size() > 0) {
 		for ( auto &p : auto_stop_param ) {
 			if ( parameters.bools.find_index(p.first) != -1 ) {
 				p.second = parameters.bools(p.first); 
-				std::cout << p.first << " enabled" << std::endl;
+				std::cout << p.first << " is " << p.second << std::endl;
 			}
 		}
 	}
-	return ; 
+
+	//Check that init file and saving folder exists
+	if (auto_stop_param["start_stop"]) {
+		if (parameters.strings.size() > 0) {
+			if ( auto_stop_param["read_init"] ) {
+				std::cout << "This is running 1" << std::endl;
+				if ( parameters.strings.find_index("init_cells_filename") != -1 ) {
+					std::cout << "This is running 2" << std::endl;
+					auto_stop_param["init_cells_filename"] = true;
+					const char *file = parameters.strings("init_cells_filename").c_str();
+					struct stat sb;
+					if (stat(file, &sb) == 0 && !(sb.st_mode & S_IFDIR)) {
+						std::cout << "The init file: " << file << " exists" << std::endl;
+					}
+					else {
+						std::cout << "The file at the path " << parameters.strings("init_cells_filename") << " does not exist" << std::endl;
+						result = -1;
+					}
+				}
+				else {
+					std::cout << "Path to the init file not indicated in <user_parameters> with the tag <init_cells_filename> in the .xml config file" << std::endl;
+					result = -1;
+				}
+			}
+			if ( parameters.strings.find_index("saving_folder") != -1 ) {
+				auto_stop_param["saving_folder"] = true;
+				const char *dir = parameters.strings("saving_folder").c_str();
+				struct stat sb;
+				if (stat(dir, &sb) == 0 ) {
+					std::cout << "The directory " << dir << " exists" << std::endl;
+				}
+				else {
+					std::cout << "The directory at the path " << parameters.strings("saving_folder") << " does not exist" << std::endl;
+					result = -1;
+				}
+			}
+			else {
+				std::cout << "Path to the saving folder is not indicated in <user_parameters> with the tag <saving_folder> in the .xml config file" << std::endl;
+				result = -1;
+			}
+		}
+	}
+	return result; 
 }
 
 bool auto_stop_epi_size(vector<double> vector_epi_pos, double epi_max_size) {

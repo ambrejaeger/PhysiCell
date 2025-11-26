@@ -127,8 +127,6 @@ int main( int argc, char* argv[] )
 		return 0;
 		
 	}
-	
-
 
 	// Keeping track of time when starting stopping and reloading the simulation
 	clock_t T_save_start, T_save_stop, T_reload_start, T_reload_stop, T_total_start, T_total_stop, T_main_start, T_main_stop;
@@ -148,7 +146,6 @@ int main( int argc, char* argv[] )
 	else
 	{
 		xml_path_str = "./config/PhysiCell_settings.xml"; 
-		std::cout << "Running" << std::endl;
 		XML_status = load_PhysiCell_config_file( xml_path_str );
 		sprintf( copy_command , "cp ./config/PhysiCell_settings.xml %s" , PhysiCell_settings.folder.c_str() ); 
 	}
@@ -169,15 +166,10 @@ int main( int argc, char* argv[] )
 	std::string time_units = "min"; 
 
 	/* Microenvironment setup */ 
-	
 	setup_microenvironment(); // modify this in the custom code 
-
-	//evaluate_auto_stop(); //evaluate the auto_stop related parameters loaded from the .xml file
 	
 	// Getting the value of start_stop from user_parameters in the .xml setting file
-	bool start_stop = parameters.bools("start_stop");
-	std::string saved_data_folder = parameters.strings("saving_folder");
-	std::cout << "Saved data folder is " << saved_data_folder << std::endl;
+	std::cout << "Start and stop value: " << auto_stop_param["start_stop"] << std::endl;
 
 	//User Parameters
 		//Additional parameters in the setting .xml file that will be used as condition to stop the simulation
@@ -193,25 +185,20 @@ int main( int argc, char* argv[] )
 	/* Users typically start modifying here. START USERMODS */ 
 	create_cell_types();
 
-	if( start_stop ){
-		parameters.bools("read_init") = true;
+	if( auto_stop_param["start_stop"] ) {
+		auto_stop_param["read_init"] = true;
 		// reset cells as they were in the previous simulation
 		setup_tissue();
-		reset_cell( cell_container->last_cell_cycle_time, saved_data_folder, xml_path_str );
-
+		reset_cell( cell_container->last_cell_cycle_time, parameters.strings("saving_folder"), xml_path_str );
 		//exit(-1);
 
-
-		reset_global_parameters( cell_container, saved_data_folder );
-
-		reset_microenv( saved_data_folder );
-
+		reset_global_parameters( cell_container, parameters.strings("saving_folder") );
+		reset_microenv( parameters.strings("saving_folder") );
 
 	} else{
 		setup_tissue(); //death model index = 1 == necrotic...= 0 == apoptotic.
 	}
 	
-
 	/* Users typically stop modifying here. END USERMODS */ 
 	
 	// set MultiCellDS save options 
@@ -243,7 +230,7 @@ int main( int argc, char* argv[] )
 	create_plot_legend( filename , cell_coloring_function ); 
 	
 	display_citations(); 
-	
+
 	// set the performance timers 
 
 	BioFVM::RUNTIME_TIC();
@@ -258,18 +245,16 @@ int main( int argc, char* argv[] )
 		report_file.open(filename); 	// create the data log file 
 		report_file<<"simulated time\tnum cells\tnum division\tnum death\twall time"<<std::endl;
 	}
-	
-	//put here reset randomness
-	if( start_stop )
-	{
-		std::string saved_data_folder = parameters.strings("saving_folder");
-		reset_randomness( saved_data_folder );
-	}
-	if (parameters.bools("auto_stop"))
-	{
-		mkdir(saved_data_folder.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	}
 
+	//put here reset randomness
+	if( auto_stop_param["start_stop"] )
+	{
+		reset_randomness( parameters.strings("saving_folder") );
+	}
+	if (auto_stop_param["auto_stop"])
+	{
+		mkdir(parameters.strings("saving_folder").c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	}
 	//define auto stop variable
 	bool stop = false;
 	std::deque<double> deque_epi_average_size;
@@ -295,39 +280,33 @@ int main( int argc, char* argv[] )
 				if( PhysiCell_settings.enable_full_saves == true )
 				{	
 					sprintf( filename , "%s/output%08u" , PhysiCell_settings.folder.c_str(),  PhysiCell_globals.full_output_index ); 
-					
 					save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , PhysiCell_globals.current_time ); 
-				
-				
 					// INSERT HERE YOUR AUTO STOP FUNCTION
 					//These conditions are evaluated only at full_save times
 					if(auto_stop_param["auto_stop"]) {
 						int alive = total_live_cell_count();
 						std::vector<double> vector_epi_size;
-
 						//Computation necessary for both auto_stop_epi_size and auto_stop_epi_stable
-						if(parameters.bools("auto_stop_epi_size") || parameters.bools("auto_stop_epi_stable")){
+						if(auto_stop_param["auto_stop_epi_size"] || auto_stop_param["auto_stop_epi_stable"]){
 							size_t n = std::min((*all_cells).size(), size_t(50));
 							std::vector<double> y_positions;
 							y_positions.reserve((*all_cells).size());
-
 							//auto stop condition (alive)
 							for (Cell *cell : *all_cells){
 								y_positions.push_back(cell->position[1]);
 							}
-
 							// Partially sort to get top 100 largest elements
 							std::partial_sort(y_positions.begin(), y_positions.begin() + n, y_positions.end(), std::greater<double>());
-							std::vector<double> vector_epi_size = std::vector<double>(y_positions.begin(), y_positions.begin() + n);
+							vector_epi_size = std::vector<double>(y_positions.begin(), y_positions.begin() + n);
+							
 						}
-
 						//auto stop when the epithelium reaches a given size
-						if(parameters.bools("auto_stop_epi_size")){
-								stop = auto_stop_epi_size(vector_epi_size, parameters.doubles("epi_max_size"));
+						if(auto_stop_param["auto_stop_epi_size"]){
+							std::cout << "Vector epi size: " << vector_epi_size.size() << std::endl;
+							stop = auto_stop_epi_size(vector_epi_size, parameters.doubles("epi_max_size"));
 						}
-
 						//auto stop condition stable epi size
-						if(parameters.bools("auto_stop_epi_stable")){
+						if(auto_stop_param["auto_stop_epi_stable"]){
 							//Only check after a certain time
 							if (PhysiCell_globals.current_time > PhysiCell_settings.full_save_interval * 20)
 							{
@@ -388,7 +367,7 @@ int main( int argc, char* argv[] )
 	
 	// Save all the files needed for Start & Stop at the right point.
 	
-	if (parameters.bools("auto_stop")) 
+	if (auto_stop_param["auto_stop"]) 
 	{
 		T_save_start = clock();
 		save_cell_microenv_data(cell_container, parameters.strings("saving_folder"));

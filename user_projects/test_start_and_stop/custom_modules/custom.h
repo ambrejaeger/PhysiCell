@@ -133,7 +133,7 @@ double total_dead_cell_count();
 // function to auto stop the simulation
 extern std::unordered_map<std::string, bool> auto_stop_param;
 
-void evaluate_auto_stop(void);
+int evaluate_start_stop_parameters(void);
 
 bool auto_stop_resistance(int alive_cells, int resistant_cells);    
 bool auto_stop_epi_size(std::vector<double> vector_epi_pos, double epi_max_size);
