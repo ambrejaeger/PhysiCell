@@ -1,4 +1,5 @@
 import os
+import shutil
 import glob
 import scipy.io
 import numpy as np
@@ -12,6 +13,8 @@ import subprocess
 from collections import defaultdict
 import pandas as pd
 import shutil
+import math
+import random
 
 def parse_physicell_labels(xml_file):
     """Parse the XML file to get labels and metadata for each field, it works"""
@@ -93,7 +96,8 @@ def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="
                 raise ValueError(f"Path: '{path_to_cell_def}' not found in XML structure")
             
             subroot = None
-            for cell_def in root.find(path_to_cell_def).iter("cell_definition"):
+            for cell_def in root.findall(os.path.join(path_to_cell_def,"cell_definition")):
+                #print(cell_def.get("name"))
                 if cell_def.get("name") == name_cell_def:
                     subroot = cell_def
                     break
@@ -232,19 +236,74 @@ def cell_above(position, heights):
     else:
         print("This ain't right")
         return ValueError
-def membrane_integrity(cells_info, membrane_type, membrane_thickness, X_min=10000, X_max=10000):
-    positions, cells_type = cells_info
-    
+
+
+def set_membrane_neighbors(neighbor_graph_file, cells_info, membrane_type):
+    cells_type = cells_info[1]
+    cells_ID = cells_info[2]
+
+    mask = cells_type == membrane_type
+    membrane_cells_ID = cells_ID[mask]
+
+    neighbor_dict = {}
+
+    with open(neighbor_graph_file, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line:
+                key, values = line.split(':', 1)
+                if np.isin(int(key), membrane_cells_ID):
+                    neighbors = np.asarray([int(x) for x in values.split(',')])
+                    neighbor_dict[int(key)] = neighbors[np.isin(neighbors, membrane_cells_ID)]
+
+    return neighbor_dict
+
+def check_membrane_neighbors(cells_info, membrane_type, membrane_neighbors_0, X_min=-10000, X_max=10000):
+    positions = cells_info[0]
+    cells_type = cells_info[1]
+    cells_ID = cells_info[2]
+
     mask = cells_type == membrane_type
     membrane_positions = positions[mask]
     x_filter_membrane = (membrane_positions[:,0] >= X_min) & (membrane_positions[:,0] <= X_max)
+    membrane_positions = membrane_positions[x_filter_membrane]
+    print(membrane_positions)
+    cells_ID = (cells_ID[mask])[x_filter_membrane]
+    print(cells_ID)
+    avg_dist = np.zeros(len(cells_ID))
+    for i,cell_id in enumerate(cells_ID):
+        #we are going to compute the distance between the cell and its neighbor at time t0
+        #membrane_neighbors_0 is a dict with index the cell ID, and key a list of the initial membrane neighbors
+        dist_neighbors = np.zeros(len(membrane_neighbors_0[cell_id]))
+        print("cell position: ", membrane_positions[i])
+        for j,memb_neighbor in enumerate(membrane_neighbors_0[cell_id]):
+            ind_neighbor = np.where(cells_ID == memb_neighbor)[0].item()
+            print(ind_neighbor)
+            print("neighbor position: ",membrane_positions[ind_neighbor])
 
-    y_range_membrane = x_filter_membrane[:,1].max() - x_filter_membrane[:,1].min()
+            dist_neighbors[j] = math.dist(membrane_positions[i], membrane_positions[ind_neighbor])
 
-    if y_range_membrane > membrane_thickness:
-        return False
+        avg_dist[i] = np.average(dist_neighbors)
+    
+    return avg_dist
+
+
+
+def membrane_integrity(cells_info, membrane_type, membrane_thickness=0.0, X_min=-10000, X_max=10000):
+    positions = cells_info[0]
+    cells_type = cells_info[1]
+    
+    mask = cells_type == membrane_type
+    membrane_positions = positions[mask]
+    
+    x_filter_membrane = (membrane_positions[:,0] >= X_min) & (membrane_positions[:,0] <= X_max)
+    
+    y_range_membrane = membrane_positions[x_filter_membrane,1].max() - membrane_positions[x_filter_membrane,1].min()
+    print(y_range_membrane)
+    if y_range_membrane > (membrane_thickness + 3):
+        return y_range_membrane, False
     else:
-        return True
+        return y_range_membrane,True
 
 
 def plot_cells_2D(positions):
@@ -268,9 +327,9 @@ def plot_cells_2D(positions):
     plt.show()
 
 
-def get_output_files(path, prefix='output', suffix='.mat'):
+def get_output_files(path, prefix='output', suffix='cells.mat'):
     
-    pattern = os.path.join(path, prefix + '*' + suffix)
+    pattern = os.path.join(path, prefix + "*" + suffix)
     files = glob.glob(pattern)
 
     files.sort()
@@ -289,83 +348,78 @@ def define_set_param(num_vars, names, bounds):
         'bounds': bounds
     }
 
-    param_values = sample(problem, 2) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
-    return problem, param_values
+    param_values = sample(problem, 32) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
+    return param_values
 
-def get_physicell_output(param_values): 
-    output_storage = np.zeros(param_values.shape[0]) 
-    for i in range (len(param_values)): 
-        print(f"Running simulation {i+1} with parameters: life_cycle_cancer_cell={param_values[i][0]}, transformation_rate_epi_basal_cancer={param_values[i][1]}")
-        life_cycle_cancer_cell = param_values[i][0]
-        transformation_rate_epi_basal_cancer = param_values[i][1]
-        dict_xml = define_settings(life_cycle_cancer_cell, transformation_rate_epi_basal_cancer)
+def evaluate_membrane_integrity(xml_file, param_treepaths, param_values): 
+    
+    temp_output_folder = os.path.join(os.getcwd(), "temp_output")
+    temp_xml_file = os.path.join(temp_output_folder, os.path.basename(xml_file))
 
-        xml_element = dict_to_xml(dict_xml)
-        tree = ET.ElementTree(xml_element)
-        tree.write(os.path.join(root_path, "PhysiCell/config/PhysiCell_settings.xml"), encoding="utf-8", xml_declaration=True) #path à changer
+    if os.path.isdir(temp_output_folder):
+        shutil.rmtree(temp_output_folder)
+    
+    os.makedirs(temp_output_folder, exist_ok=False)
 
+    if os.path.exists(xml_file):
+        shutil.copy(xml_file, temp_xml_file)
+
+    output_storage = np.zeros(param_values.shape[0])
+    memb_int = ["" for _ in range(param_values.shape[0])]
+    #Changing output folder
+    modify_xml(temp_xml_file, "save/folder", "temp_output")
+    for i,X in enumerate(param_values): 
+        #X is the set of values that should be modified in the xml
+        for j, val in enumerate(X):
+            modify_xml(temp_xml_file, param_treepaths[j][0], val, name_cell_def=param_treepaths[j][1], name_interact_cell_def=param_treepaths[j][2]) 
+        
+        #Now run the simulation that is loaded and made
         process0 = subprocess.run(
-        ["rm", "-rf", "*"],
+        ["./heterogeneity", temp_xml_file],
         capture_output=True,
         text=True,
-        cwd=os.path.join(root_path, "PhysiCell/output") #to clean the output folder before each simulation
         )
 
-        print("Configuration file updated. Starting simulation...")
-        # Run .exe file 
+        #okay now we need to analyze the result
+        initial_xml_file = os.path.join(temp_output_folder, "initial.xml")
+        mat_files = get_output_files(temp_output_folder)
+        initialized = False
+        thickness = 0.0
+        for mat_file in mat_files:
+            cells_info = extract_position_type_data(mat_file, initial_xml_file)
+            print(mat_file)
+            if not initialized: 
+                print("running")
+                thickness, m = membrane_integrity(cells_info, 2)
+                output_storage[i] = thickness
+                initialized = True
+            else:
+                output_storage[i],m = membrane_integrity(cells_info, 2, membrane_thickness=thickness)
+                if m == False:
+                    memb_int[i] = mat_file
+                    print(len(memb_int), " is the size of the list and the index is ", i)
+        print("Run ", i, " is done")
+
         process1 = subprocess.run(
-        [os.path.join(root_path, "PhysiCell/project.exe")], # !! To change if linux 
+        ["make", "gif", "OUTPUT=temp_output"],
         capture_output=True,
-        text=True,
-        cwd=os.path.join(root_path, "PhysiCell")
+        text=True
         )
+        shutil.copyfile("./temp_output/out.gif", f"./output/out_{i}.gif")
 
-        # Print the output and error (if any)
-        print("Output:")
-        print(process1.stdout)
-        print("Error:")
-        print(process1.stderr)
-
-        #get output from output folder 
-        output_path = os.path.join(root_path, "PhysiCell/output")  
-        files_by_timestep = list_path_folder(output_path)
-        result_mat = get_matrix_ids(files_by_timestep, root_path)
-        area_over_time = computation_area_over_time(result_mat)
-        output_storage[i] = area_over_time
-
-        #stocker la vidéo 
-        process2 = subprocess.run(
-        ["make", "jpeg"],
-        capture_output=True,
-        text=True,
-        cwd=os.path.join(root_path, "PhysiCell")
-        )
-        process3 = subprocess.run(
-        ["make", "gif"],
-        capture_output=True,
-        text=True,
-        cwd=os.path.join(root_path, "PhysiCell")
-        )
-        process4 = subprocess.run(
-        ["make", "movie"],
-        capture_output=True,
-        text=True,
-        cwd=os.path.join(root_path, "PhysiCell")
-        )
-
-        print("Output:")
-        print(f"{process2.stdout}, {process3.stdout}, {process4.stdout}")
-        print("Error:")
-        print(f"{process2.stderr}, {process3.stderr}, {process4.stderr}")
-
-        src = os.path.join(root_path, "PhysiCell/output/out.mp4")
-        dst_folder = os.path.join(root_path, "output_video")
-        dst = os.path.join(dst_folder, f"movie_simulation_{i+1}.mp4")
-        os.makedirs(dst_folder, exist_ok=True)
-        # Move video file and rename it
-        shutil.move(src, dst)
-
+    if os.path.isdir("./output"):
+        with open('./output/param_names', 'w') as fp:
+            for item in param_treepaths:
+                fp.write("%s\n" % item)
+        np.savetxt("./output/param_values_membrane_integrity.txt", param_values)
+        np.savetxt("./output/membrane_integrity.txt", output_storage)
     return output_storage
+
+def analyze_sobol(xml_file, param_treepaths, param_values, num_vars, names, bounds):
+    problem, param_values = define_set_param(num_vars, names, bounds)
+    Y = evaluate_membrane_integrity(xml_file, param_treepaths, param_values)
+    Si = analyze(problem, Y, print_to_console=True)
+    return Si
 
 def main():
     #write the path of all the nodes we want to modify 
@@ -416,7 +470,29 @@ def main():
 
     path = "./output/"
     #print(get_output_files(path, prefix='output', suffix='.mat'))
-    print(define_set_param())
+    mat_file = "./output/output00000001_cells.mat"
+    initial_xml_file = "./output/initial.xml"
+    neighbor_graph_file = "./output/output00000001_cell_neighbor_graph.txt"
+    membrane_type = 2
+
+    labels = parse_physicell_labels(initial_xml_file)
+    # Load mat file
+    data = scipy.io.loadmat(mat_file)
+    cells_data = data['cells']
+        
+    num_cells = cells_data.shape[1]
+
+    positions_dict = {}
+
+    position_indices = labels["position"][0] 
+    id_index = labels["ID"][0]
+
+    for i in range(num_cells):
+        positions_dict[cells_data[id_index, i].item()] = cells_data[position_indices,i]
+    cells_info = extract_position_type_data(mat_file, initial_xml_file)
+    membrane_neighbors_0 = set_membrane_neighbors(neighbor_graph_file, cells_info, membrane_type) #checked works fine returnes correctly the dict stored in the file
+    
+    print(check_membrane_neighbors(cells_info, membrane_type, membrane_neighbors_0))
 
 if __name__ == '__main__':
     main()
