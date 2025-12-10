@@ -397,7 +397,7 @@ def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolera
         print("Run ", i, " is done")
 
         process1 = subprocess.run(
-        ["make", "gif", f"OUTPUT={temp_output}"],
+        ["make", "gif", f"OUTPUT={temp_output_folder}"],
         capture_output=True,
         text=True
         )
