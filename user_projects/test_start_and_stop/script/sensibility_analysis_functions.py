@@ -304,11 +304,11 @@ def compute_membrane_integrity(mat_files, membrane_type, tolerance, X_min=-10000
     return count_breaks
 
 
-def compute_membrane_integrity2(mat_files, membrane_type, tolerance, X_min=-10000, X_max=10000):
+def compute_membrane_integrity2(mat_files, temp_output_folder, membrane_type, tolerance, X_min=-10000, X_max=10000):
     '''Only compute at the last step of the run '''
-    mat_file = "./temp_output/first_save_cells.mat"
-    initial_xml_file = "./temp_output/initial.xml"
-    neighbor_graph_file = "./temp_output/first_save_cell_neighbor_graph.txt"
+    mat_file = os.path.join(temp_output_folder,"first_save_cells.mat")
+    initial_xml_file = os.path.join(temp_output_folder,"initial.xml")
+    neighbor_graph_file = os.path.join(temp_output_folder,"first_save_cell_neighbor_graph.txt")
     
     cells_info = extract_position_type_data(mat_file, initial_xml_file)
     membrane_neighbors_0 = set_membrane_neighbors(neighbor_graph_file, cells_info, membrane_type)
@@ -379,7 +379,7 @@ def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolera
 
     output_storage = np.zeros(param_values.shape[0])
     #Changing output folder
-    modify_xml(temp_xml_file, "save/folder", "temp_output")
+    modify_xml(temp_xml_file, "save/folder", temp_output)
     for i in range(start_file, end_file): 
         for j, val in enumerate(param_values[i,:]):
             modify_xml(temp_xml_file, param_treepaths[j][0], val, name_cell_def=param_treepaths[j][1], name_interact_cell_def=param_treepaths[j][2]) 
@@ -393,16 +393,16 @@ def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolera
 
         #okay now we need to analyze the result
         mat_files = get_output_files(temp_output_folder)
-        output_storage[i] = math.fsum(compute_membrane_integrity2(mat_files, 2, tolerance))
+        output_storage[i] = math.fsum(compute_membrane_integrity2(mat_files, temp_output_folder, 2, tolerance))
         print("Run ", i, " is done")
 
         process1 = subprocess.run(
-        ["make", "gif", "OUTPUT=temp_output"],
+        ["make", "gif", f"OUTPUT={temp_output}"],
         capture_output=True,
         text=True
         )
         
-        shutil.copyfile("./temp_output/out.gif", f"{output_folder}/out_{i}.gif")
+        shutil.copyfile(f"{temp_output_folder}/out.gif", f"{output_folder}/out_{i}.gif")
         with open(output_storage_file, "a") as f:
             f.write(f"{i} {output_storage[i]}\n")
         with open(save_output, "a") as f:
