@@ -258,7 +258,7 @@ int main( int argc, char* argv[] )
 	//define auto stop variable
 	bool stop = false;
 	std::deque<double> deque_epi_average_size;
-	
+	bool first_save = false;
 
 	T_main_start = clock();
 	
@@ -268,6 +268,14 @@ int main( int argc, char* argv[] )
 	{		
 		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt && stop!=true)
 		{
+			
+			//Save at time of first mechanical step
+			if( PhysiCell_globals.current_time > phenotype_dt && first_save == false)
+			{
+				sprintf( filename , "%s/first_save", PhysiCell_settings.folder.c_str());
+				save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , PhysiCell_globals.current_time );
+				first_save = true;
+			}
 			// save data if it's time. 
 			if( PhysiCell_globals.current_time > PhysiCell_globals.next_full_save_time - 0.5 * diffusion_dt )
 			{
