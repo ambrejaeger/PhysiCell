@@ -24,6 +24,7 @@ if __name__ == "__main__":
         description="Script that runs evaluate_membrane_integrity2"
     )
     parser.add_argument("--output", required=True, type=str)
+    parser.add_argument("--temp_output", required=True, type=str)
     parser.add_argument("--restart", required=False, type=str, choices=["0", "1", "true", "false"])
     parser.add_argument("--start", required=False, type=int)
     parser.add_argument("--end", required=False, type=int)
@@ -31,6 +32,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     output = args.output
+    temp_output = args.temp_output
+
     if args.restart and args.restart.lower() in ["1", "true"]:
         restart = True
     else:
@@ -43,5 +46,20 @@ if __name__ == "__main__":
         end = args.end
     else:
         end = 0
-        
-    evaluate_membrane_integrity2(xml_file, param, param_values, tolerance, output,restart=restart,restart_int=start, end_int=end)
+    
+    completed = False
+    while not completed:
+        if os.path.isdir(os.path.join(os.getcwd(), temp_output)):
+            print(temp_output, " folder already exist in your working directory, by running this script you might overwrite an ongoing simulation.")
+            choice = input("Do you want to run this script anyway [yes/no]:")
+            if choice == "yes":
+                completed = True
+                evaluate_membrane_integrity2(xml_file, param, param_values, tolerance, output, temp_output, restart=restart,restart_int=start, end_int=end)
+            elif choice == "no":
+                completed = True
+                print("Script Interrupted.")
+            else:
+                print("Please enter yes or no.")
+        else:
+            completed = True
+            evaluate_membrane_integrity2(xml_file, param, param_values, tolerance, output, temp_output, restart=restart,restart_int=start, end_int=end)

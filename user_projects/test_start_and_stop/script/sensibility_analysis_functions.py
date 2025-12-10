@@ -323,13 +323,16 @@ def compute_membrane_integrity2(mat_files, membrane_type, tolerance, X_min=-1000
     return count_breaks
 
 
-def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolerance, save_output_folder, restart=False, restart_int = 0, end_int = 0): 
+def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolerance, save_output_folder, temp_output, restart=False, restart_int = 0, end_int = 0): 
     output_folder = os.path.join(os.getcwd(), save_output_folder)
     save_output = os.path.join(output_folder, "run_output.txt")
     output_storage_file = os.path.join(output_folder,"membrane_integrity.txt")
-    temp_output_folder = os.path.join(os.getcwd(), "temp_output")
+    temp_output_folder = os.path.join(os.getcwd(), temp_output)
     temp_xml_file = os.path.join(temp_output_folder, os.path.basename(xml_file))
     start_file = 0
+
+    if not os.path.isdir(temp_output_folder):
+        os.makedirs(temp_output_folder, exist_ok=False)
     
     if end_int == 0:
         end_file = param_values.shape[0]
@@ -345,11 +348,6 @@ def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolera
                 for item in param_treepaths:
                     fp.write("%s\n" % item)
             np.savetxt(os.path.join(output_folder,"param_values_membrane_integrity.txt"), param_values)  
-
-        if os.path.isdir(temp_output_folder):
-            shutil.rmtree(temp_output_folder)
-        
-        os.makedirs(temp_output_folder, exist_ok=False)
 
         if os.path.exists(xml_file):
             shutil.copy(xml_file, temp_xml_file)
@@ -411,11 +409,16 @@ def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolera
             f.write(process0.stdout)
         with open(save_output, "a") as f:
             f.write(process1.stdout)
+
+    #delete temp output at the end of the run
+    if os.path.isdir(temp_output_folder):
+            shutil.rmtree(temp_output_folder)
+
     return output_storage
 
 
-def restart_evaluate_membrane_integrity2(xml_file, tolerance, save_output_folder):
-    return evaluate_membrane_integrity2(xml_file, [], [], tolerance, save_output_folder, restart=True)
+def restart_evaluate_membrane_integrity2(xml_file, tolerance, save_output_folder, temp_output):
+    return evaluate_membrane_integrity2(xml_file, [], [], tolerance, save_output_folder, temp_output, restart=True)
 
 def membrane_integrity(cells_info, membrane_type, membrane_thickness=0.0, X_min=-10000, X_max=10000):
     positions = cells_info[0]
