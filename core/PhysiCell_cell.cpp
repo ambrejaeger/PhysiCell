@@ -307,7 +307,7 @@ void Cell::update_motility_vector( double dt_ )
 		axpy( &(phenotype.motility.motility_vector), one_minus_bias, randvec ); // motility = (1-bias)*randvec + bias*bias_vector
 		
 		normalize( &(phenotype.motility.motility_vector) ); 
-		
+
 		phenotype.motility.motility_vector *= phenotype.motility.migration_speed; 
 	}	
 	return; 
@@ -2671,7 +2671,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 	node = node.child( "motility" ); 
 	if( node )
 	{
-		pugi::xml_node node_mot = node.child("option");
+		pugi::xml_node node_mot = node.child("options");
 		if (node_mot) 
 		{
 			bool enabled = xml_get_my_bool_value(node_mot.child("enabled"));
