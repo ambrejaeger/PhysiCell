@@ -292,6 +292,10 @@ def evaluate_membrane_permeability(xml_file, param_treepaths, param_values, tole
         
         start_file = restart_int
     else:
+        print("This runs")
+        if os.path.exists(xml_file) & (not os.path.exists(temp_xml_file)):
+            shutil.copy(xml_file, temp_xml_file)
+
         param_values = np.loadtxt(os.path.join(output_folder,"param_values_membrane_permeability.txt"))
         pattern = r'["\'](.*?)["\']'
         with open(os.path.join(os.path.join(output_folder,"param_names.txt")), "r") as file:
@@ -425,7 +429,7 @@ def analyze_sobol(xml_file, param_treepaths, param_values, num_vars, names, boun
 
 def main():
     param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "membrane"],
-    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "attracted"],
+             ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "attracted"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "attracted", "membrane"],
     ["cell_definitions/cell_definition/phenotype/motility/speed", "attracted"],
     ["cell_definitions/cell_definition/phenotype/motility/migration_bias", "attracted"],
