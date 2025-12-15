@@ -354,6 +354,10 @@ def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolera
         
         start_file = restart_int
     else:
+        print("This runs")
+        if os.path.exists(xml_file) & (not os.path.exists(temp_xml_file)):
+            shutil.copy(xml_file, temp_xml_file)
+
         param_values = np.loadtxt(os.path.join(output_folder,"param_values_membrane_integrity.txt"))
         pattern = r'["\'](.*?)["\']'
         with open(os.path.join(os.path.join(output_folder,"param_names.txt")), "r") as file:

@@ -244,7 +244,7 @@ jpeg:
 	rm -f __H*.txt __W*.txt __resize.txt 
 	
 gif: 
-	magick convert $(OUTPUT)/s*.svg $(OUTPUT)/out.gif 
+	convert -delay 20 -loop 0 $(OUTPUT)/s*.svg $(OUTPUT)/out.gif 
 	 
 movie:
 	ffmpeg -r $(FRAMERATE) -f image2 -i $(OUTPUT)/snapshot%08d.jpg -vcodec libx264 -pix_fmt yuv420p -strict -2 -tune animation -crf 15 -acodec none $(OUTPUT)/out.mp4
@@ -298,7 +298,8 @@ load:
 	cp ./user_projects/$(PROJ)/main.cpp .
 	cp ./user_projects/$(PROJ)/Makefile .
 	cp ./user_projects/$(PROJ)/config/* ./config/ 
-	cp ./user_projects/$(PROJ)/custom_modules/* ./custom_modules/ 
+	cp ./user_projects/$(PROJ)/custom_modules/* ./custom_modules/
+	cp ./user_projects/$(PROJ)/script/* ./script/ 
 
 pack:
 	@echo " "
