@@ -401,7 +401,7 @@ def concatenate_results(files_mat, files_xml):
     return
 
 
-def define_set_param(num_vars, names, bounds): 
+def define_set_param(num_vars, names, bounds, seed=0): 
     print("Defining parameter space and sampling...")
     problem = {
         'num_vars': num_vars,
@@ -409,7 +409,7 @@ def define_set_param(num_vars, names, bounds):
         'bounds': bounds
     }
 
-    param_values = sample(problem, 32) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
+    param_values = sample(problem, 32,seed=seed) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
     return param_values
 
 
@@ -418,3 +418,31 @@ def analyze_sobol(xml_file, param_treepaths, param_values, num_vars, names, boun
     Y = evaluate_membrane_integrity(xml_file, param_treepaths, param_values)
     Si = analyze(problem, Y, print_to_console=True)
     return Si
+
+def main():
+    param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "membrane"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "attracted"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "attracted", "membrane"],
+    ["cell_definitions/cell_definition/phenotype/motility/speed", "attracted"],
+    ["cell_definitions/cell_definition/phenotype/motility/migration_bias", "attracted"],
+    ["cell_definitions/cell_definition/phenotype/volume/total", "attracted"]
+    ]
+
+    bounds = [[0.0, 1.0],
+          [0.0, 1.0],
+          [0.0, 1.0],
+          [0.1, 5.0],
+          [0.0, 1.0],
+          [3000, 5500]]
+    names = ["_".join(p) for p in param]
+    num_vars = len(param)
+    xml_file = "./config/PhysiCell_settings.xml"
+    param_values = define_set_param(num_vars, names, bounds)
+
+    param_values2 = define_set_param(num_vars, names, bounds)
+
+    print(param_values[0])
+    print(param_values2[0])
+
+if __name__ == "__main__":
+    main()
