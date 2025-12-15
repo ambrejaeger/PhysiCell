@@ -194,26 +194,29 @@ def track_y_pos(cells_info):
     return y_pos
 
 
-def cell_type_height(cells_info, X_min, X_max, bin, cell_type):
-    positions, cells_type = cells_info
-    
+def cell_type_height(cells_info, X_min, X_max, bin_width, cell_type):
+    positions = cells_info[0]
+    cells_type = cells_info[1]
     mask = cells_type == cell_type
     filtered_positions = positions[mask]
-    bins = np.arange(X_min, X_max, bin)
-    
+
+    bins = np.arange(X_min, X_max, bin_width)
     digitized = np.digitize(filtered_positions[:, 0], bins)
     heights = np.zeros((len(bins), 2))
+    
     for i in range(len(bins)):
         mask = digitized == (i + 1)
+        
         if np.any(mask):
             avg_y = np.mean(filtered_positions[mask, 1])
             heights[i] = [bins[i], avg_y]
-    
+        else:
+            heights[i] = [bins[i], np.nan]  # or 0
     return heights
 
 
 def cell_below(position, heights):
-    mask = heights[:, 0] <= position[0]
+    mask = heights[:, 0] < position[0]
     mask = np.argmax(heights[mask, 0])
     if heights[mask + 1, 0] >= position[0]:
         if heights[mask, 1] >= position[1]:
@@ -238,69 +241,21 @@ def cell_above(position, heights):
         return ValueError
 
 
-def set_membrane_neighbors(neighbor_graph_file, cells_info, membrane_type):
-    cells_type = cells_info[1]
-    cells_ID = cells_info[2]
-
-    mask = cells_type == membrane_type
-    membrane_cells_ID = cells_ID[mask]
-
-    neighbor_dict = {}
-
-    with open(neighbor_graph_file, 'r') as file:
-        for line in file:
-            line = line.strip()
-            if line:
-                key, values = line.split(':', 1)
-                if np.isin(int(key), membrane_cells_ID):
-                    neighbors = np.asarray([int(x) for x in values.split(',')])
-                    neighbor_dict[int(key)] = neighbors[np.isin(neighbors, membrane_cells_ID)]
-
-    return neighbor_dict
-
-def check_membrane_neighbors(cells_info, membrane_type, membrane_neighbors_0, X_min=-10000, X_max=10000):
-    positions = cells_info[0]
-    cells_type = cells_info[1]
-    cells_ID = cells_info[2]
-
-    mask = cells_type == membrane_type
-    membrane_positions = positions[mask]
-    x_filter_membrane = (membrane_positions[:,0] >= X_min) & (membrane_positions[:,0] <= X_max)
-    membrane_positions = membrane_positions[x_filter_membrane]
-    cells_ID = (cells_ID[mask])[x_filter_membrane]
-    avg_dist = np.zeros(len(cells_ID))
-    for i,cell_id in enumerate(cells_ID):
-        #we are going to compute the distance between the cell and its neighbor at time t0
-        #membrane_neighbors_0 is a dict with index the cell ID, and key a list of the initial membrane neighbors
-        dist_neighbors = np.zeros(len(membrane_neighbors_0[cell_id]))
-        for j,memb_neighbor in enumerate(membrane_neighbors_0[cell_id]):
-            ind_neighbor = np.where(cells_ID == memb_neighbor)[0].item()
-
-            dist_neighbors[j] = math.dist(membrane_positions[i], membrane_positions[ind_neighbor])
-
-        avg_dist[i] = np.average(dist_neighbors)
-    
-    return avg_dist
-
-
-def compute_membrane_integrity2(mat_files, temp_output_folder, membrane_type, tolerance, X_min=-10000, X_max=10000):
-    '''Only compute at the last step of the run '''
-    mat_file = os.path.join(temp_output_folder,"first_save_cells.mat")
+def compute_membrane_permeability(mat_files, temp_output_folder, membrane_type, tolerance, X_min=-300, X_max=300):
     initial_xml_file = os.path.join(temp_output_folder,"initial.xml")
-    neighbor_graph_file = os.path.join(temp_output_folder,"first_save_cell_neighbor_graph.txt")
-    
-    cells_info = extract_position_type_data(mat_file, initial_xml_file)
-    membrane_neighbors_0 = set_membrane_neighbors(neighbor_graph_file, cells_info, membrane_type)
-    avg_dist_1 = check_membrane_neighbors(cells_info, membrane_type, membrane_neighbors_0)
+    for mat_file in mat_files: 
+        cells_info = extract_position_type_data(mat_file, initial_xml_file)
+        cells_type = cells_info[1] 
+        positions = cells_info[0] 
 
-    count_breaks = [0.0 for _ in range(len(avg_dist_1))]
-    cells_info = extract_position_type_data(mat_files[-1], initial_xml_file)
-    avg_dist = check_membrane_neighbors(cells_info, membrane_type, membrane_neighbors_0)
-    for i,dist in enumerate(avg_dist):
-        if dist > avg_dist_1[i] + tolerance:
-            count_breaks[i] = 1.0
-    return count_breaks
-
+        heights = cell_type_height(cells_info, X_min, X_max, 15, membrane_type)
+        attracted = cells_type == 0
+        result = cell_below(positions[attracted][0], heights)
+        if result:
+            print(mat_file)
+            return 1
+        
+    return 0
 
 def evaluate_membrane_permeability(xml_file, param_treepaths, param_values, tolerance, save_output_folder, temp_output, restart=False, restart_int = 0, end_int = 0): 
     output_folder = os.path.join(os.getcwd(), save_output_folder)
@@ -379,7 +334,7 @@ def evaluate_membrane_permeability(xml_file, param_treepaths, param_values, tole
 
         #okay now we need to analyze the result
         mat_files = get_output_files(temp_output_folder)
-        output_storage[i] = math.fsum(compute_membrane_integrity2(mat_files, temp_output_folder, 2, tolerance))
+        output_storage[i] = compute_membrane_permeability(mat_files, temp_output_folder, 2, tolerance)
         print("Run ", i, " is done")
 
         process1 = subprocess.run(
@@ -401,26 +356,6 @@ def evaluate_membrane_permeability(xml_file, param_treepaths, param_values, tole
             shutil.rmtree(temp_output_folder)
 
     return output_storage
-
-
-def restart_evaluate_membrane_integrity2(xml_file, tolerance, save_output_folder, temp_output):
-    return evaluate_membrane_integrity2(xml_file, [], [], tolerance, save_output_folder, temp_output, restart=True)
-
-def membrane_integrity(cells_info, membrane_type, membrane_thickness=0.0, X_min=-10000, X_max=10000):
-    positions = cells_info[0]
-    cells_type = cells_info[1]
-    
-    mask = cells_type == membrane_type
-    membrane_positions = positions[mask]
-    
-    x_filter_membrane = (membrane_positions[:,0] >= X_min) & (membrane_positions[:,0] <= X_max)
-    
-    y_range_membrane = membrane_positions[x_filter_membrane,1].max() - membrane_positions[x_filter_membrane,1].min()
-    print(y_range_membrane)
-    if y_range_membrane > (membrane_thickness + 3):
-        return y_range_membrane, False
-    else:
-        return y_range_membrane,True
 
 
 def plot_cells_2D(positions):
@@ -477,147 +412,9 @@ def define_set_param(num_vars, names, bounds):
     param_values = sample(problem, 32) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
     return param_values
 
-def evaluate_membrane_integrity(xml_file, param_treepaths, param_values): 
-    
-    temp_output_folder = os.path.join(os.getcwd(), "temp_output")
-    temp_xml_file = os.path.join(temp_output_folder, os.path.basename(xml_file))
-
-    if os.path.isdir(temp_output_folder):
-        shutil.rmtree(temp_output_folder)
-    
-    os.makedirs(temp_output_folder, exist_ok=False)
-
-    if os.path.exists(xml_file):
-        shutil.copy(xml_file, temp_xml_file)
-
-    output_storage = np.zeros(param_values.shape[0])
-    memb_int = ["" for _ in range(param_values.shape[0])]
-    #Changing output folder
-    modify_xml(temp_xml_file, "save/folder", "temp_output")
-    for i,X in enumerate(param_values): 
-        #X is the set of values that should be modified in the xml
-        for j, val in enumerate(X):
-            modify_xml(temp_xml_file, param_treepaths[j][0], val, name_cell_def=param_treepaths[j][1], name_interact_cell_def=param_treepaths[j][2]) 
-        
-        #Now run the simulation that is loaded and made
-        process0 = subprocess.run(
-        ["./heterogeneity", temp_xml_file],
-        capture_output=True,
-        text=True,
-        )
-
-        #okay now we need to analyze the result
-        initial_xml_file = os.path.join(temp_output_folder, "initial.xml")
-        mat_files = get_output_files(temp_output_folder)
-        initialized = False
-        thickness = 0.0
-        for mat_file in mat_files:
-            cells_info = extract_position_type_data(mat_file, initial_xml_file)
-            print(mat_file)
-            if not initialized: 
-                print("running")
-                thickness, m = membrane_integrity(cells_info, 2)
-                output_storage[i] = thickness
-                initialized = True
-            else:
-                output_storage[i],m = membrane_integrity(cells_info, 2, membrane_thickness=thickness)
-                if m == False:
-                    memb_int[i] = mat_file
-                    print(len(memb_int), " is the size of the list and the index is ", i)
-        print("Run ", i, " is done")
-
-        process1 = subprocess.run(
-        ["make", "gif", "OUTPUT=temp_output"],
-        capture_output=True,
-        text=True
-        )
-        shutil.copyfile("./temp_output/out.gif", f"./output/out_{i}.gif")
-
-    if os.path.isdir("./output"):
-        with open('./output/param_names', 'w') as fp:
-            for item in param_treepaths:
-                fp.write("%s\n" % item)
-        np.savetxt("./output/param_values_membrane_integrity.txt", param_values)
-        np.savetxt("./output/membrane_integrity.txt", output_storage)
-    return output_storage
 
 def analyze_sobol(xml_file, param_treepaths, param_values, num_vars, names, bounds):
     problem, param_values = define_set_param(num_vars, names, bounds)
     Y = evaluate_membrane_integrity(xml_file, param_treepaths, param_values)
     Si = analyze(problem, Y, print_to_console=True)
     return Si
-
-def main():
-    #write the path of all the nodes we want to modify 
-    #make a copy of the original .xml in the output folder
-    #for a node in the xml
-        #store original value
-
-        #for all the value to test
-            #modify the .xml functions works
-            #run the simulation
-            #perform analysis
-            #store analysis results
-            #erase useless output    
-        #restore the value to original    
-        
-    #import argparse
-    
-    #parser = argparse.ArgumentParser(description='Convert PhysiCell output to ParaView format')
-    #parser.add_argument('output_dir', help='Directory containing .mat and .xml output files')
-    #parser.add_argument('--clean', action='store_true', help='Remove existing output files before processing')
-    #parser.add_argument('--prefix', default='timestep', help='File prefix for VTU files (default: timestep)')
-    
-    #args = parser.parse_args()
-    
-    #pvd_file, vtu_files = create_pvd(args.output_dir, args.clean, args.prefix)
-    
-    #if pvd_file:
-    #    print(f"\nConversion complete! To visualize these files in ParaView:")
-    #    print(f"1. Open ParaView")
-    #    print(f"2. File > Open > Navigate to: {os.path.abspath(pvd_file)}")
-    #    print(f"3. Click 'Apply' in the Properties panel to load the data")
-    print(os.getcwd())
-    
-    mat_file = "./output/output00000001_cells.mat"
-    initial_xml_file = "./output/initial.xml"
-    #print(parse_physicell_labels(xml_file))
-    #print(analyse_output(mat_file, xml_file))
-
-    path = "./cell_definitions/cell_definition/phenotype/cell_transformations/transformation_rates/transformation_rate"
-    xml_file = "./config/PhysiCell_settings.xml"
-    value = 0.0
-    #print(parse_physicell_labels(initial_xml_file))
-    #cells_info = extract_position_type_data(mat_file, initial_xml_file)
-    #heights = cell_type_height(cells_info, -200, 200, 20, 2)
-    #plot_cells_2D(heights)
-    #print(cell_above([-50,-170], heights))
-    #print(modify_xml(xml_file, path, value, name_cell_def="epi_basal", name_interact_cell_def="epi_inter1"))
-
-    param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_basal"],
-    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_inter"],
-    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "membrane"],
-    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "epi_basal"],
-    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "membrane"],
-    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "conjonctif"]
-    ]
-    
-    path = "./output/"
-    #print(get_output_files(path, prefix='output', suffix='.mat'))
-    mat_file = "./output/output00000001_cells.mat"
-    initial_xml_file = "./output/initial.xml"
-    neighbor_graph_file = "./output/output00000001_cell_neighbor_graph.txt"
-    membrane_type = 2
-
-    bounds = [[0.0, 1.0] * len(param)]
-    names = ["_".join(p) for p in param]
-    num_vars = len(param)
-    xml_file = "./config/PhysiCell_settings.xml"
-    param_values = define_set_param(num_vars, names, bounds)
-    tolerance = 5.0
-    mat_files = get_output_files("./temp_output")
-    #evaluate_membrane_integrity2(xml_file,param, param_values,tolerance, "./output2")
-    restart_evaluate_membrane_integrity2(xml_file, tolerance, "./output2")
-
-if __name__ == '__main__':
-    main()
