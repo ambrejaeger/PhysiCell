@@ -218,14 +218,18 @@ def cell_type_height(cells_info, X_min, X_max, bin_width, cell_type):
 def cell_below(position, heights):
     mask = heights[:, 0] < position[0]
     mask = np.argmax(heights[mask, 0])
-    if heights[mask + 1, 0] >= position[0]:
-        if heights[mask, 1] >= position[1]:
-            return True
-        else:
-            return False
-    else:
+    if mask + 1 < len(heights):
+        if heights[mask + 1, 0] >= position[0]:
+            if heights[mask, 1] >= position[1]:
+                return True
+            else:
+                return False
+         else:
         print("This ain't right")
         return ValueError
+    else:
+        return False
+   
     
 
 def cell_above(position, heights):
