@@ -224,9 +224,9 @@ def cell_below(position, heights):
                 return True
             else:
                 return False
-         else:
-        print("This ain't right")
-        return ValueError
+        else:
+            print("This ain't right")
+            return ValueError
     else:
         return False
    
