@@ -484,7 +484,7 @@ def concatenate_results(files_mat, files_xml):
     return
 
 
-def define_set_param(num_vars, names, bounds): 
+def define_set_param(num_vars, names, bounds, seed=0): 
     print("Defining parameter space and sampling...")
     problem = {
         'num_vars': num_vars,
@@ -492,7 +492,7 @@ def define_set_param(num_vars, names, bounds):
         'bounds': bounds
     }
 
-    param_values = sample(problem, 32) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
+    param_values = sample(problem, 32, seed=seed) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
     return param_values
 
 def evaluate_membrane_integrity(xml_file, param_treepaths, param_values): 
