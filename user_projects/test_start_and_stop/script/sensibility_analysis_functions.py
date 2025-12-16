@@ -559,9 +559,29 @@ def evaluate_membrane_integrity(xml_file, param_treepaths, param_values):
         np.savetxt("./output/membrane_integrity.txt", output_storage)
     return output_storage
 
-def analyze_sobol(xml_file, param_treepaths, param_values, num_vars, names, bounds):
-    problem, param_values = define_set_param(num_vars, names, bounds)
-    Y = evaluate_membrane_integrity(xml_file, param_treepaths, param_values)
+def analyze_sobol(result_file, param_names_file, bounds):
+    import ast
+    with open(param_names_file, 'r') as f:
+        names = [ast.literal_eval(line.strip()) for line in f if line.strip()]
+    names = np.asarray([f"{';'.join(sublist)}" for sublist in names])
+   
+    print(type(names))
+    print(type(bounds))
+
+    problem = {
+        'num_vars': len(param_names_file),
+        'names': names,
+        'bounds': bounds
+    }
+    
+    with open(result_file, 'r') as f:
+        lines = f.readlines()
+
+    sorted_lines = sorted(lines, key=lambda x: int(x.split()[0]))
+    Y = np.asarray([float(line.split()[1]) for line in sorted_lines])
+    print("Array:", Y)
+    print("Length:", len(Y))
+    
     Si = analyze(problem, Y, print_to_console=True)
     return Si
 

@@ -421,9 +421,29 @@ def define_set_param(num_vars, names, bounds, seed=0):
     return param_values
 
 
-def analyze_sobol(xml_file, param_treepaths, param_values, num_vars, names, bounds):
-    problem, param_values = define_set_param(num_vars, names, bounds)
-    Y = evaluate_membrane_integrity(xml_file, param_treepaths, param_values)
+def analyze_sobol(result_file, param_names_file, bounds):
+    import ast
+    with open(param_names_file, 'r') as f:
+        names = [ast.literal_eval(line.strip()) for line in f if line.strip()]
+    names = np.asarray([f"{';'.join(sublist)}" for sublist in names])
+   
+    print(type(names))
+    print(type(bounds))
+
+    problem = {
+        'num_vars': len(param_names_file),
+        'names': names,
+        'bounds': bounds
+    }
+    
+    with open(result_file, 'r') as f:
+        lines = f.readlines()
+
+    sorted_lines = sorted(lines, key=lambda x: int(x.split()[0]))
+    Y = np.asarray([float(line.split()[1]) for line in sorted_lines])
+    print("Array:", Y)
+    print("Length:", len(Y))
+    
     Si = analyze(problem, Y, print_to_console=True)
     return Si
 
@@ -436,12 +456,12 @@ def main():
     ["cell_definitions/cell_definition/phenotype/volume/total", "attracted"]
     ]
 
-    bounds = [[0.0, 1.0],
+    bounds = np.asarray([[0.0, 1.0],
           [0.0, 1.0],
           [0.0, 1.0],
           [0.1, 5.0],
           [0.0, 1.0],
-          [3000, 5500]]
+          [3000, 5500]])
     names = ["_".join(p) for p in param]
     num_vars = len(param)
     xml_file = "./config/PhysiCell_settings.xml"
@@ -449,8 +469,8 @@ def main():
 
     param_values2 = define_set_param(num_vars, names, bounds)
 
-    print(param_values[0])
-    print(param_values2[0])
-
+    Si = analyze_sobol("/home/ajaeger/Documents/PhysiCell/output_permeability/membrane_integrity.txt", "/home/ajaeger/Documents/PhysiCell/output_permeability/param_names.txt", bounds)
+    Si.plot()
+    plt.show()
 if __name__ == "__main__":
     main()
