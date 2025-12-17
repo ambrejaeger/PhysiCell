@@ -339,6 +339,23 @@ void load_cells_csv_v1( std::string filename )
 	file.close(); 	
 }
 
+bool load_outer_cell_type(std::string cell_types)
+{
+	if (parameters.bools("outer_box"))
+	{
+		std::string token;
+		std::stringstream ss(cell_types);
+		while (std::getline( ss, token, ',')) {
+        	outer_cell_types.push_back(token);
+		}
+		std::cout << "This runs" << std::endl;
+		return true;
+	}
+	else {
+		return false;
+	}
+	
+}
 bool load_cells_from_pugixml( pugi::xml_node root )
 {
 	pugi::xml_node node = root.child( "initial_conditions" ); 
@@ -371,6 +388,7 @@ bool load_cells_from_pugixml( pugi::xml_node root )
 	if( filetype == "csv" || filetype == "CSV" )
 	{
 		std::cout << "Loading cells from CSV file " << input_filename << " ... " << std::endl; 
+		std::cout << "This runs" << std::endl;
 		load_cells_csv( input_filename );
 		system("sleep 1");
 	}

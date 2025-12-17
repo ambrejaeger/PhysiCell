@@ -160,7 +160,8 @@ void setup_microenvironment( void )
 	// extra Dirichlet nodes here. 
 	
 	// initialize BioFVM 
-	
+	load_outer_cell_type(parameters.strings("outer_cell_types"));
+
 	initialize_microenvironment(); 
 	if (parameters.bools("outer_box"))
 	{

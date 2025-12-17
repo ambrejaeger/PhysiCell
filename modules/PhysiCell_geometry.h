@@ -98,6 +98,8 @@ void load_cells_physicell( std::string filename );
 bool load_cells_from_pugixml( pugi::xml_node root ); 
 bool load_cells_from_pugixml( void ); // load cells based on default config XML root
 
+bool load_outer_cell_type(std::string cell_types);
+
 void set_parameters_from_distributions( const pugi::xml_node root );
 void set_parameters_from_distributions(void);
 void set_distributed_parameters(pugi::xml_node node, Cell_Definition *pCD);

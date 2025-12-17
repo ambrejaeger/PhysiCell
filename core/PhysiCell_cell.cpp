@@ -98,6 +98,8 @@ std::vector<Cell_Definition*> cell_definitions_by_index;
 std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 std::unordered_map<int,int> cell_definition_indices_by_type; 
 
+std::vector<std::string> outer_cell_types;
+
 
 Cell* standard_instantiate_cell()
 { return new Cell; }
@@ -601,7 +603,7 @@ Cell* Cell::divide( )
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
-	if( !get_container()->underlying_mesh.is_position_valid(position[0], position[1], position[2]))
+	if( !get_container()->underlying_mesh.is_position_valid(position[0], position[1], position[2], type_name, outer_cell_types))
 	{
 		is_out_of_domain = true;
 		is_active = false;
@@ -671,7 +673,7 @@ bool Cell::assign_position(double x, double y, double z)
 
 	get_container()->register_agent(this);
 	
-	if( !get_container()->underlying_mesh.is_position_valid(x,y,z) )
+	if( !get_container()->underlying_mesh.is_position_valid(x,y,z,type_name, outer_cell_types) )
 	{	
 		is_out_of_domain = true; 
 		is_active = false; 
@@ -847,7 +849,7 @@ void Cell::update_position( double dt )
 	previous_velocity = velocity; 
 	
 	velocity[0]=0; velocity[1]=0; velocity[2]=0;
-	if(get_container()->underlying_mesh.is_position_valid(position[0],position[1],position[2]))
+	if(get_container()->underlying_mesh.is_position_valid(position[0],position[1],position[2], type_name, outer_cell_types))
 	{
 		updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( position );
 	}
@@ -1694,7 +1696,6 @@ void build_cell_definitions_maps( void )
 
 	cell_definitions_by_name_constructed = true; 
 	
-	std::cout << "This also ran to the end" << std::endl;
 	return;
 }
 

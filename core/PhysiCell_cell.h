@@ -278,6 +278,7 @@ extern std::vector<Cell_Definition*> cell_definitions_by_index; // works
 
 extern std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 extern std::unordered_map<int,int> cell_definition_indices_by_type; 
+extern std::vector<std::string> outer_cell_types;
 
 void display_cell_definitions( std::ostream& os ); // done 
 void build_cell_definitions_maps( void ); // done 

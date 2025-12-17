@@ -638,5 +638,8 @@
         <epi_max_size type="double" units="micron">0</epi_max_size>
 
         <number_of_cells type="int" units="none" description="initial number of cells (for each cell type)">0</number_of_cells>
+        <outer_box type="bool" units="">true</outer_box>
+        <outer_box_bounds type="string" units="micron">-400,400,-400,400,-10,10</outer_box_bounds>
+        <outer_cell_types type="string" units="none">membrane</outer_cell_types>
     </user_parameters>
 </PhysiCell_settings>
