@@ -139,6 +139,14 @@ General_Mesh::General_Mesh()
 	bounding_box[mesh_max_x_index] = 0.5; 
 	bounding_box[mesh_max_y_index] = 0.5; 
 	bounding_box[mesh_max_z_index] = 0.5; 
+
+	outer_bounding_box.assign(6,0.0); 
+	outer_bounding_box[mesh_min_x_index] = -0.5; 
+	outer_bounding_box[mesh_min_y_index] = -0.5; 
+	outer_bounding_box[mesh_min_z_index] = -0.5; 
+	outer_bounding_box[mesh_max_x_index] = 0.5; 
+	outer_bounding_box[mesh_max_y_index] = 0.5; 
+	outer_bounding_box[mesh_max_z_index] = 0.5; 
 	
 	voxels.resize( 1 );  
 	voxel_faces.resize( 0 ); 
@@ -203,6 +211,24 @@ bool General_Mesh::is_position_valid(double x, double y, double z)
 	if(z< bounding_box[mesh_min_z_index] || z>bounding_box[mesh_max_z_index])
 		return false;
 	return true;
+}
+
+bool General_Mesh::is_position_valid(double x, double y, double z, std::string cell_type, std::vector<std::string> outer_cell_types)
+{
+	if (std::find(outer_cell_types.begin(), outer_cell_types.end(), cell_type) != outer_cell_types.end())
+	{
+		if(x< outer_bounding_box[mesh_min_x_index] || x>bounding_box[mesh_max_x_index])
+			return false;
+		if(y< outer_bounding_box[mesh_min_y_index] || y>bounding_box[mesh_max_y_index])
+			return false;
+		if(z< outer_bounding_box[mesh_min_z_index] || z>bounding_box[mesh_max_z_index])
+			return false;
+		return true;
+	}
+	else
+	{
+		return is_position_valid(x ,y ,z);
+	}	
 }
 
 void General_Mesh::connect_voxels_faces_only(int i,int j, double SA) // done 

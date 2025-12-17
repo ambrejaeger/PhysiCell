@@ -51,6 +51,7 @@
 
 #include <iostream>
 #include <vector> 
+#include <algorithm>
 
 #include "BioFVM_matlab.h"
 
@@ -118,7 +119,8 @@ class General_Mesh
 	General_Mesh();  
 	
 	// [xmin ymin zmin xmax ymax zmax ]
-	std::vector<double> bounding_box; 
+	std::vector<double> bounding_box;
+	std::vector<double> outer_bounding_box;
 	
 	std::vector<Voxel> voxels; 
 	std::vector<Voxel_Face> voxel_faces; 
@@ -127,6 +129,7 @@ class General_Mesh
 	
 	int nearest_voxel_index( std::vector<double>& position );   
 	bool is_position_valid(double x, double y, double z);
+	bool is_position_valid(double x, double y, double z, std::string cell_type, std::vector<std::string> outer_cell_types);
 	/* the following help manage the voxel faces */ 
 
 	// returns the index of the voxel face connecting from voxels[i] to voxels[j] 
