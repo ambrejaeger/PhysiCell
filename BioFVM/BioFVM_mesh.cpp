@@ -217,11 +217,11 @@ bool General_Mesh::is_position_valid(double x, double y, double z, std::string c
 {
 	if (std::find(outer_cell_types.begin(), outer_cell_types.end(), cell_type) != outer_cell_types.end())
 	{
-		if(x< outer_bounding_box[mesh_min_x_index] || x>bounding_box[mesh_max_x_index])
+		if(x< outer_bounding_box[mesh_min_x_index] || x>outer_bounding_box[mesh_max_x_index])
 			return false;
-		if(y< outer_bounding_box[mesh_min_y_index] || y>bounding_box[mesh_max_y_index])
+		if(y< outer_bounding_box[mesh_min_y_index] || y>outer_bounding_box[mesh_max_y_index])
 			return false;
-		if(z< outer_bounding_box[mesh_min_z_index] || z>bounding_box[mesh_max_z_index])
+		if(z< outer_bounding_box[mesh_min_z_index] || z>outer_bounding_box[mesh_max_z_index])
 			return false;
 		return true;
 	}

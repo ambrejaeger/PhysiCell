@@ -160,8 +160,33 @@ void setup_microenvironment( void )
 	// extra Dirichlet nodes here. 
 	
 	// initialize BioFVM 
-	
+	bool loaded = load_outer_cell_type(parameters.strings("outer_cell_types"));
+
 	initialize_microenvironment(); 
+	if (loaded)
+	{
+		std::string token;
+		std::stringstream ss(parameters.strings("outer_box_bounds"));
+		std::vector<float> result;
+		while (std::getline( ss, token, ',')) {
+        	result.push_back(std::stof(token));
+		}
+		std::cout << result[0] << "," << result[1] << std::endl;
+		microenvironment.mesh.outer_bounding_box[0] = result[0];
+		microenvironment.mesh.outer_bounding_box[1] = result[1];
+		microenvironment.mesh.outer_bounding_box[2] = result[2];
+		microenvironment.mesh.outer_bounding_box[3] = result[3];
+		microenvironment.mesh.outer_bounding_box[4] = result[4];
+		microenvironment.mesh.outer_bounding_box[5] = result[5];
+	}
+	else{
+		microenvironment.mesh.outer_bounding_box[0] = microenvironment.mesh.bounding_box[0];
+		microenvironment.mesh.outer_bounding_box[1] = microenvironment.mesh.bounding_box[1];
+		microenvironment.mesh.outer_bounding_box[2] = microenvironment.mesh.bounding_box[2];
+		microenvironment.mesh.outer_bounding_box[3] = microenvironment.mesh.bounding_box[3];
+		microenvironment.mesh.outer_bounding_box[4] = microenvironment.mesh.bounding_box[4];
+		microenvironment.mesh.outer_bounding_box[5] = microenvironment.mesh.bounding_box[5];
+	}
 	if (evaluate_start_stop_parameters() != -1) {
 		std::cout << "Evaluate start stop parameters completed" << std::endl;
 	}
@@ -174,7 +199,7 @@ void setup_tissue( void )
 {
 	std::vector<std::vector<double>> positions;
 	//Check first if cells are initialized as to end of other simulation
-	if ( auto_stop_param["read_init"] )
+	if ( parameters.bools("read_init") )
 	{
 		std::string csv_fname = parameters.strings("init_cells_filename");
 		positions = read_cells_positions(csv_fname, '\t', true);
@@ -789,13 +814,12 @@ void position_epithelium_cells() {
 	double xmin_ob = microenvironment.mesh.outer_bounding_box[0];
 	double xmax_ob = microenvironment.mesh.outer_bounding_box[1];
 
-
 	//Creating conjonctive layer
 	std::vector<double> bounds_c = {xmin,ymin,xmax,ymin + conjonctive_layer_thickness};
 	random_fill_rectangle(bounds_c, pCD_c);
 
 	//Creating membrane layer
-	std::vector<double> bounds_m = {xmin, ymin + conjonctive_layer_thickness, 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness, 0};
+	std::vector<double> bounds_m = {xmin_ob, ymin + conjonctive_layer_thickness, 0, xmax_ob, ymin + conjonctive_layer_thickness + membrane_layer_thickness, 0};
 	fill_rectangle(bounds_m, pCD_m);
 
 	//Creating epi_basal layer
