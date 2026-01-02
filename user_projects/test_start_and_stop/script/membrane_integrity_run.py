@@ -3,17 +3,22 @@ import argparse
 
 param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_basal"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_inter"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_inter", "epi_basal"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "membrane"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "epi_basal"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "membrane"],
-    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "conjonctif"]
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "conjonctif"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "conjonctif", "membrane"]
     ]
 
+
+groups = ["Group_epib1", "Group_epib2", "Group_epib2", "Group_m2", "Group_m2", "Group_m1", "Group_m3", "Group_m3"]
 bounds = [[0.0, 1.0] * len(param)]
 names = ["_".join(p) for p in param]
 num_vars = len(param)
 xml_file = "./config/PhysiCell_settings.xml"
-param_values = define_set_param(num_vars, names, bounds)
+param_values = define_set_param(num_vars, names, bounds, sample_size=128)
+print(len(param_values))
 tolerance = 5.0
 
 indexes = list(range(1,param_values.shape[0],50))

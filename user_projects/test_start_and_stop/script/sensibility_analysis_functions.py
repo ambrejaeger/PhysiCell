@@ -354,7 +354,6 @@ def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolera
         
         start_file = restart_int
     else:
-        print("This runs")
         if os.path.exists(xml_file) & (not os.path.exists(temp_xml_file)):
             shutil.copy(xml_file, temp_xml_file)
 
@@ -387,7 +386,7 @@ def evaluate_membrane_integrity2(xml_file, param_treepaths, param_values, tolera
     for i in range(start_file, end_file): 
         for j, val in enumerate(param_values[i,:]):
             modify_xml(temp_xml_file, param_treepaths[j][0], val, name_cell_def=param_treepaths[j][1], name_interact_cell_def=param_treepaths[j][2]) 
-        
+
         #Now run the simulation that is loaded and made
         process0 = subprocess.run(
         ["./heterogeneity", temp_xml_file],
@@ -484,15 +483,23 @@ def concatenate_results(files_mat, files_xml):
     return
 
 
-def define_set_param(num_vars, names, bounds, seed=0): 
+def define_set_param(num_vars, names, bounds, groups=[], sample_size=32, seed=0): 
     print("Defining parameter space and sampling...")
-    problem = {
-        'num_vars': num_vars,
-        'names': names,
-        'bounds': bounds
-    }
+    if len(groups) == 0:
+        problem = {
+            'num_vars': num_vars,
+            'names': names,
+            'bounds': bounds
+        }
+    else:
+        problem = {
+            'groups': groups,
+            'num_vars': num_vars,
+            'names': names,
+            'bounds': bounds
+        }
 
-    param_values = sample(problem, 32, seed=seed) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
+    param_values = sample(problem, sample_size, seed=seed) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
     return param_values
 
 def evaluate_membrane_integrity(xml_file, param_treepaths, param_values): 
@@ -586,51 +593,16 @@ def analyze_sobol(result_file, param_names_file, bounds):
     return Si
 
 def main():
-    #write the path of all the nodes we want to modify 
-    #make a copy of the original .xml in the output folder
-    #for a node in the xml
-        #store original value
-
-        #for all the value to test
-            #modify the .xml functions works
-            #run the simulation
-            #perform analysis
-            #store analysis results
-            #erase useless output    
-        #restore the value to original    
-        
-    #import argparse
     
-    #parser = argparse.ArgumentParser(description='Convert PhysiCell output to ParaView format')
-    #parser.add_argument('output_dir', help='Directory containing .mat and .xml output files')
-    #parser.add_argument('--clean', action='store_true', help='Remove existing output files before processing')
-    #parser.add_argument('--prefix', default='timestep', help='File prefix for VTU files (default: timestep)')
-    
-    #args = parser.parse_args()
-    
-    #pvd_file, vtu_files = create_pvd(args.output_dir, args.clean, args.prefix)
-    
-    #if pvd_file:
-    #    print(f"\nConversion complete! To visualize these files in ParaView:")
-    #    print(f"1. Open ParaView")
-    #    print(f"2. File > Open > Navigate to: {os.path.abspath(pvd_file)}")
-    #    print(f"3. Click 'Apply' in the Properties panel to load the data")
     print(os.getcwd())
     
     mat_file = "./output/output00000001_cells.mat"
     initial_xml_file = "./output/initial.xml"
-    #print(parse_physicell_labels(xml_file))
-    #print(analyse_output(mat_file, xml_file))
 
     path = "./cell_definitions/cell_definition/phenotype/cell_transformations/transformation_rates/transformation_rate"
     xml_file = "./config/PhysiCell_settings.xml"
     value = 0.0
-    #print(parse_physicell_labels(initial_xml_file))
-    #cells_info = extract_position_type_data(mat_file, initial_xml_file)
-    #heights = cell_type_height(cells_info, -200, 200, 20, 2)
-    #plot_cells_2D(heights)
-    #print(cell_above([-50,-170], heights))
-    #print(modify_xml(xml_file, path, value, name_cell_def="epi_basal", name_interact_cell_def="epi_inter1"))
+    
 
     param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_basal"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_inter"],
@@ -640,22 +612,12 @@ def main():
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "conjonctif"]
     ]
     
-    path = "./output/"
-    #print(get_output_files(path, prefix='output', suffix='.mat'))
-    mat_file = "./output/output00000001_cells.mat"
-    initial_xml_file = "./output/initial.xml"
-    neighbor_graph_file = "./output/output00000001_cell_neighbor_graph.txt"
-    membrane_type = 2
-
+    result_file = "./output_integrity2/membrane_integrity.txt"
+    param_names_file = "./output_integrity2/param_names.txt"
     bounds = [[0.0, 1.0] * len(param)]
-    names = ["_".join(p) for p in param]
-    num_vars = len(param)
-    xml_file = "./config/PhysiCell_settings.xml"
-    param_values = define_set_param(num_vars, names, bounds)
-    tolerance = 5.0
-    mat_files = get_output_files("./temp_output")
-    #evaluate_membrane_integrity2(xml_file,param, param_values,tolerance, "./output2")
-    restart_evaluate_membrane_integrity2(xml_file, tolerance, "./output2")
-
+    Si = analyze_sobol(result_file, param_names_file, bounds)
+    Si.plot()
+    plt.show()
+    
 if __name__ == '__main__':
     main()
