@@ -467,7 +467,7 @@ def main():
     names = ["_".join(p) for p in param]
     num_vars = len(param)
     groups = ['Group_m1', 'Group_m2', 'Group_m2', 'Group_attr', 'Group_vattr']
-    param_values = define_set_param(num_vars, names, bounds, sample_size = 128)
+    param_values = define_set_param(num_vars, names, bounds, groups=groups, sample_size = 128)
     print(len(param_values))
 
     bounds = [[0.0, 1.0],

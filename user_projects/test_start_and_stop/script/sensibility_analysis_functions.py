@@ -592,16 +592,99 @@ def analyze_sobol(result_file, param_names_file, bounds):
     Si = analyze(problem, Y, print_to_console=True)
     return Si
 
+def process_file(input_file, output_file):
+    """
+    Process the file to remove duplicate entries where first column is identical
+    AND second column values are the same.
+    """
+    # Dictionary to store values: {first_col_value: [(second_col_value, original_line)]}
+    data_dict = {}
+    
+    # Read and process the input file
+    with open(input_file, 'r') as f:
+        lines = f.readlines()
+    
+    # Parse all lines
+    for line_num, line in enumerate(lines):
+        line = line.strip()
+        if not line:
+            continue
+            
+        parts = line.split()
+        if len(parts) >= 2:
+            first_col = parts[0]
+            second_col = parts[1]
+            
+            # Store in dictionary
+            if first_col not in data_dict:
+                data_dict[first_col] = []
+            data_dict[first_col].append((second_col, line))
+    
+    # Prepare output lines
+    output_lines = []
+    
+    # Process each unique first column value
+    for first_col in sorted(data_dict.keys()):
+        entries = data_dict[first_col]
+        
+        if len(entries) == 1:
+            # No duplicates, keep the line
+            output_lines.append(entries[0][1])
+        else:
+            # Check if all second column values are identical
+            first_value = entries[0][0]
+            all_same = all(entry[0] == first_value for entry in entries[1:])
+            
+            if all_same:
+                # Keep only the first occurrence
+                output_lines.append(entries[0][1])
+                # Optional: print a message about duplicates removed
+                print(f"Removed {len(entries)-1} duplicate(s) for {first_col} (all values = {first_value})")
+            else:
+                # Different values - keep all lines (or modify as needed)
+                for entry in entries:
+                    output_lines.append(entry[1])
+                print(f"WARNING: Different values for {first_col}: {[e[0] for e in entries]}")
+    
+    # Write to output file
+    with open(output_file, 'w') as f:
+        for line in output_lines:
+            f.write(line + '\n')
+    
+    # Count and display results
+    original_count = sum(1 for line in lines if line.strip())
+    new_count = len(output_lines)
+    
+    print(f"\nResults:")
+    print(f"Original file: {original_count} lines")
+    print(f"Processed file: {new_count} lines")
+    print(f"Lines removed: {original_count - new_count}")
+    print(f"Output saved to: {output_file}")
+    
+    return new_count
+
+
 def main():
     
-    print(os.getcwd())
-    
-    mat_file = "./output/output00000001_cells.mat"
-    initial_xml_file = "./output/initial.xml"
+    param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_basal"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_inter"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_inter", "epi_basal"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "membrane"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "epi_basal"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "membrane"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "conjonctif"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "conjonctif", "membrane"]
+    ]
 
-    path = "./cell_definitions/cell_definition/phenotype/cell_transformations/transformation_rates/transformation_rate"
-    xml_file = "./config/PhysiCell_settings.xml"
-    value = 0.0
+    bounds = [[0.0, 1.0] * len(param)]
+    names = ["_".join(p) for p in param]
+    num_vars = len(param)
+
+    param_values = define_set_param(num_vars, names, bounds, sample_size=128)
+    print(param_values)
+    print(len(param_values))
+    print(os.getcwd())
+    output_file = "./output_integrity3/membrane_integrity_processed.txt"
     
 
     param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_basal"],
@@ -612,8 +695,10 @@ def main():
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "conjonctif"]
     ]
     
-    result_file = "./output_integrity2/membrane_integrity.txt"
-    param_names_file = "./output_integrity2/param_names.txt"
+    result_file = "./output_integrity3/membrane_integrity.txt"
+
+    process_file(result_file, output_file )
+    param_names_file = "./output_integrity3/param_names.txt"
     bounds = [[0.0, 1.0] * len(param)]
     Si = analyze_sobol(result_file, param_names_file, bounds)
     Si.plot()
