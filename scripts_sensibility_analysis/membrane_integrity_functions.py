@@ -195,7 +195,7 @@ def main():
     ]
 
     bounds = [[0.0, 1.0] * len(param)]
-    names = ["_".join(p) for p in param]
+    names = [";".join(p) for p in param]
     groups = ["Group_epib1", "Group_epib2", "Group_epib2", "Group_m2", "Group_m2", "Group_m1", "Group_m3", "Group_m3"]
     
     """
@@ -206,12 +206,13 @@ def main():
     save_dataframes_to_txt([Si.to_df()[0], Si.to_df()[1], Si.to_df()[2]], "./output_sensibility_analysis/membrane_integrity_no_group/data_sensibility_analysis.txt")
     """
 
+    """
     #Saving sensibility analysis sobol results groups
     result_file = "./output_integrity3_groups/membrane_integrity.txt"
     param_names_file = "./output_integrity3_groups/param_names.txt"
     Si = analyze_sobol(result_file, param_names_file, bounds, groups = groups)
     save_dataframes_to_txt([Si.to_df()[0], Si.to_df()[1], Si.to_df()[2]], "./output_sensibility_analysis/membrane_integrity_groups/data_sensibility_analysis.txt")
-    
+    """
 
     output_file = "./output_integrity3/membrane_integrity_processed.txt"    
     result_file = "./output_integrity3/membrane_integrity.txt"
@@ -239,6 +240,16 @@ def main():
     X, Y = extract_X_Y(output_file, 'Group_m1')
     plot_scatter_sets(Y, X, set_names=['Group_m1'], xlabel="adhesion affinity membrane membrane", title="Number of breaks in function of adhesion affinity")
     """
+
+    
+    #Plotting scatter plot NO groupped variable
+    result_file = "./output_integrity3/membrane_integrity.txt"
+    param_values_file = "./output_integrity3/param_values_membrane_integrity.txt"
+    output_file = "./output_sensibility_analysis/membrane_integrity_no_group/results_summary.txt" 
+    combine_files_with_header(result_file, param_values_file, output_file, names)
+    X, Y = extract_X_Y(output_file, 'cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane')
+    plot_scatter_sets(Y, X, xlabel="adhesion affinity membrane membrane", title="Number of breaks in function of adhesion affinity")
+    
 
 if __name__ == '__main__':
     main()
