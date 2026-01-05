@@ -451,6 +451,231 @@ def analyze_sobol(result_file, param_names_file, bounds, groups=[]):
     Si = analyze(problem, Y, print_to_console=True)
     return Si
 
+def combine_files_with_header(file1_path, file2_path, output_path, column_names):
+    
+    df1 = pd.read_csv(file1_path, sep=r'\s+', header=None, names=['row_idx', 'cross'])
+    df2 = pd.read_csv(file2_path, sep=r'\s+', header=None)
+        
+    if len(column_names) == df2.shape[1]:
+        df2.columns = column_names
+    
+    else:
+        print(f"Warning: column_names has {len(column_names)} items, but file2 has {df2.shape[1]} columns")
+        df2.columns = [f"col_{i+1}" for i in range(df2.shape[1])]
+        
+    cross_list = [0.0] * len(df2)
+        
+    for idx, row in df1.iterrows():
+        row_idx = int(row['row_idx'])  
+        if 0 <= row_idx < len(df2):  
+            cross_list[row_idx] = row['cross']
+        
+    df_combined = pd.DataFrame({'cross': cross_list})
+    df_combined = pd.concat([df_combined, df2.reset_index(drop=True)], axis=1)
+        
+    df_combined.to_csv(output_path, sep='\t', index=False, float_format='%.6e')
+        
+    print(f"Combined file created: {output_path}")
+    print(f"Shape of combined data: {df_combined.shape}")
+    print(f"Rows from file1 assigned: {len(df1[df1['row_idx'] < len(df2)])}")
+        
+    return df_combined
+
+
+def extract_X_Y(file_path, X_columns, Y_column='cross'):
+
+    df = pd.read_csv(file_path, sep='\t')
+    if Y_column not in df.columns:
+        raise ValueError(f"Y column '{Y_column}' not found in file. Available columns: {list(df.columns)}")
+    
+    Y = df[Y_column].values
+    if isinstance(X_columns, str):
+        if X_columns not in df.columns:
+            raise ValueError(f"Column '{X_columns}' not found.")
+        X = df[X_columns].values.tolist()
+        
+    elif isinstance(X_columns, int):
+        if X_columns >= len(df.columns) or X_columns < 0:
+            raise ValueError(f"Column index {X_columns} out of range.")
+        X = df.iloc[:, X_columns].values.tolist()
+        
+    elif isinstance(X_columns, list):
+        if not X_columns:
+            raise ValueError("X_columns list is empty.")
+        
+        if all(isinstance(x, str) for x in X_columns):
+            missing_cols = [col for col in X_columns if col not in df.columns]
+            if missing_cols:
+                raise ValueError(f"Columns not found: {missing_cols}")
+
+            if len(X_columns) == 1:
+                X = df[X_columns[0]].values.tolist()
+            else:
+                X = df[X_columns].values.T.tolist()
+        
+        elif all(isinstance(x, int) for x in X_columns):
+            valid_indices = [idx for idx in X_columns if 0 <= idx < len(df.columns)]
+            if len(valid_indices) != len(X_columns):
+                raise ValueError(f"Some indices are out of range. Valid range: 0-{len(df.columns)-1}")
+            
+            if len(X_columns) == 1:
+                X = df.iloc[:, X_columns[0]].values.tolist()
+            else:
+                X = df.iloc[:, X_columns].values.T.tolist()
+        
+        else:
+            raise ValueError("X_columns list must contain all strings or all integers.")
+    
+    else:
+        raise TypeError("X_columns must be string, integer, or list of strings/integers.")
+    
+    print(f"Successfully extracted:")
+    print(f"  Y shape: {len(Y)} values")
+    print(f"  X shape: {len(X) if isinstance(X[0], list) else '1D'} features")
+    
+    return X, Y
+
+
+def plot_scatter_sets(Y, X, set_names=None, title="Scatter Plot", 
+                     xlabel="Features", ylabel="cross", 
+                     figsize=(10, 6), save_path=None, show_plot=True):
+    
+    if isinstance(X, list):
+        if X and isinstance(X[0], list):
+            num_sets = len(X)
+            for i, x_set in enumerate(X):
+                if len(x_set) != len(Y):
+                    raise ValueError(f"Set {i} has {len(x_set)} values, but Y has {len(Y)} values")
+        else:
+            num_sets = 1
+            X = [X] 
+    else:
+        raise TypeError("X must be a list or list of lists")
+    
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Default set names if not provided
+    if set_names is None:
+        set_names = [f"Feature Set {i+1}" for i in range(num_sets)]
+    elif len(set_names) != num_sets:
+        print(f"Warning: {len(set_names)} names provided for {num_sets} sets. Using default names.")
+        set_names = [f"Feature Set {i+1}" for i in range(num_sets)]
+    
+    for i in range(num_sets):
+        x_values = X[i]
+        ax.scatter(x_values, Y,  
+                  alpha=0.6, 
+                  edgecolors='w', 
+                  linewidth=0.5,
+                  label=set_names[i])
+
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.set_xlabel(xlabel, fontsize=12)
+    ax.set_ylabel(ylabel, fontsize=12)
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc='best')
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Plot saved to: {save_path}")
+    
+    if show_plot:
+        plt.show()
+    
+    return fig, ax
+
+
+def save_bounds_to_txt(names, groups, bounds_list, filename):
+    if not (len(names) == len(groups) == len(bounds_list)):
+        raise ValueError("All input lists must have the same length")
+    
+    with open(filename, 'w') as f:
+        for name, group, bounds in zip(names, groups, bounds_list):
+            if len(bounds) != 2:
+                raise ValueError(f"Each bounds element must contain exactly 2 values (got {bounds})")
+            
+            lower_bound, upper_bound = bounds
+            f.write(f"{name} {lower_bound} {upper_bound} {group}\n")
+    
+    print(f"File '{filename}' saved successfully!")
+
+
+def save_dataframes_to_txt(df_list, filename, 
+                          df_names=None, include_index=True):
+    with open(filename, 'w') as f:
+        for i, df in enumerate(df_list):
+            # Write DataFrame header
+            if df_names and i < len(df_names):
+                f.write(f"=== DataFrame: {df_names[i]} ===\n")
+            else:
+                f.write(f"=== DataFrame {i+1} ===\n")
+            
+            # Write the DataFrame
+            df_str = df.to_string(index=include_index, header=True)
+            f.write(df_str)
+            f.write("\n\n")  # Add spacing between DataFrames
+    
+    print(f"Saved {len(df_list)} DataFrames to '{filename}'")
+
+
+def load_dataframes_from_txt(filename):
+    """
+    Load multiple DataFrames from a text file saved with save_dataframes_to_txt.
+    
+    Args:
+        filename: Input filename
+        
+    Returns:
+        List of DataFrames
+    """
+    dataframes = []
+    current_df_lines = []
+    reading_df = False
+    
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    
+    for line in lines:
+        # Check if this is a DataFrame header
+        if line.startswith("=== DataFrame"):
+            # If we were reading a DataFrame, save it
+            if reading_df and current_df_lines:
+                df_str = ''.join(current_df_lines)
+                try:
+                    # Try to parse as DataFrame
+                    # First, find the header row
+                    lines_split = df_str.strip().split('\n')
+                    if len(lines_split) > 1:
+                        # Reconstruct DataFrame
+                        df = pd.read_csv(pd.io.common.StringIO(df_str), 
+                                        sep=r'\s+', engine='python')
+                        dataframes.append(df)
+                except:
+                    print(f"Warning: Could not parse DataFrame section")
+                
+                current_df_lines = []
+            
+            reading_df = True
+            continue
+        
+        # If we're reading a DataFrame, add the line
+        if reading_df and line.strip():
+            current_df_lines.append(line)
+    
+    # Don't forget the last DataFrame
+    if reading_df and current_df_lines:
+        df_str = ''.join(current_df_lines)
+        try:
+            df = pd.read_csv(pd.io.common.StringIO(df_str), 
+                            sep=r'\s+', engine='python')
+            dataframes.append(df)
+        except:
+            print(f"Warning: Could not parse last DataFrame section")
+    
+    return dataframes
+
 def main():
     param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "membrane"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "attracted"],
@@ -477,10 +702,18 @@ def main():
           [3000, 5500]]
     groups = ['Group_m1', 'Group_m2', 'Group_m2', 'Group_attr', 'Group_vattr']
 
-    result_file = "/home/ajaeger/Documents/PhysiCell/output_integrity4/membrane_integrity.txt"
-    param_names_file = "/home/ajaeger/Documents/PhysiCell/output_integrity4/param_names.txt"
+    result_file = "/home/ajaeger/Documents/PhysiCell/output_integrity4_groups/membrane_integrity.txt"
+    param_names_file = "/home/ajaeger/Documents/PhysiCell/output_integrity4_groups/param_names.txt"
+    param_values_file = "/home/ajaeger/Documents/PhysiCell/output_integrity4_groups/param_values_membrane_permeability.txt"
+    output_file = "/home/ajaeger/Documents/PhysiCell/user_projects/output_sensibility_analysis/membrane_permeability_groups/result_file.txt"
+    output_file2 = "/home/ajaeger/Documents/PhysiCell/user_projects/output_sensibility_analysis/membrane_permeability_groups/problem.txt"
+    output_data = "/home/ajaeger/Documents/PhysiCell/user_projects/output_sensibility_analysis/membrane_permeability_groups/data_sensibility_analysis.txt"
 
-    Si = analyze_sobol(result_file, param_names_file, bounds)
+    
+    save_bounds_to_txt(names, groups, bounds, output_file2)
+    combine_files_with_header(result_file, param_values_file, output_file, names)
+    Si = analyze_sobol(result_file, param_names_file, bounds, groups=groups)
+    save_dataframes_to_txt([Si.to_df()[0], Si.to_df()[1], Si.to_df()[2]], output_data)
     Si.plot()
     plt.show()
 if __name__ == "__main__":

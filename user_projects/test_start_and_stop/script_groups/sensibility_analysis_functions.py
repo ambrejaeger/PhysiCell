@@ -590,16 +590,341 @@ def analyze_sobol(result_file, param_names_file, bounds, groups=[]):
     Si = analyze(problem, Y, print_to_console=True)
     return Si
 
-def main():
+def combine_files_with_header(file1_path, file2_path, output_path, column_names):
     
+    df1 = pd.read_csv(file1_path, sep=r'\s+', header=None, names=['row_idx', 'nbr_breaks'])
+    df2 = pd.read_csv(file2_path, sep=r'\s+', header=None)
+        
+    if len(column_names) == df2.shape[1]:
+        df2.columns = column_names
+    
+    else:
+        print(f"Warning: column_names has {len(column_names)} items, but file2 has {df2.shape[1]} columns")
+        df2.columns = [f"col_{i+1}" for i in range(df2.shape[1])]
+        
+    nbr_breaks_list = [0.0] * len(df2)
+        
+    for idx, row in df1.iterrows():
+        row_idx = int(row['row_idx'])  
+        if 0 <= row_idx < len(df2):  
+            nbr_breaks_list[row_idx] = row['nbr_breaks']
+        
+    df_combined = pd.DataFrame({'nbr_breaks': nbr_breaks_list})
+    df_combined = pd.concat([df_combined, df2.reset_index(drop=True)], axis=1)
+        
+    df_combined.to_csv(output_path, sep='\t', index=False, float_format='%.6e')
+        
+    print(f"Combined file created: {output_path}")
+    print(f"Shape of combined data: {df_combined.shape}")
+    print(f"Rows from file1 assigned: {len(df1[df1['row_idx'] < len(df2)])}")
+        
+    return df_combined
+
+
+def extract_X_Y(file_path, X_columns, Y_column='nbr_breaks'):
+
+    df = pd.read_csv(file_path, sep='\t')
+    if Y_column not in df.columns:
+        raise ValueError(f"Y column '{Y_column}' not found in file. Available columns: {list(df.columns)}")
+    
+    Y = df[Y_column].values
+    if isinstance(X_columns, str):
+        if X_columns not in df.columns:
+            raise ValueError(f"Column '{X_columns}' not found.")
+        X = df[X_columns].values.tolist()
+        
+    elif isinstance(X_columns, int):
+        if X_columns >= len(df.columns) or X_columns < 0:
+            raise ValueError(f"Column index {X_columns} out of range.")
+        X = df.iloc[:, X_columns].values.tolist()
+        
+    elif isinstance(X_columns, list):
+        if not X_columns:
+            raise ValueError("X_columns list is empty.")
+        
+        if all(isinstance(x, str) for x in X_columns):
+            missing_cols = [col for col in X_columns if col not in df.columns]
+            if missing_cols:
+                raise ValueError(f"Columns not found: {missing_cols}")
+
+            if len(X_columns) == 1:
+                X = df[X_columns[0]].values.tolist()
+            else:
+                X = df[X_columns].values.T.tolist()
+        
+        elif all(isinstance(x, int) for x in X_columns):
+            valid_indices = [idx for idx in X_columns if 0 <= idx < len(df.columns)]
+            if len(valid_indices) != len(X_columns):
+                raise ValueError(f"Some indices are out of range. Valid range: 0-{len(df.columns)-1}")
+            
+            if len(X_columns) == 1:
+                X = df.iloc[:, X_columns[0]].values.tolist()
+            else:
+                X = df.iloc[:, X_columns].values.T.tolist()
+        
+        else:
+            raise ValueError("X_columns list must contain all strings or all integers.")
+    
+    else:
+        raise TypeError("X_columns must be string, integer, or list of strings/integers.")
+    
+    print(f"Successfully extracted:")
+    print(f"  Y shape: {len(Y)} values")
+    print(f"  X shape: {len(X) if isinstance(X[0], list) else '1D'} features")
+    
+    return X, Y
+
+
+
+def plot_scatter_sets(Y, X, set_names=None, title="Scatter Plot", 
+                     xlabel="Features", ylabel="nbr_breaks", 
+                     figsize=(10, 6), save_path=None, show_plot=True):
+    
+    if isinstance(X, list):
+        if X and isinstance(X[0], list):
+            num_sets = len(X)
+            for i, x_set in enumerate(X):
+                if len(x_set) != len(Y):
+                    raise ValueError(f"Set {i} has {len(x_set)} values, but Y has {len(Y)} values")
+        else:
+            num_sets = 1
+            X = [X] 
+    else:
+        raise TypeError("X must be a list or list of lists")
+    
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # Default set names if not provided
+    if set_names is None:
+        set_names = [f"Feature Set {i+1}" for i in range(num_sets)]
+    elif len(set_names) != num_sets:
+        print(f"Warning: {len(set_names)} names provided for {num_sets} sets. Using default names.")
+        set_names = [f"Feature Set {i+1}" for i in range(num_sets)]
+    
+    for i in range(num_sets):
+        x_values = X[i]
+        ax.scatter(x_values, Y,  
+                  alpha=0.6, 
+                  edgecolors='w', 
+                  linewidth=0.5,
+                  label=set_names[i])
+
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.set_xlabel(xlabel, fontsize=12)
+    ax.set_ylabel(ylabel, fontsize=12)
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc='best')
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Plot saved to: {save_path}")
+    
+    if show_plot:
+        plt.show()
+    
+    return fig, ax
+
+
+
+import scipy.stats as stats
+
+def plot_histogram_with_analysis(data, bins=20, title="Histogram with Analysis", 
+                                figsize=(12, 5), show_plot=True):
+    
+    # Convert to numpy array
+    data = np.asarray(data).flatten()
+    
+    # Remove any non-positive values for exponential comparison
+    # (Exponential is only defined for positive values)
+    data_positive = data[data > 0]
+    
+    # Calculate basic statistics
+    stats_dict = {
+        'n': len(data),
+        'n_positive': len(data_positive),
+        'mean': np.mean(data),
+        'std': np.std(data),
+        'median': np.median(data),
+        'min': np.min(data),
+        'max': np.max(data)
+    }
+    
+    # Calculate Coefficient of Variation (CV)
+    # CV = standard deviation / mean
+    if stats_dict['mean'] != 0:
+        cv = stats_dict['std'] / abs(stats_dict['mean'])
+        stats_dict['cv'] = cv
+        # Rule of thumb: CV > 1 suggests heavy-tailedness
+        stats_dict['cv_heavy_tailed'] = cv > 1.0
+    else:
+        stats_dict['cv'] = float('inf')
+        stats_dict['cv_heavy_tailed'] = True
+    
+    # Create figure with subplots
+    fig, axes = plt.subplots(1, 2, figsize=figsize)
+    
+    # --- Plot 1: Histogram ---
+    ax1 = axes[0]
+    ax1.hist(data, bins=bins, color='skyblue', edgecolor='black', alpha=0.8, density=True)
+    
+    # Add vertical lines for mean and median
+    ax1.axvline(stats_dict['mean'], color='red', linestyle='--', 
+                linewidth=2, label=f'Mean = {stats_dict["mean"]:.3f}')
+    ax1.axvline(stats_dict['median'], color='green', linestyle=':', 
+                linewidth=2, label=f'Median = {stats_dict["median"]:.3f}')
+    
+    ax1.set_xlabel('Value', fontsize=12)
+    ax1.set_ylabel('Density', fontsize=12)
+    ax1.set_title('Histogram with Mean/Median', fontsize=13)
+    ax1.legend(loc='upper right')
+    ax1.grid(True, alpha=0.3)
+    
+    # Add statistics text to histogram
+    stats_text = f"n = {stats_dict['n']}\n"
+    stats_text += f"Mean = {stats_dict['mean']:.3f}\n"
+    stats_text += f"Std = {stats_dict['std']:.3f}\n"
+    stats_text += f"CV = {stats_dict['cv']:.3f}\n"
+    stats_text += f"CV > 1: {stats_dict['cv_heavy_tailed']}"
+    
+    ax1.text(0.02, 0.98, stats_text,
+             transform=ax1.transAxes,
+             fontsize=10,
+             verticalalignment='top',
+             bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+    
+    # --- Plot 2: QQ-Plot against Exponential ---
+    ax2 = axes[1]
+    
+    if len(data_positive) >= 10:
+        # Sort the positive data
+        sorted_data = np.sort(data_positive)
+        n = len(sorted_data)
+        
+        # Calculate theoretical exponential quantiles
+        # Exponential CDF: F(x) = 1 - exp(-λx)
+        # Quantile function: Q(p) = -log(1-p)/λ
+        # For standard exponential (λ=1): Q(p) = -log(1-p)
+        
+        # Empirical probabilities (avoiding 0 and 1)
+        p = (np.arange(1, n + 1) - 0.5) / n
+        theoretical_quantiles = -np.log(1 - p)  # Standard exponential (λ=1)
+        
+        # Scale theoretical quantiles to match data scale
+        # Using method of moments: λ_hat = 1/mean
+        lambda_hat = 1 / np.mean(data_positive)
+        theoretical_quantiles = theoretical_quantiles / lambda_hat
+        
+        # Plot QQ-plot
+        ax2.scatter(theoretical_quantiles, sorted_data, alpha=0.6, s=30, color='darkorange')
+        
+        # Add reference line (y = x)
+        max_val = max(np.max(theoretical_quantiles), np.max(sorted_data))
+        ax2.plot([0, max_val], [0, max_val], 'r--', linewidth=2, 
+                label='Exponential reference', alpha=0.7)
+        
+        # Calculate correlation for fit assessment
+        correlation = np.corrcoef(theoretical_quantiles, sorted_data)[0, 1]
+        
+        ax2.set_xlabel('Theoretical Exponential Quantiles', fontsize=12)
+        ax2.set_ylabel('Sample Quantiles', fontsize=12)
+        ax2.set_title(f'QQ-Plot vs Exponential (r = {correlation:.3f})', fontsize=13)
+        ax2.legend(loc='upper left')
+        ax2.grid(True, alpha=0.3)
+        
+        # Add interpretation text
+        if correlation > 0.98:
+            fit_quality = "Excellent exponential fit"
+        elif correlation > 0.95:
+            fit_quality = "Good exponential fit"
+        elif correlation > 0.90:
+            fit_quality = "Moderate exponential fit"
+        else:
+            fit_quality = "Poor exponential fit"
+        
+        # Check for heavy tails (points above line in right tail)
+        # Use last 20% of points
+        tail_start = int(0.8 * n)
+        if tail_start < n - 1:
+            tail_theoretical = theoretical_quantiles[tail_start:]
+            tail_actual = sorted_data[tail_start:]
+            tail_ratio = np.mean(tail_actual / tail_theoretical)
+            
+            if tail_ratio > 1.1:
+                tail_info = "Heavier tails than exponential"
+            elif tail_ratio < 0.9:
+                tail_info = "Lighter tails than exponential"
+            else:
+                tail_info = "Similar tails to exponential"
+            
+            ax2.text(0.02, 0.98, f"{fit_quality}\n{tail_info}",
+                     transform=ax2.transAxes,
+                     fontsize=9,
+                     verticalalignment='top',
+                     bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+        
+        stats_dict['qq_correlation'] = correlation
+        stats_dict['data_positive_mean'] = np.mean(data_positive)
+        stats_dict['lambda_hat'] = lambda_hat
+    
+    else:
+        # Not enough positive data for QQ-plot
+        ax2.text(0.5, 0.5, f"Not enough positive data\nfor QQ-plot\n(n_positive = {len(data_positive)})",
+                 horizontalalignment='center',
+                 verticalalignment='center',
+                 transform=ax2.transAxes,
+                 fontsize=12)
+        ax2.set_title('QQ-Plot vs Exponential', fontsize=13)
+        ax2.grid(True, alpha=0.3)
+        stats_dict['qq_correlation'] = None
+    
+    # Overall title
+    plt.suptitle(title, fontsize=14, fontweight='bold')
+    plt.tight_layout()
+    
+    if show_plot:
+        plt.show()
+    
+    # Print summary to console
+    print("=== Distribution Analysis ===")
+    print(f"Sample size: {stats_dict['n']}")
+    print(f"Positive values: {stats_dict['n_positive']}")
+    print(f"Mean: {stats_dict['mean']:.4f}")
+    print(f"Std: {stats_dict['std']:.4f}")
+    print(f"Coefficient of Variation (CV): {stats_dict['cv']:.4f}")
+    print(f"CV > 1 (heavy-tailed indicator): {stats_dict['cv_heavy_tailed']}")
+    
+    if 'qq_correlation' in stats_dict and stats_dict['qq_correlation'] is not None:
+        print(f"QQ-plot correlation with exponential: {stats_dict['qq_correlation']:.4f}")
+        if stats_dict['qq_correlation'] < 0.95:
+            print("  → Data likely NOT exponential")
+    
+    return fig, axes, stats_dict
+
+
+
+def main():
+
+    output_file = "./user_projects/output_sensibility_analysis/membrane_integrity_groups/results_summary.txt"
+    X, Y = extract_X_Y(output_file, 'Group_m1')
+    #plot_histogram_with_analysis(Y)
+    plot_scatter_sets(Y, X, set_names=['Group_m1'])
+
     result_file = "./output_integrity3_groups/membrane_integrity.txt"
     param_names_file = "./output_integrity3_groups/param_names.txt"
-    groups = ["Group_epib1", "Group_epib2", "Group_epib2", "Group_m2", "Group_m2", "Group_m1", "Group_m3", "Group_m3"]
-    bounds = [[0.0, 1.0] * len(groups)]
+    param_values_file = "./output_integrity3_groups/param_values_membrane_integrity.txt"
     
-    Si = analyze_sobol(result_file, param_names_file, bounds, groups=groups)
-    Si.plot()
-    plt.show()
+    #names = ["_".join(p) for p in param]
+    groups = ["Group_epib1", "Group_epib2", "Group_epib2", "Group_m2", "Group_m2", "Group_m1", "Group_m3", "Group_m3"]
+
+    #combine_files_with_header(result_file, param_values_file, output_file, groups)
+    
+    bounds = [[0.0, 1.0] * len(groups)]
+
+    #Si = analyze_sobol(result_file, param_names_file, bounds, groups=groups)
+    #Si.plot()
+    #plt.show()
     
 if __name__ == '__main__':
     main()
