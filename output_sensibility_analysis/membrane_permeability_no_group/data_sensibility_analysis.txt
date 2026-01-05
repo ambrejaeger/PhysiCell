@@ -1,0 +1,29 @@
+=== DataFrame 1 ===
+                                                                                                                               ST   ST_conf
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane   0.312576  0.117755
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;attracted  0.250061  0.109815
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;attracted;membrane  0.375092  0.120881
+cell_definitions/cell_definition/phenotype/motility/migration_bias;attracted                                             0.922100  0.166867
+cell_definitions/cell_definition/phenotype/volume/total;attracted                                                        0.328205  0.128530
+
+=== DataFrame 2 ===
+                                                                                                                               S1   S1_conf
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane  -0.036142  0.151516
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;attracted -0.043468  0.131743
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;attracted;membrane -0.038584  0.154831
+cell_definitions/cell_definition/phenotype/motility/migration_bias;attracted                                             0.798291  0.187767
+cell_definitions/cell_definition/phenotype/volume/total;attracted                                                       -0.024176  0.142589
+
+=== DataFrame 3 ===
+                                                                                                                                                                                                                                                          S2   S2_conf
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;attracted)   0.103297  0.196148
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;attracted;membrane)   0.103297  0.194847
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane, cell_definitions/cell_definition/phenotype/motility/migration_bias;attracted)                                             -0.084249  0.184272
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane, cell_definitions/cell_definition/phenotype/volume/total;attracted)                                                         0.072039  0.198889
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;attracted, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;attracted;membrane)  0.072283  0.198822
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;attracted, cell_definitions/cell_definition/phenotype/motility/migration_bias;attracted)                                            -0.115263  0.196659
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;attracted, cell_definitions/cell_definition/phenotype/volume/total;attracted)                                                        0.072283  0.179976
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;attracted;membrane, cell_definitions/cell_definition/phenotype/motility/migration_bias;attracted)                                            -0.136996  0.191302
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;attracted;membrane, cell_definitions/cell_definition/phenotype/volume/total;attracted)                                                        0.113065  0.190951
+(cell_definitions/cell_definition/phenotype/motility/migration_bias;attracted, cell_definitions/cell_definition/phenotype/volume/total;attracted)                                                                                                  -0.026618  0.221700
+

@@ -1,0 +1,5 @@
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity_membrane_membrane 0.0 1.0 Group_m1
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity_membrane_attracted 0.0 1.0 Group_m2
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity_attracted_membrane 0.0 1.0 Group_m2
+cell_definitions/cell_definition/phenotype/motility/migration_bias_attracted 0.0 1.0 Group_attr
+cell_definitions/cell_definition/phenotype/volume/total_attracted 3000 5500 Group_vattr

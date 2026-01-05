@@ -663,7 +663,6 @@ def process_file(input_file, output_file):
     
     return new_count
 
-
 def main():
     
     param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "epi_basal", "epi_basal"],

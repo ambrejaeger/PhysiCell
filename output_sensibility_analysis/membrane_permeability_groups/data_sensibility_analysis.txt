@@ -1,0 +1,23 @@
+=== DataFrame 1 ===
+                   ST   ST_conf
+Group_m1     0.234504  0.112592
+Group_m2     0.250137  0.109623
+Group_attr   0.984916  0.179977
+Group_vattr  0.297038  0.127767
+
+=== DataFrame 2 ===
+                   S1   S1_conf
+Group_m1     0.074870  0.122346
+Group_m2     0.055939  0.117398
+Group_attr   0.829679  0.196805
+Group_vattr  0.007939  0.129218
+
+=== DataFrame 3 ===
+                                 S2   S2_conf
+(Group_m1, Group_m2)      -0.052397  0.168609
+(Group_m1, Group_attr)    -0.208733  0.162086
+(Group_m1, Group_vattr)   -0.021130  0.163473
+(Group_m2, Group_attr)    -0.210076  0.150910
+(Group_m2, Group_vattr)   -0.085008  0.174436
+(Group_attr, Group_vattr) -0.102595  0.220690
+

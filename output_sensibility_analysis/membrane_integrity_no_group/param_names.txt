@@ -1,0 +1,8 @@
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'epi_basal', 'epi_basal']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'epi_basal', 'epi_inter']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'epi_inter', 'epi_basal']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'epi_basal', 'membrane']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'membrane', 'epi_basal']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'membrane', 'membrane']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'membrane', 'conjonctif']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'conjonctif', 'membrane']

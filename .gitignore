@@ -1,6 +1,9 @@
 .physienv
 studio/
-output*/
+output_i*/
+output_p*/
+output_test/
+output/
 temp_output/
 *.o
 PhysiCell-Studio-2.44.1/

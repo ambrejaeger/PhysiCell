@@ -1,0 +1,5 @@
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'membrane', 'membrane']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'membrane', 'attracted']
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'attracted', 'membrane']
+['cell_definitions/cell_definition/phenotype/motility/migration_bias', 'attracted']
+['cell_definitions/cell_definition/phenotype/volume/total', 'attracted']

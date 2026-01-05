@@ -1,0 +1,29 @@
+=== DataFrame 1 ===
+                   ST   ST_conf
+Group_epib1  0.061484  0.034817
+Group_epib2  0.035994  0.018437
+Group_m2     0.220395  0.112475
+Group_m1     0.920509  0.236968
+Group_m3     0.127705  0.062024
+
+=== DataFrame 2 ===
+                   S1   S1_conf
+Group_epib1 -0.021254  0.042008
+Group_epib2 -0.014980  0.028767
+Group_m2     0.027792  0.083376
+Group_m1     0.594796  0.271307
+Group_m3     0.019410  0.058683
+
+=== DataFrame 3 ===
+                                  S2   S2_conf
+(Group_epib1, Group_epib2)  0.077648  0.079301
+(Group_epib1, Group_m2)     0.072190  0.086995
+(Group_epib1, Group_m1)    -0.010819  0.105118
+(Group_epib1, Group_m3)     0.076412  0.076278
+(Group_epib2, Group_m2)     0.038981  0.072226
+(Group_epib2, Group_m1)     0.053399  0.088224
+(Group_epib2, Group_m3)     0.048044  0.073649
+(Group_m2, Group_m1)        0.157019  0.215685
+(Group_m2, Group_m3)        0.065668  0.119625
+(Group_m1, Group_m3)        0.351673  0.437891
+

@@ -1,0 +1,53 @@
+=== DataFrame 1 ===
+                                                                                                                                ST   ST_conf
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal  0.053483  0.043232
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter  0.043062  0.028244
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal  0.043012  0.025796
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane   0.172296  0.109545
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal   0.153518  0.080007
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane    0.740994  0.279493
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif  0.094185  0.059679
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane  0.095021  0.051743
+
+=== DataFrame 2 ===
+                                                                                                                                S1   S1_conf
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal  0.024983  0.045464
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter -0.026464  0.026157
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal -0.021823  0.032449
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane   0.037489  0.058834
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal  -0.007186  0.058452
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane    0.585717  0.224913
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif  0.031189  0.054848
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane  0.062607  0.051264
+
+=== DataFrame 3 ===
+                                                                                                                                                                                                                                                            S2   S2_conf
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter)  0.026376  0.045729
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal)  0.038370  0.052539
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane)   0.034536  0.053524
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal)   0.021657  0.054782
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane)   -0.062009  0.076652
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif)  0.013398  0.051786
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane)  0.010449  0.053976
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal)  0.045803  0.049770
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane)   0.040690  0.057924
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal)   0.043837  0.048685
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane)    0.020143  0.086420
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif)  0.031252  0.048591
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;epi_inter, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane)  0.030662  0.054175
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane)   0.044334  0.050421
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal)   0.054166  0.065728
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane)   -0.004233  0.084227
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif)  0.040303  0.050912
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane)  0.054067  0.059146
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal)    0.018064  0.106036
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane)     0.001941  0.140764
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif)  -0.005040  0.100469
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_basal;membrane, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane)  -0.006023  0.102180
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane)     0.235555  0.331385
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif)   0.116889  0.158891
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;epi_basal, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane)   0.143828  0.197991
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif)    0.139392  0.403463
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;membrane, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane)    0.067131  0.408451
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;membrane;conjonctif, cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;conjonctif;membrane) -0.031389  0.086157
+
