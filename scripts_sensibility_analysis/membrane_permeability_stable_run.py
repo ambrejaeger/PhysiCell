@@ -11,21 +11,13 @@ param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_af
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "conjonctif"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "conjonctif", "membrane"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "conjonctif", "conjonctif"],
-    ["cell_definitions/cell_definition/phenotype/motility/speed", "attracted"]
-    ]
-""",
+    ["cell_definitions/cell_definition/phenotype/motility/speed", "attracted"],
     ["cell_definitions/cell_definition/phenotype/volume/total", "attracted"],
     ["cell_definitions/cell_definition/phenotype/mechanics/attachment_rate", "membrane"],
     ["cell_definitions/cell_definition/phenotype/mechanics/attachment_rate", "conjonctif"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_cell_repulsion_strength", "attracted"],
     ["cell_definitions/cell_definition/phenotype/mechanics/cell_cell_repulsion_strength", "membrane"]
-    
-    ,
-          [3000, 5500],
-          [0.0, 1.0],
-          [0.0, 1.0],
-          [10.0, 100.0],
-          [10.0, 100.0]"""
+    ]
 
 bounds = [[0.0, 1.0],
           [0.0, 1.0],
@@ -33,9 +25,15 @@ bounds = [[0.0, 1.0],
           [0.0, 1.0],
           [0.0, 1.0],
           [0.0, 1.0],
-          [1.0, 5.0]
+          [1.0, 5.0],
+          [3000, 5500],
+          [0.0, 1.0],
+          [0.0, 1.0],
+          [10.0, 100.0],
+          [10.0, 100.0]
           ]
-names = ["_".join(p) for p in param]
+
+names = [";".join(p) for p in param]
 num_vars = len(param)
 xml_file = "./config/PhysiCell_settings.xml"
 groups = ['Group_m1', 'Group_m2', 'Group_m2', 'Group_m3', 'Group_m3', 'Group_c1', 'Group_sattr', 'Group_vattr', 'Group_m_att', 'Group_c_att', 'Group_at_rep', 'Group_m_rep']
@@ -43,7 +41,6 @@ param_values = define_set_param(num_vars, names, bounds, groups = groups, sample
 tolerance = 5.0
 
 indexes = list(range(1,param_values.shape[0],50))
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
