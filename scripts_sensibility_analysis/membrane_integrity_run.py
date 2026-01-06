@@ -18,7 +18,7 @@ bounds = [[0.0, 1.0] * len(param)]
 names = ["_".join(p) for p in param]
 num_vars = len(param)
 xml_file = "./config/PhysiCell_settings.xml"
-param_values = define_set_param(num_vars, names, bounds, sample_size=128)
+param_values = define_set_param(num_vars, names, bounds, groups = groups, sample_size=128)
 tolerance = 5.0
 
 indexes = list(range(1,param_values.shape[0],50))

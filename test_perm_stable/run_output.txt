@@ -1,0 +1,904 @@
+/home/ajaeger/Documents/PhysiCell/temp_output/PhysiCell_settings.xml
+Using config file /home/ajaeger/Documents/PhysiCell/temp_output/PhysiCell_settings.xml ... 
+Setting up RNG with seed 19
+0
+dc? 0
+User parameters in XML config file: 
+Bool parameters:: 
+read_init: 0 [dimensionless]
+start_stop: 0 [dimensionless]
+auto_stop: 0 [dimensionless]
+auto_stop_alive: 0 [dimensionless]
+auto_stop_epi_size: 1 [dimensionless]
+auto_stop_epi_stable: 0 [dimensionless]
+
+Int parameters:: 
+number_of_cells: 0 [none]
+
+Double parameters:: 
+epi_max_size: 0 [micron]
+
+String parameters:: 
+saving_folder: ./start_and_stop_saving_files/ [dimensionless]
+init_cells_filename: ./start_and_stop_saving_files/initial.tsv [dimensionless]
+
+
+which boundaries?
+0 0 0 0 0 0
+
+Microenvironment summary: microenvironment: 
+
+Mesh information: 
+type: uniform Cartesian
+Domain: [-300,300] micron x [-300,300] micron x [-10,10] micron
+   resolution: dx = 20 micron
+   voxels: 900
+   voxel faces: 0
+   volume: 7.2e+06 cubic micron
+Densities: (1 total)
+   attractant:
+     units: dimensionless
+     diffusion coefficient: 1000 micron^2 / min
+     decay rate: 0.1 min^-1
+     diffusion length scale: 100 micron
+     initial condition: 0 dimensionless
+     boundary condition: 0 dimensionless (enabled: false)
+
+Auto stop user parameters evaluation: 
+auto_stop_epi_size is 1
+auto_stop_alive is 0
+auto_stop is 0
+auto_stop_epi_stable is 0
+read_init is 0
+start_stop is 0
+Evaluate start stop parameters completed
+Start and stop value: 0
+virtual_wall_at_domain_edge: enabled
+Pre-processing type 0 named epi_basal
+Pre-processing type 1 named epi_inter
+Pre-processing type 2 named membrane
+Pre-processing type 3 named conjonctif
+Pre-processing type 4 named attracted
+Pre-processing type 5 named attractor
+Processing epi_basal ... 
+Note: setting cell definition to 2D based on microenvironment domain settings ... 
+  --------- attachment_elastic_constant = 0.01
+Motility is disabled, therefore there is also no chemotaxis
+This ran to the end
+Processing epi_inter ... 
+Note: setting cell definition to 2D based on microenvironment domain settings ... 
+copying data ... 
+epi_basal to epi_inter
+  --------- attachment_elastic_constant = 0.01
+Motility is disabled, therefore there is also no chemotaxis
+This ran to the end
+Processing membrane ... 
+Note: setting cell definition to 2D based on microenvironment domain settings ... 
+copying data ... 
+epi_basal to membrane
+  --------- attachment_elastic_constant = 0.01
+Motility is disabled, therefore there is also no chemotaxis
+This ran to the end
+Processing conjonctif ... 
+Note: setting cell definition to 2D based on microenvironment domain settings ... 
+copying data ... 
+epi_basal to conjonctif
+  --------- attachment_elastic_constant = 0.01
+Motility is disabled, therefore there is also no chemotaxis
+This ran to the end
+Processing attracted ... 
+Note: setting cell definition to 2D based on microenvironment domain settings ... 
+copying data ... 
+epi_basal to attracted
+  --------- attachment_elastic_constant = 0.01
+This is occuring
+Cells of type attracted use standard chemotaxis: 
+	 d_bias (before normalization) = 1 * grad(attractant)
+This ran to the end
+Processing attractor ... 
+Note: setting cell definition to 2D based on microenvironment domain settings ... 
+copying data ... 
+epi_basal to attractor
+  --------- attachment_elastic_constant = 0.01
+Motility is disabled, therefore there is also no chemotaxis
+This ran to the end
+This also ran to the end
+Signals: 
+=======
+0 : attractant
+1 : intracellular attractant
+2 : attractant gradient
+3 : pressure
+4 : volume
+5 : contact with epi_basal
+6 : contact with epi_inter
+7 : contact with membrane
+8 : contact with conjonctif
+9 : contact with attracted
+10 : contact with attractor
+11 : contact with live cell
+12 : contact with dead cell
+13 : contact with apoptotic cell
+14 : contact with necrotic cell
+15 : contact with other dead cell
+16 : contact with basement membrane
+17 : damage
+18 : damage delivered
+19 : attacking
+20 : dead
+21 : total attack time
+22 : time
+23 : custom:sample
+24 : apoptotic
+25 : necrotic
+
+
+Behaviors: 
+=========
+0 : attractant secretion
+1 : attractant secretion target
+2 : attractant uptake
+3 : attractant export
+4 : cycle entry
+5 : exit from cycle phase 1
+6 : exit from cycle phase 2
+7 : exit from cycle phase 3
+8 : exit from cycle phase 4
+9 : exit from cycle phase 5
+10 : apoptosis
+11 : necrosis
+12 : migration speed
+13 : migration bias
+14 : migration persistence time
+15 : chemotactic response to attractant
+16 : cell-cell adhesion
+17 : cell-cell adhesion elastic constant
+18 : adhesive affinity to epi_basal
+19 : adhesive affinity to epi_inter
+20 : adhesive affinity to membrane
+21 : adhesive affinity to conjonctif
+22 : adhesive affinity to attracted
+23 : adhesive affinity to attractor
+24 : relative maximum adhesion distance
+25 : cell-cell repulsion
+26 : cell-BM adhesion
+27 : cell-BM repulsion
+28 : phagocytose apoptotic cell
+29 : phagocytose necrotic cell
+30 : phagocytose other dead cell
+31 : phagocytose epi_basal
+32 : phagocytose epi_inter
+33 : phagocytose membrane
+34 : phagocytose conjonctif
+35 : phagocytose attracted
+36 : phagocytose attractor
+37 : attack epi_basal
+38 : attack epi_inter
+39 : attack membrane
+40 : attack conjonctif
+41 : attack attracted
+42 : attack attractor
+43 : fuse to epi_basal
+44 : fuse to epi_inter
+45 : fuse to membrane
+46 : fuse to conjonctif
+47 : fuse to attracted
+48 : fuse to attractor
+49 : transition to epi_basal
+50 : transition to epi_inter
+51 : transition to membrane
+52 : transition to conjonctif
+53 : transition to attracted
+54 : transition to attractor
+55 : asymmetric division to epi_basal
+56 : asymmetric division to epi_inter
+57 : asymmetric division to membrane
+58 : asymmetric division to conjonctif
+59 : asymmetric division to attracted
+60 : asymmetric division to attractor
+61 : custom:sample
+62 : is_movable
+63 : immunogenicity to epi_basal
+64 : immunogenicity to epi_inter
+65 : immunogenicity to membrane
+66 : immunogenicity to conjonctif
+67 : immunogenicity to attracted
+68 : immunogenicity to attractor
+69 : cell attachment rate
+70 : cell detachment rate
+71 : maximum number of cell attachments
+72 : attack damage rate
+73 : attack duration
+74 : damage rate
+75 : damage repair rate
+
+
+ruleset
+	Processing ruleset in ./config/cell_rules.csv ... 
+	Format: CSV (current version 3)
+Processing rules in file ./config/cell_rules.csv ... 
+Adding rule for epi_basal cells:
+	contact with membrane decreases transform to epi_inter towards 0.0 with a Hill response, with half-max 0.1 and Hill power 4.
+Done!
+
+Copying ./config/cell_rules.csv to output folder.
+Copy command: cp ./config/cell_rules.csv temp_output/cell_rules.csv
+Behavioral rules for cell type epi_basal:
+===================================================
+contact with membrane decreases transform to epi_inter
+
+Behavioral rules for cell type epi_inter:
+===================================================
+
+Behavioral rules for cell type membrane:
+===================================================
+
+Behavioral rules for cell type conjonctif:
+===================================================
+
+Behavioral rules for cell type attracted:
+===================================================
+
+Behavioral rules for cell type attractor:
+===================================================
+
+Exporting rules to file temp_output/cell_rules_parsed.csv (v3 format) ... 
+Done!
+
+0 :: type:0 name: epi_basal
+	 cycle model: Live (code=5)
+		Phase 0: Live
+		Cycle transitions: 
+		-----------------
+		Live --> Live w mean duration inf min
+	 death models: 
+		0 : Apoptosis (code=100) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Apoptotic --> Debris w mean duration 515.996 min
+		1 : Necrosis (code=101) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Necrotic (swelling) --> Necrotic (lysed) w mean duration 1.11111e-10 min
+		Necrotic (lysed) --> Debris w mean duration 86399.8 min
+	 key functions: 
+		 migration bias rule: false
+		 custom rule: true
+		 phenotype rule: true
+		 volume update function: true
+		 mechanics function: true
+		 contact function: true
+		 cell division function: false
+	motility (enabled: false in 2D)
+		speed: 1 micron/min
+		bias: 0 
+		persistence time: 1 min
+		chemotaxis (enabled: false)
+			along 1 * grad(attractant) 
+	mechanics:
+		cell_cell_adhesion_strength: 1
+		cell_cell_repulsion_strength: 100
+		rel max adhesion dist: 1.25
+		cell_BM_adhesion_strength: 4
+		cell_BM_repulsion_strength: 100
+		attachment_elastic_constant: 0.01
+		attachment_rate: 0
+		detachment_rate: 0
+	custom data: 
+		sample: 0 dimensionless
+	custom vector data: 
+			NOTE: custom vector data will eventually be merged with custom data
+1 :: type:1 name: epi_inter
+	 cycle model: Live (code=5)
+		Phase 0: Live
+		Cycle transitions: 
+		-----------------
+		Live --> Live w mean duration inf min
+	 death models: 
+		0 : Apoptosis (code=100) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Apoptotic --> Debris w mean duration 515.996 min
+		1 : Necrosis (code=101) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Necrotic (swelling) --> Necrotic (lysed) w mean duration 1.11111e-10 min
+		Necrotic (lysed) --> Debris w mean duration 86399.8 min
+	 key functions: 
+		 migration bias rule: false
+		 custom rule: false
+		 phenotype rule: false
+		 volume update function: true
+		 mechanics function: true
+		 contact function: false
+		 cell division function: false
+	motility (enabled: false in 2D)
+		speed: 1 micron/min
+		bias: 0 
+		persistence time: 1 min
+		chemotaxis (enabled: false)
+			along 1 * grad(attractant) 
+	mechanics:
+		cell_cell_adhesion_strength: 1
+		cell_cell_repulsion_strength: 100
+		rel max adhesion dist: 1.25
+		cell_BM_adhesion_strength: 4
+		cell_BM_repulsion_strength: 100
+		attachment_elastic_constant: 0.01
+		attachment_rate: 0
+		detachment_rate: 0
+	custom data: 
+		sample: 0 dimensionless
+	custom vector data: 
+			NOTE: custom vector data will eventually be merged with custom data
+2 :: type:2 name: membrane
+	 cycle model: Live (code=5)
+		Phase 0: Live
+		Cycle transitions: 
+		-----------------
+		Live --> Live w mean duration inf min
+	 death models: 
+		0 : Apoptosis (code=100) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Apoptotic --> Debris w mean duration 515.996 min
+		1 : Necrosis (code=101) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Necrotic (swelling) --> Necrotic (lysed) w mean duration 1.11111e-10 min
+		Necrotic (lysed) --> Debris w mean duration 86399.8 min
+	 key functions: 
+		 migration bias rule: false
+		 custom rule: false
+		 phenotype rule: false
+		 volume update function: true
+		 mechanics function: true
+		 contact function: false
+		 cell division function: false
+	motility (enabled: false in 2D)
+		speed: 1 micron/min
+		bias: 0 
+		persistence time: 1 min
+		chemotaxis (enabled: false)
+			along 1 * grad(attractant) 
+	mechanics:
+		cell_cell_adhesion_strength: 1
+		cell_cell_repulsion_strength: 100
+		rel max adhesion dist: 1.25
+		cell_BM_adhesion_strength: 4
+		cell_BM_repulsion_strength: 100
+		attachment_elastic_constant: 0.01
+		attachment_rate: 1
+		detachment_rate: 0
+	custom data: 
+		sample: 0 dimensionless
+	custom vector data: 
+			NOTE: custom vector data will eventually be merged with custom data
+3 :: type:3 name: conjonctif
+	 cycle model: Live (code=5)
+		Phase 0: Live
+		Cycle transitions: 
+		-----------------
+		Live --> Live w mean duration inf min
+	 death models: 
+		0 : Apoptosis (code=100) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Apoptotic --> Debris w mean duration 515.996 min
+		1 : Necrosis (code=101) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Necrotic (swelling) --> Necrotic (lysed) w mean duration 1.11111e-10 min
+		Necrotic (lysed) --> Debris w mean duration 86399.8 min
+	 key functions: 
+		 migration bias rule: false
+		 custom rule: false
+		 phenotype rule: false
+		 volume update function: true
+		 mechanics function: true
+		 contact function: false
+		 cell division function: false
+	motility (enabled: false in 2D)
+		speed: 1 micron/min
+		bias: 0 
+		persistence time: 1 min
+		chemotaxis (enabled: false)
+			along 1 * grad(attractant) 
+	mechanics:
+		cell_cell_adhesion_strength: 1
+		cell_cell_repulsion_strength: 100
+		rel max adhesion dist: 1.25
+		cell_BM_adhesion_strength: 4
+		cell_BM_repulsion_strength: 100
+		attachment_elastic_constant: 0.01
+		attachment_rate: 1
+		detachment_rate: 0
+	custom data: 
+		sample: 0 dimensionless
+	custom vector data: 
+			NOTE: custom vector data will eventually be merged with custom data
+4 :: type:4 name: attracted
+	 cycle model: Live (code=5)
+		Phase 0: Live
+		Cycle transitions: 
+		-----------------
+		Live --> Live w mean duration inf min
+	 death models: 
+		0 : Apoptosis (code=100) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Apoptotic --> Debris w mean duration 515.996 min
+		1 : Necrosis (code=101) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Necrotic (swelling) --> Necrotic (lysed) w mean duration 1.11111e-10 min
+		Necrotic (lysed) --> Debris w mean duration 86399.8 min
+	 key functions: 
+		 migration bias rule: true
+		 custom rule: false
+		 phenotype rule: false
+		 volume update function: true
+		 mechanics function: true
+		 contact function: false
+		 cell division function: false
+	motility (enabled: true in 2D)
+		speed: 2.69014 micron/min
+		bias: 1 
+		persistence time: 5 min
+		chemotaxis (enabled: true)
+			along 1 * grad(attractant) 
+	mechanics:
+		cell_cell_adhesion_strength: 1
+		cell_cell_repulsion_strength: 10
+		rel max adhesion dist: 1.25
+		cell_BM_adhesion_strength: 4
+		cell_BM_repulsion_strength: 100
+		attachment_elastic_constant: 0.01
+		attachment_rate: 0
+		detachment_rate: 0
+	custom data: 
+		sample: 0 dimensionless
+	custom vector data: 
+			NOTE: custom vector data will eventually be merged with custom data
+5 :: type:5 name: attractor
+	 cycle model: Live (code=5)
+		Phase 0: Live
+		Cycle transitions: 
+		-----------------
+		Live --> Live w mean duration inf min
+	 death models: 
+		0 : Apoptosis (code=100) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Apoptotic --> Debris w mean duration 515.996 min
+		1 : Necrosis (code=101) with rate 0 1/min
+		death phase transitions: 
+		------------------------
+		Necrotic (swelling) --> Necrotic (lysed) w mean duration 1.11111e-10 min
+		Necrotic (lysed) --> Debris w mean duration 86399.8 min
+	 key functions: 
+		 migration bias rule: false
+		 custom rule: false
+		 phenotype rule: false
+		 volume update function: true
+		 mechanics function: true
+		 contact function: false
+		 cell division function: false
+	motility (enabled: false in 2D)
+		speed: 1 micron/min
+		bias: 0 
+		persistence time: 1 min
+		chemotaxis (enabled: false)
+			along 1 * grad(attractant) 
+	mechanics:
+		cell_cell_adhesion_strength: 1
+		cell_cell_repulsion_strength: 100
+		rel max adhesion dist: 1.25
+		cell_BM_adhesion_strength: 4
+		cell_BM_repulsion_strength: 100
+		attachment_elastic_constant: 0.01
+		attachment_rate: 0
+		detachment_rate: 0
+	custom data: 
+		sample: 0 dimensionless
+	custom vector data: 
+			NOTE: custom vector data will eventually be merged with custom data
+Loading cells from CSV file ./config/cells_0.csv ... 
+Loading cells from detailed (v2) CSV file ./config/cells_0.csv ... 
+Creating conjonctif (type=3) at 140.631 -244.513 0 
+Creating conjonctif (type=3) at -210.041 -295.021 0 
+Creating conjonctif (type=3) at -160.122 -231.949 0 
+Creating conjonctif (type=3) at -111.853 -218.235 0 
+Creating conjonctif (type=3) at 201.075 -260.74 0 
+Creating conjonctif (type=3) at 169.636 -229.117 0 
+Creating conjonctif (type=3) at 221.926 -213.287 0 
+Creating conjonctif (type=3) at -185.501 -208.363 0 
+Creating conjonctif (type=3) at 184.33 -224.503 0 
+Creating conjonctif (type=3) at 14.2278 -209.485 0 
+Creating conjonctif (type=3) at 102.294 -268.81 0 
+Creating conjonctif (type=3) at 170.72 -296.723 0 
+Creating conjonctif (type=3) at -257.127 -244.182 0 
+Creating conjonctif (type=3) at 114.499 -265.803 0 
+Creating conjonctif (type=3) at -88.0946 -250.214 0 
+Creating conjonctif (type=3) at -119.658 -233.533 0 
+Creating conjonctif (type=3) at 98.8028 -267.203 0 
+Creating conjonctif (type=3) at -135.067 -291.644 0 
+Creating conjonctif (type=3) at -75.5394 -246.153 0 
+Creating conjonctif (type=3) at -254.923 -267.159 0 
+Creating conjonctif (type=3) at 154.752 -298.595 0 
+Creating conjonctif (type=3) at -113.728 -279.027 0 
+Creating conjonctif (type=3) at -97.4722 -227.862 0 
+Creating conjonctif (type=3) at 136.84 -202.893 0 
+Creating conjonctif (type=3) at -286.938 -204.009 0 
+Creating conjonctif (type=3) at -162.078 -295.1 0 
+Creating conjonctif (type=3) at -198.32 -287.671 0 
+Creating conjonctif (type=3) at -273.668 -201.841 0 
+Creating conjonctif (type=3) at -149.525 -279.326 0 
+Creating conjonctif (type=3) at 54.4586 -262.707 0 
+Creating conjonctif (type=3) at 130.892 -283.615 0 
+Creating conjonctif (type=3) at -89.533 -286.448 0 
+Creating conjonctif (type=3) at 150.949 -296.123 0 
+Creating conjonctif (type=3) at -120.142 -272.694 0 
+Creating conjonctif (type=3) at -68.0522 -285.951 0 
+Creating conjonctif (type=3) at -94.6629 -228.805 0 
+Creating conjonctif (type=3) at 203.888 -209.551 0 
+Creating conjonctif (type=3) at 131.765 -250.33 0 
+Creating conjonctif (type=3) at 68.6328 -267.25 0 
+Creating conjonctif (type=3) at -122.312 -265.4 0 
+Creating conjonctif (type=3) at -75.5662 -283.66 0 
+Creating conjonctif (type=3) at -122 -292.844 0 
+Creating conjonctif (type=3) at -208.277 -299.829 0 
+Creating conjonctif (type=3) at -27.0583 -206.905 0 
+Creating conjonctif (type=3) at 249.428 -230.451 0 
+Creating conjonctif (type=3) at 234.23 -287.78 0 
+Creating conjonctif (type=3) at 112.887 -218.252 0 
+Creating conjonctif (type=3) at 158.89 -239.28 0 
+Creating conjonctif (type=3) at -194.889 -244.317 0 
+Creating conjonctif (type=3) at 144.977 -227.41 0 
+Creating conjonctif (type=3) at -99.6017 -253.44 0 
+Creating conjonctif (type=3) at 219.479 -202.521 0 
+Creating conjonctif (type=3) at -155.578 -260.44 0 
+Creating conjonctif (type=3) at -200.152 -212.079 0 
+Creating conjonctif (type=3) at 200.665 -269.955 0 
+Creating conjonctif (type=3) at -80.0082 -221.746 0 
+Creating conjonctif (type=3) at 24.509 -272.149 0 
+Creating conjonctif (type=3) at -90.7908 -207.331 0 
+Creating conjonctif (type=3) at -212.48 -200.666 0 
+Creating conjonctif (type=3) at 51.8171 -269.516 0 
+Creating conjonctif (type=3) at -220.284 -212.707 0 
+Creating conjonctif (type=3) at 216.884 -283.157 0 
+Creating conjonctif (type=3) at -155.845 -291.818 0 
+Creating conjonctif (type=3) at 265.411 -257.766 0 
+Creating conjonctif (type=3) at -6.76899 -224.895 0 
+Creating conjonctif (type=3) at -100.615 -272.166 0 
+Creating conjonctif (type=3) at -115.108 -251.846 0 
+Creating conjonctif (type=3) at -136.445 -220.073 0 
+Creating conjonctif (type=3) at 244.86 -201.912 0 
+Creating conjonctif (type=3) at 70.2469 -230.583 0 
+Creating conjonctif (type=3) at -62.2775 -295.68 0 
+Creating conjonctif (type=3) at 153.801 -247.607 0 
+Creating conjonctif (type=3) at -195.265 -244.105 0 
+Creating conjonctif (type=3) at -131.772 -247.253 0 
+Creating conjonctif (type=3) at -174.137 -299.047 0 
+Creating conjonctif (type=3) at -195.011 -229.478 0 
+Creating conjonctif (type=3) at 215.593 -223.701 0 
+Creating conjonctif (type=3) at -209.214 -295.109 0 
+Creating conjonctif (type=3) at -199.563 -243.669 0 
+Creating conjonctif (type=3) at 63.6513 -288.792 0 
+Creating conjonctif (type=3) at 73.0795 -208.35 0 
+Creating conjonctif (type=3) at -209.512 -258.127 0 
+Creating conjonctif (type=3) at 34.4016 -283.26 0 
+Creating conjonctif (type=3) at -97.0049 -252.997 0 
+Creating conjonctif (type=3) at -82.9305 -294.868 0 
+Creating conjonctif (type=3) at 177.021 -255.221 0 
+Creating conjonctif (type=3) at 80.5416 -216.902 0 
+Creating conjonctif (type=3) at 127.502 -262.656 0 
+Creating conjonctif (type=3) at -1.01397 -215.738 0 
+Creating conjonctif (type=3) at 298.518 -224.703 0 
+Creating conjonctif (type=3) at 236.384 -209.117 0 
+Creating conjonctif (type=3) at -56.1449 -296.061 0 
+Creating conjonctif (type=3) at 271.326 -211.481 0 
+Creating conjonctif (type=3) at 198.867 -282.54 0 
+Creating conjonctif (type=3) at -225.758 -284.21 0 
+Creating conjonctif (type=3) at 296.45 -237.275 0 
+Creating conjonctif (type=3) at 208.156 -216.185 0 
+Creating conjonctif (type=3) at 127.174 -259.129 0 
+Creating conjonctif (type=3) at 31.0305 -241.283 0 
+Creating conjonctif (type=3) at 53.1718 -224.833 0 
+Creating conjonctif (type=3) at 102.779 -268.763 0 
+Creating conjonctif (type=3) at -113.269 -233.034 0 
+Creating conjonctif (type=3) at 202.278 -205.864 0 
+Creating conjonctif (type=3) at 295.32 -292.095 0 
+Creating conjonctif (type=3) at -41.9819 -201.996 0 
+Creating conjonctif (type=3) at -212.88 -227.071 0 
+Creating conjonctif (type=3) at -255.389 -299.199 0 
+Creating conjonctif (type=3) at -196.175 -236.557 0 
+Creating conjonctif (type=3) at -228.958 -225.872 0 
+Creating conjonctif (type=3) at 23.3669 -249.525 0 
+Creating conjonctif (type=3) at 17.0662 -233.188 0 
+Creating conjonctif (type=3) at -246.182 -227.435 0 
+Creating conjonctif (type=3) at -291.3 -250.221 0 
+Creating conjonctif (type=3) at -177.447 -213.875 0 
+Creating conjonctif (type=3) at -141.142 -297.38 0 
+Creating conjonctif (type=3) at -258.414 -215.153 0 
+Creating conjonctif (type=3) at -144.975 -252.416 0 
+Creating conjonctif (type=3) at -299.915 -276.528 0 
+Creating conjonctif (type=3) at 168.995 -259.074 0 
+Creating conjonctif (type=3) at -57.6233 -219.889 0 
+Creating conjonctif (type=3) at -101.13 -203.595 0 
+Creating conjonctif (type=3) at 231.857 -297.889 0 
+Creating conjonctif (type=3) at -210.555 -286.008 0 
+Creating conjonctif (type=3) at 138.994 -232.513 0 
+Creating conjonctif (type=3) at 2.62828 -245.393 0 
+Creating conjonctif (type=3) at 187.963 -284.818 0 
+Creating conjonctif (type=3) at -160.751 -233.955 0 
+Creating conjonctif (type=3) at -7.4619 -250.912 0 
+Creating conjonctif (type=3) at 76.4515 -231.791 0 
+Creating conjonctif (type=3) at 117.829 -286.314 0 
+Creating conjonctif (type=3) at 165.422 -252.544 0 
+Creating conjonctif (type=3) at 115.092 -267.273 0 
+Creating conjonctif (type=3) at 243.216 -267.804 0 
+Creating conjonctif (type=3) at 248.768 -249.596 0 
+Creating conjonctif (type=3) at 107.645 -291.43 0 
+Creating conjonctif (type=3) at -194.394 -213.869 0 
+Creating conjonctif (type=3) at 262.412 -285.94 0 
+Creating conjonctif (type=3) at 146.782 -215.758 0 
+Creating conjonctif (type=3) at 256.023 -256.331 0 
+Creating conjonctif (type=3) at 86.4972 -216.048 0 
+Creating conjonctif (type=3) at -81.6592 -269.034 0 
+Creating conjonctif (type=3) at 203.978 -210.518 0 
+Creating conjonctif (type=3) at -20.2265 -201.318 0 
+Creating conjonctif (type=3) at -93.9401 -210.372 0 
+Creating conjonctif (type=3) at -262.907 -224.686 0 
+Creating conjonctif (type=3) at 291.982 -283.429 0 
+Creating conjonctif (type=3) at 251.9 -254.358 0 
+Creating conjonctif (type=3) at -106.652 -207.177 0 
+Creating conjonctif (type=3) at 243.648 -213.067 0 
+Creating conjonctif (type=3) at 179.848 -263.31 0 
+Creating conjonctif (type=3) at -21.9254 -298.486 0 
+Creating conjonctif (type=3) at -115.443 -259.554 0 
+Creating conjonctif (type=3) at -170.184 -255.127 0 
+Creating conjonctif (type=3) at 173.398 -214.401 0 
+Creating conjonctif (type=3) at 110.393 -251.728 0 
+Creating conjonctif (type=3) at 39.4059 -262.189 0 
+Creating conjonctif (type=3) at 120.298 -243.223 0 
+Creating conjonctif (type=3) at -149.806 -202.328 0 
+Creating conjonctif (type=3) at -158.98 -261.154 0 
+Creating conjonctif (type=3) at -153.914 -234.913 0 
+Creating conjonctif (type=3) at -263.237 -282.459 0 
+Creating conjonctif (type=3) at -111.774 -284.846 0 
+Creating conjonctif (type=3) at 106.418 -261.688 0 
+Creating conjonctif (type=3) at -46.1368 -218.142 0 
+Creating conjonctif (type=3) at 237.726 -226.087 0 
+Creating conjonctif (type=3) at -215.663 -238.505 0 
+Creating conjonctif (type=3) at -45.298 -271.849 0 
+Creating conjonctif (type=3) at -63.3808 -284.425 0 
+Creating conjonctif (type=3) at -286.982 -285.899 0 
+Creating conjonctif (type=3) at 53.462 -202.948 0 
+Creating conjonctif (type=3) at -77.5866 -289.905 0 
+Creating conjonctif (type=3) at -228.343 -206.771 0 
+Creating conjonctif (type=3) at -211.095 -207.451 0 
+Creating conjonctif (type=3) at 163.915 -251.131 0 
+Creating conjonctif (type=3) at -195.351 -258.96 0 
+Creating conjonctif (type=3) at -278.216 -266.815 0 
+Creating conjonctif (type=3) at 134.481 -287.586 0 
+Creating conjonctif (type=3) at 70.8325 -234.218 0 
+Creating conjonctif (type=3) at 30.9759 -213.224 0 
+Creating conjonctif (type=3) at -267.785 -272.046 0 
+Creating conjonctif (type=3) at -270.966 -231.067 0 
+Creating conjonctif (type=3) at 84.848 -264.171 0 
+Creating conjonctif (type=3) at -7.9106 -268.313 0 
+Creating conjonctif (type=3) at 109.001 -290.566 0 
+Creating conjonctif (type=3) at 155.415 -249.099 0 
+Creating conjonctif (type=3) at 220.45 -225.173 0 
+Creating conjonctif (type=3) at -127.467 -288.888 0 
+Creating conjonctif (type=3) at 284.089 -263.382 0 
+Creating conjonctif (type=3) at -287.734 -244.329 0 
+Creating conjonctif (type=3) at -139.585 -240.884 0 
+Creating conjonctif (type=3) at -278.553 -251.441 0 
+Creating conjonctif (type=3) at 158.188 -240.958 0 
+Creating conjonctif (type=3) at -213.612 -291.983 0 
+Creating conjonctif (type=3) at -213.843 -267.206 0 
+Creating conjonctif (type=3) at -266.32 -229.891 0 
+Creating conjonctif (type=3) at -181.013 -265.47 0 
+Creating conjonctif (type=3) at -21.1275 -226.907 0 
+Creating conjonctif (type=3) at 39.6445 -280.561 0 
+Creating conjonctif (type=3) at 269.42 -255.409 0 
+Creating conjonctif (type=3) at -80.6328 -227.679 0 
+Creating conjonctif (type=3) at -65.537 -243.189 0 
+Creating conjonctif (type=3) at 190.335 -242.59 0 
+Creating conjonctif (type=3) at -127.732 -247.814 0 
+Creating conjonctif (type=3) at -120.577 -266.587 0 
+Creating conjonctif (type=3) at 214.618 -250.249 0 
+Creating conjonctif (type=3) at -206.897 -255.887 0 
+Creating conjonctif (type=3) at 15.3645 -291.483 0 
+Creating conjonctif (type=3) at 179.397 -231.647 0 
+Creating conjonctif (type=3) at 49.7656 -220.467 0 
+Creating conjonctif (type=3) at 235.559 -202.656 0 
+Creating conjonctif (type=3) at -126.448 -298.174 0 
+Creating conjonctif (type=3) at -228.199 -232.064 0 
+Creating conjonctif (type=3) at -172.974 -258.151 0 
+Creating conjonctif (type=3) at -52.6133 -204.272 0 
+Creating conjonctif (type=3) at -56.4084 -231.83 0 
+Creating conjonctif (type=3) at 136.854 -279.632 0 
+Creating conjonctif (type=3) at -111.427 -202.813 0 
+Creating conjonctif (type=3) at -44.8273 -282.899 0 
+Creating conjonctif (type=3) at -179.34 -275.452 0 
+Creating conjonctif (type=3) at -248.555 -288.04 0 
+Creating conjonctif (type=3) at 191.79 -204.589 0 
+Creating conjonctif (type=3) at 226.936 -267.348 0 
+Creating conjonctif (type=3) at 232.102 -291.042 0 
+Creating conjonctif (type=3) at 220.788 -263.343 0 
+Creating conjonctif (type=3) at -114.316 -238.817 0 
+Creating conjonctif (type=3) at -99.0077 -247.371 0 
+Creating conjonctif (type=3) at 3.18523 -221.094 0 
+Creating conjonctif (type=3) at 164.936 -278.479 0 
+Creating conjonctif (type=3) at 140.081 -284.281 0 
+Creating conjonctif (type=3) at 23.2897 -232.231 0 
+Creating conjonctif (type=3) at -75.1094 -247.619 0 
+Creating conjonctif (type=3) at -287.85 -216.447 0 
+Creating conjonctif (type=3) at -39.6702 -233.891 0 
+Creating conjonctif (type=3) at 27.6689 -273.534 0 
+Creating conjonctif (type=3) at -286.372 -214.578 0 
+Creating conjonctif (type=3) at -249.003 -255.129 0 
+Creating conjonctif (type=3) at 251.86 -241.231 0 
+Creating conjonctif (type=3) at -223.341 -276.278 0 
+Creating conjonctif (type=3) at -2.99573 -273.246 0 
+Creating conjonctif (type=3) at -275.079 -273.696 0 
+Creating conjonctif (type=3) at 256.575 -223.61 0 
+Creating conjonctif (type=3) at -131.698 -207.244 0 
+Creating conjonctif (type=3) at -256.752 -204.216 0 
+Creating conjonctif (type=3) at 291.335 -256.197 0 
+Creating conjonctif (type=3) at -42.9603 -233.331 0 
+Creating conjonctif (type=3) at 136.332 -262.746 0 
+Creating conjonctif (type=3) at -36.9204 -293.546 0 
+Creating conjonctif (type=3) at 47.5689 -202.047 0 
+Creating conjonctif (type=3) at -81.5202 -226.13 0 
+Creating conjonctif (type=3) at -166.726 -280.519 0 
+Creating conjonctif (type=3) at -96.4524 -294.144 0 
+Creating conjonctif (type=3) at -207.364 -254.215 0 
+Creating conjonctif (type=3) at 199.065 -298.386 0 
+Creating conjonctif (type=3) at -196.816 -229.258 0 
+Creating conjonctif (type=3) at -188.964 -259.239 0 
+Creating conjonctif (type=3) at 30.5353 -214.498 0 
+Creating conjonctif (type=3) at -243.781 -278.541 0 
+Creating conjonctif (type=3) at -105.769 -275.934 0 
+Creating conjonctif (type=3) at 112.222 -293.809 0 
+Creating conjonctif (type=3) at -153.566 -235.72 0 
+Creating conjonctif (type=3) at -235.321 -215.185 0 
+Creating conjonctif (type=3) at -263.019 -227.857 0 
+Creating conjonctif (type=3) at -104.272 -225.309 0 
+Creating conjonctif (type=3) at 15.7701 -292.152 0 
+Creating conjonctif (type=3) at 283.65 -291.94 0 
+Creating conjonctif (type=3) at -31.0094 -239.256 0 
+Creating conjonctif (type=3) at -20.3761 -266.287 0 
+Creating conjonctif (type=3) at 12.5371 -217.963 0 
+Creating conjonctif (type=3) at 42.3096 -261.311 0 
+Creating conjonctif (type=3) at -130.261 -273.61 0 
+Creating membrane (type=2) at -289.253 -189.253 0 
+Creating membrane (type=2) at -267.758 -189.253 0 
+Creating membrane (type=2) at -246.263 -189.253 0 
+Creating membrane (type=2) at -224.768 -189.253 0 
+Creating membrane (type=2) at -203.273 -189.253 0 
+Creating membrane (type=2) at -181.778 -189.253 0 
+Creating membrane (type=2) at -160.283 -189.253 0 
+Creating membrane (type=2) at -138.788 -189.253 0 
+Creating membrane (type=2) at -117.294 -189.253 0 
+Creating membrane (type=2) at -95.7987 -189.253 0 
+Creating membrane (type=2) at -74.3038 -189.253 0 
+Creating membrane (type=2) at -52.8089 -189.253 0 
+Creating membrane (type=2) at -31.3141 -189.253 0 
+Creating membrane (type=2) at -9.8192 -189.253 0 
+Creating membrane (type=2) at 11.6757 -189.253 0 
+Creating membrane (type=2) at 33.1705 -189.253 0 
+Creating membrane (type=2) at 54.6654 -189.253 0 
+Creating membrane (type=2) at 76.1603 -189.253 0 
+Creating membrane (type=2) at 97.6552 -189.253 0 
+Creating membrane (type=2) at 119.15 -189.253 0 
+Creating membrane (type=2) at 140.645 -189.253 0 
+Creating membrane (type=2) at 162.14 -189.253 0 
+Creating membrane (type=2) at 183.635 -189.253 0 
+Creating membrane (type=2) at 205.13 -189.253 0 
+Creating membrane (type=2) at 226.624 -189.253 0 
+Creating membrane (type=2) at 248.119 -189.253 0 
+Creating membrane (type=2) at 269.614 -189.253 0 
+Creating membrane (type=2) at -278.505 -170.637 0 
+Creating membrane (type=2) at -257.01 -170.637 0 
+Creating membrane (type=2) at -235.515 -170.637 0 
+Creating membrane (type=2) at -214.021 -170.637 0 
+Creating membrane (type=2) at -192.526 -170.637 0 
+Creating membrane (type=2) at -171.031 -170.637 0 
+Creating membrane (type=2) at -149.536 -170.637 0 
+Creating membrane (type=2) at -128.041 -170.637 0 
+Creating membrane (type=2) at -106.546 -170.637 0 
+Creating membrane (type=2) at -85.0513 -170.637 0 
+Creating membrane (type=2) at -63.5564 -170.637 0 
+Creating membrane (type=2) at -42.0615 -170.637 0 
+Creating membrane (type=2) at -20.5666 -170.637 0 
+Creating membrane (type=2) at 0.928238 -170.637 0 
+Creating membrane (type=2) at 22.4231 -170.637 0 
+Creating membrane (type=2) at 43.918 -170.637 0 
+Creating membrane (type=2) at 65.4129 -170.637 0 
+Creating membrane (type=2) at 86.9077 -170.637 0 
+Creating membrane (type=2) at 108.403 -170.637 0 
+Creating membrane (type=2) at 129.897 -170.637 0 
+Creating membrane (type=2) at 151.392 -170.637 0 
+Creating membrane (type=2) at 172.887 -170.637 0 
+Creating membrane (type=2) at 194.382 -170.637 0 
+Creating membrane (type=2) at 215.877 -170.637 0 
+Creating membrane (type=2) at 237.372 -170.637 0 
+Creating membrane (type=2) at 258.867 -170.637 0 
+Creating membrane (type=2) at 280.362 -170.637 0 
+Creating attracted (type=4) at 0 -140 0 
+Creating attractor (type=5) at 0 -220 0 
+Done! 
+
+Copying ./config/cells_0.csv to output folder.
+Copy command: cp ./config/cells_0.csv temp_output/cells_0.csv
+Cells loaded from .csv
+Using PhysiCell version 1.14.2
+	Please cite DOI: 10.1371/journal.pcbi.1005991
+	Project website: http://physicell.org
+
+See ALL_CITATIONS.txt for this list.
+current simulated time: 0 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 1.9318e-05 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 2.4897e-05 seconds 
+
+
+Using method diffusion_decay_solver__constant_coefficients_LOD_2D (2D LOD with Thomas Algorithm) ... 
+
+current simulated time: 200 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 0.962279 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 0.962306 seconds 
+
+current simulated time: 400 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 0.959914 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 1.92222 seconds 
+
+current simulated time: 600 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 0.985951 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 2.90817 seconds 
+
+current simulated time: 800 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 0.99447 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 3.90265 seconds 
+
+current simulated time: 1000 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 0.986384 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 4.88903 seconds 
+
+current simulated time: 1200 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 1.0055 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 5.89453 seconds 
+
+current simulated time: 1400 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 1.01215 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 6.90668 seconds 
+
+current simulated time: 1600 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 1.01558 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 7.92227 seconds 
+
+current simulated time: 1800 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 1.01173 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 8.934 seconds 
+
+current simulated time: 2000 min (max: 2000 min)
+total agents: 326
+interval wall time: 0 days, 0 hours, 0 minutes, and 1.01638 seconds 
+total wall time: 0 days, 0 hours, 0 minutes, and 9.95039 seconds 
+
+
+Total simulation runtime: 
+0 days, 0 hours, 0 minutes, and 9.96592 seconds convert -delay 20 -loop 0 /home/ajaeger/Documents/PhysiCell/temp_output/s*.svg /home/ajaeger/Documents/PhysiCell/temp_output/out.gif 
