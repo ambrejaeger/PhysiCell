@@ -210,6 +210,8 @@ class Cell : public Basic_Agent
 	
 	bool assign_position(std::vector<double> new_position);
 	bool assign_position(double, double, double);
+	bool assign_position(std::vector<double> new_position, std::vector<std::string> outer_cell_types);
+	bool assign_position(double, double, double, std::vector<std::string> outer_cell_types);
 	void set_total_volume(double);
 	
 	double& get_total_volume(void); // NEW

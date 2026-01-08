@@ -620,7 +620,7 @@ void standard_update_cell_velocity( Cell* pCell, Phenotype& phenotype, double dt
 	{
 		pCell->functions.add_cell_basement_membrane_interactions(pCell, phenotype,dt);
 	}
-	
+	std::cout << "Velocity 1" << std::endl;
 	pCell->state.simple_pressure = 0.0; 
 	pCell->state.neighbors.clear(); // new 1.8.0
 	
@@ -631,10 +631,11 @@ void standard_update_cell_velocity( Cell* pCell, Phenotype& phenotype, double dt
 	{
 		pCell->add_potentials(*neighbor);
 	}
+	std::cout << "Velocity 2" << std::endl;
 	std::vector<int>::iterator neighbor_voxel_index;
 	std::vector<int>::iterator neighbor_voxel_index_end = 
 		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
-
+	std::cout << "Velocity 3" << std::endl;
 	for( neighbor_voxel_index = 
 		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
 		neighbor_voxel_index != neighbor_voxel_index_end; 
@@ -648,10 +649,10 @@ void standard_update_cell_velocity( Cell* pCell, Phenotype& phenotype, double dt
 			pCell->add_potentials(*neighbor);
 		}
 	}
-
+	std::cout << "Velocity 4" << std::endl;
 	pCell->update_motility_vector(dt); 
 	pCell->velocity += phenotype.motility.motility_vector; 
-	
+	std::cout << "Velocity 5" << std::endl;
 	return; 
 }
 

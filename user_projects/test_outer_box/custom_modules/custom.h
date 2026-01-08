@@ -130,11 +130,18 @@ double total_live_cell_count();
 // count the number of total dead cells at current time step
 double total_dead_cell_count();
 
+// functions to parametrize the puter bounding box
+extern std::unordered_map<std::string, bool> inner_box_param;
+
+bool load_outer_cell_type(void);
+std::vector<float> load_inner_box_bounds(void);
+bool evaluate_inner_bounding_box_parameters(void);
+
+
 // function to auto stop the simulation
 extern std::unordered_map<std::string, bool> auto_stop_param;
 
 int evaluate_start_stop_parameters(void);
-
 bool auto_stop_resistance(int alive_cells, int resistant_cells);    
 bool auto_stop_epi_size(std::vector<double> vector_epi_pos, double epi_max_size);
 bool auto_stop_epi_stable(std::vector<double> vector_epi_pos, std::deque<double> &deque_epi_average_size, double steps, double tolerance);

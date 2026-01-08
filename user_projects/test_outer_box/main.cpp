@@ -118,7 +118,7 @@ int main( int argc, char* argv[] )
 		
 		std::vector<std::string> (*cell_coloring_function)(Cell*) = my_coloring_function; 
 		sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
-		SVG_plot( filename , microenvironment, 0.0 , 0.0 , cell_coloring_function );
+		SVG_plot( filename , microenvironment, 0.0 , 0.0 , cell_coloring_function, -50.0);
 		
 		sprintf( filename , "%s/legend.svg" , PhysiCell_settings.folder.c_str() ); 
 		create_plot_legend( filename , cell_coloring_function ); 
@@ -177,14 +177,12 @@ int main( int argc, char* argv[] )
 	//double epi_total_thickness = parameters.doubles("max_thickness");
 	
 	/* PhysiCell setup */ 
- 	
-	// set mechanics voxel size, and match the data structure to BioFVM
+ 		// set mechanics voxel size, and match the data structure to BioFVM
 	double mechanics_voxel_size = 30; 
 	Cell_Container* cell_container = create_cell_container_for_microenvironment( microenvironment, mechanics_voxel_size );
 
 	/* Users typically start modifying here. START USERMODS */ 
 	create_cell_types();
-
 	if( auto_stop_param["start_stop"] ) {
 		auto_stop_param["read_init"] = true;
 		// reset cells as they were in the previous simulation
@@ -198,7 +196,7 @@ int main( int argc, char* argv[] )
 	} else{
 		setup_tissue(); //death model index = 1 == necrotic...= 0 == apoptotic.
 	}
-	
+
 	/* Users typically stop modifying here. END USERMODS */ 
 	
 	// set MultiCellDS save options 
@@ -224,7 +222,7 @@ int main( int argc, char* argv[] )
 	std::vector<std::string> (*cell_coloring_function)(Cell*) = my_coloring_function; 
 	
 	sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
-	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, 50.0 );
+	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, -50.0 );
 	
 	sprintf( filename , "%s/legend.svg" , PhysiCell_settings.folder.c_str() ); 
 	create_plot_legend( filename , cell_coloring_function ); 
@@ -333,7 +331,7 @@ int main( int argc, char* argv[] )
 				if( PhysiCell_settings.enable_SVG_saves == true )
 				{	
 					sprintf( filename , "%s/snapshot%08u.svg" , PhysiCell_settings.folder.c_str() , PhysiCell_globals.SVG_output_index ); 
-					SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, 50.0 );
+					SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, -50.0 );
 					
 					PhysiCell_globals.SVG_output_index++; 
 					PhysiCell_globals.next_SVG_save_time  += PhysiCell_settings.SVG_save_interval;
@@ -371,7 +369,7 @@ int main( int argc, char* argv[] )
 	save_PhysiCell_to_MultiCellDS_v2( filename , microenvironment , PhysiCell_globals.current_time ); 
 	
 	sprintf( filename , "%s/final.svg" , PhysiCell_settings.folder.c_str() ); 
-	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, 50.0 );
+	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function, -50.0 );
 	
 	// Save all the files needed for Start & Stop at the right point.
 	
@@ -396,6 +394,5 @@ int main( int argc, char* argv[] )
 	T_main = (double)(T_main_stop - T_main_start)/CLOCKS_PER_SEC;
 	file_times << T_save << " " << T_reload << " " << T_total <<" " << T_main <<  std::endl;
 	file_times.close();
-
 	return 0; 
 }

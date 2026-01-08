@@ -776,9 +776,8 @@ Cell* process_csv_v2_line( std::string line , std::vector<std::string> labels )
 	// create the cell IF the definition was found 
 	std::cout << "Creating " << pCD->name << " (type=" << pCD->type << ") at " 
 		<< position << std::endl; 
-
 	Cell* pCell = create_cell( *pCD ); 
-	pCell->assign_position( position ); 
+	pCell->assign_position( position, outer_cell_types);
 
 	// now write any extra data 
 
@@ -843,6 +842,7 @@ Cell* process_csv_v2_line( std::string line , std::vector<std::string> labels )
 void load_cells_csv_v2( std::string filename )
 {
 	// open file 
+	std::cout << "V2 running" << std::endl;
 	std::ifstream file( filename, std::ios::in );
 	if( !file )
 	{ 
@@ -866,7 +866,8 @@ void load_cells_csv_v2( std::string filename )
 	// process all remaining lines 
 
 	while (std::getline(file, line))
-	{ process_csv_v2_line(line,labels); }	
+	{ 	std::cout << "Processing line" << std::endl;
+		process_csv_v2_line(line,labels); }	
 
 	// close the file 
 
@@ -878,6 +879,7 @@ void load_cells_csv_v2( std::string filename )
 
 void load_cells_csv( std::string filename )
 {
+	std::cout << "Load cells csv running" << std::endl;
 	// open file 
 	std::ifstream file( filename, std::ios::in );
 	if( !file )
