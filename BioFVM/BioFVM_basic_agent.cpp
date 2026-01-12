@@ -101,17 +101,39 @@ bool Basic_Agent::assign_position(std::vector<double> new_position)
 	return assign_position(new_position[0], new_position[1], new_position[2]);
 }
 
+bool Basic_Agent::assign_position(std::vector<double> new_position, std::string cell_type, std::vector<std::string> outer_cell_type)
+{
+	return assign_position(new_position[0], new_position[1], new_position[2], cell_type, outer_cell_type);
+}
+
 bool Basic_Agent::assign_position(double x, double y, double z)
 {
 	if( !get_microenvironment()->mesh.is_position_valid(x,y,z))
 	{	
-		// std::cout<<"Error: the new position for agent "<< ID << " is invalid: "<<x<<","<<y<<","<<"z"<<std::endl;
+		std::cout<<"Error: the new position for agent "<< ID << " is invalid: "<<x<<","<<y<<","<<"z"<<std::endl;
 		return false;
 	}
 	position[0]=x;
 	position[1]=y;
 	position[2]=z;
 	update_voxel_index();
+	
+	// make sure the agent is not already registered
+	get_microenvironment()->agent_container->register_agent(this);
+	return true;
+}
+
+bool Basic_Agent::assign_position(double x, double y, double z, std::string cell_type, std::vector<std::string> outer_cell_type)
+{
+	if( !get_microenvironment()->mesh.is_position_valid(x,y,z, cell_type, outer_cell_type))
+	{	
+		std::cout<<"Error: the new position for agent "<< ID << " is invalid: "<<x<<","<<y<<","<<"z"<<std::endl;
+		return false;
+	}
+	position[0]=x;
+	position[1]=y;
+	position[2]=z;
+	update_voxel_index(cell_type,outer_cell_type);
 	
 	// make sure the agent is not already registered
 	get_microenvironment()->agent_container->register_agent(this);
@@ -129,6 +151,16 @@ void Basic_Agent::update_voxel_index()
 	current_voxel_index= microenvironment->nearest_voxel_index( position );
 }
 
+void Basic_Agent::update_voxel_index(std::string cell_type, std::vector<std::string> outer_cell_types)
+{
+	if( !get_microenvironment()->mesh.is_position_valid(position[0],position[1],position[2], cell_type, outer_cell_types))
+	{	
+		current_voxel_index=-1;
+		is_active=false;
+		return;
+	}
+	current_voxel_index= microenvironment->nearest_voxel_index( position );
+}
 int mycount = 0; 
 
 void Basic_Agent::set_internal_uptake_constants( double dt )

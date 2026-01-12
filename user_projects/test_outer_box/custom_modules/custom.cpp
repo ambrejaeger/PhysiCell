@@ -164,6 +164,16 @@ void setup_microenvironment( void )
 	initialize_microenvironment(); 
 	if (evaluate_inner_bounding_box_parameters())
 	{
+		for (int i=0; i<3; i++)
+			{
+				if (microenvironment.mesh.inner_bounding_box[i] < microenvironment.mesh.bounding_box[i]) {
+					std::cout << "Inner box bigger than bounding box, resizing inner box to box" << std::endl;
+					microenvironment.mesh.inner_bounding_box[i] = microenvironment.mesh.bounding_box[i];}
+			}
+			for (int i=3; i<6; i++)
+			{
+				if (microenvironment.mesh.inner_bounding_box[i] > microenvironment.mesh.bounding_box[i]) {microenvironment.mesh.inner_bounding_box[i] = microenvironment.mesh.bounding_box[i];}
+			}	
 		std::cout << "Inner bounding box enabled and parametrized" << std::endl;
 		std::cout << "Bounds: " << microenvironment.mesh.inner_bounding_box[0] << ", "
 		<< microenvironment.mesh.inner_bounding_box[1] << ", "
@@ -171,6 +181,7 @@ void setup_microenvironment( void )
 		<< microenvironment.mesh.inner_bounding_box[3] << ", "
 		<< microenvironment.mesh.inner_bounding_box[4] << ", "
 		<< microenvironment.mesh.inner_bounding_box[5] << ", " << std::endl;
+
 	}
 	else{
 		std::cout << "Inner bounding box disabled " << std::endl;

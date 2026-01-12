@@ -89,6 +89,8 @@ class Basic_Agent
 	double get_total_volume();
 	void set_total_volume(double);
 	void update_voxel_index();
+	void update_voxel_index(std::string cell_type, std::vector<std::string> outer_cell_types);
+
 
 	/* new for internalized substrates in 1.5.0 */ 
 	std::vector<double> * internalized_substrates; 
@@ -107,6 +109,9 @@ class Basic_Agent
 	
 	bool assign_position(double x, double y, double z);
 	bool assign_position(std::vector<double> new_position);
+	bool assign_position(double x, double y, double z, std::string cell_type, std::vector<std::string> outer_cell_type);
+	bool assign_position(std::vector<double> new_position, std::string cell_type, std::vector<std::string> outer_cell_type);
+
 	
 	std::vector<double> position;  
 	std::vector<double> velocity; 

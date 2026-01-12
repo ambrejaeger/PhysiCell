@@ -786,8 +786,8 @@ void position_epithelium_cells() {
 	double ymin = default_microenvironment_options.Y_range[0];
 	double ymax = default_microenvironment_options.Y_range[1];
 
-	double xmin_ob = microenvironment.mesh.outer_bounding_box[0];
-	double xmax_ob = microenvironment.mesh.outer_bounding_box[1];
+	double xmin_ob = microenvironment.mesh.inner_bounding_box[0];
+	double xmax_ob = microenvironment.mesh.inner_bounding_box[1];
 
 
 	//Creating conjonctive layer

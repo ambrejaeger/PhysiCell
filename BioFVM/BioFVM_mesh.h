@@ -120,7 +120,7 @@ class General_Mesh
 	
 	// [xmin ymin zmin xmax ymax zmax ]
 	std::vector<double> bounding_box;
-	std::vector<double> outer_bounding_box;
+	std::vector<double> inner_bounding_box;
 	
 	std::vector<Voxel> voxels; 
 	std::vector<Voxel_Face> voxel_faces; 

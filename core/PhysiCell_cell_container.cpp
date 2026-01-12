@@ -124,7 +124,7 @@ void Cell_Container::initialize(double x_start, double x_end, double y_start, do
 void Cell_Container::update_all_cells(double t)
 {
 	// update_all_cells(t, dt_settings.cell_cycle_dt_default, dt_settings.mechanics_dt_default);
-	std::cout << "Running 1" << std::endl;
+	//std::cout << "Running 1" << std::endl;
 	update_all_cells(t, phenotype_dt, mechanics_dt , diffusion_dt );
 	
 	return; 
@@ -142,7 +142,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			(*all_cells)[i]->phenotype.secretion.advance( (*all_cells)[i], (*all_cells)[i]->phenotype , diffusion_dt_ );
 		}
 	}
-	std::cout << "Running 2" << std::endl;
+	//std::cout << "Running 2" << std::endl;
 	
 	//if it is the time for running cell cycle, do it!
 	double time_since_last_cycle= t- last_cell_cycle_time;
@@ -170,7 +170,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			}
 		}
 	}
-	std::cout << "Running 3" << std::endl;
+	//std::cout << "Running 3" << std::endl;
 	if( time_since_last_cycle > phenotype_dt_ - 0.5 * diffusion_dt_ || !initialzed )
 	{
 		// Reset the max_radius in each voxel. It will be filled in set_total_volume
@@ -192,7 +192,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 				(*all_cells)[i]->advance_bundled_phenotype_functions( time_since_last_cycle ); 
 			}
 		}
-		std::cout << "Running 3" << std::endl;
+		//std::cout << "Running 3" << std::endl;
 		// process divides / removes 
 		for( int i=0; i < cells_ready_to_divide.size(); i++ )
 		{
@@ -234,7 +234,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			if( pC->functions.contact_function && pC->is_out_of_domain == false )
 			{ evaluate_interactions( pC,pC->phenotype,time_since_last_mechanics ); }
 		}
-		std::cout << "Running 4" << std::endl;
+		//std::cout << "Running 4" << std::endl;
 		// perform custom computations 
 
 		#pragma omp parallel for 
@@ -245,7 +245,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			if( pC->functions.custom_cell_rule && pC->is_out_of_domain == false )
 			{ pC->functions.custom_cell_rule( pC,pC->phenotype,time_since_last_mechanics ); }
 		}
-		std::cout << "Running 5" << std::endl;
+		//std::cout << "Running 5" << std::endl;
 		// update velocities 
 		
 		#pragma omp parallel for 
@@ -253,7 +253,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		{
 			Cell* pC = (*all_cells)[i]; 
 			if( pC->functions.update_velocity && pC->is_out_of_domain == false && pC->is_movable )
-			{ 	std::cout << "Running 6" << std::endl;
+			{ 	//std::cout << "Running 6" << std::endl;
 				pC->functions.update_velocity( pC,pC->phenotype,time_since_last_mechanics ); }
 		}
 		
@@ -268,7 +268,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 				Cell* pC = (*all_cells)[i]; 
 				dynamic_spring_attachments(pC,pC->phenotype,time_since_last_mechanics); 
 			}		
-			std::cout << "Running 7" << std::endl;
+			//std::cout << "Running 7" << std::endl;
 			#pragma omp parallel for 
 			for( int i=0; i < (*all_cells).size(); i++ )
 			{
@@ -284,7 +284,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 				}
 			}	
 		}
-		std::cout << "Running 8" << std::endl;
+		//std::cout << "Running 8" << std::endl;
 		// new March 2022: 
 		// run standard interactions (phagocytosis, attack, fusion) here 
 		#pragma omp parallel for 
@@ -307,7 +307,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			{ cells_ready_to_die[i]->die(); }
 			cells_ready_to_die.clear();
 		}
-		std::cout << "Running 9" << std::endl;
+		//std::cout << "Running 9" << std::endl;
 
 		// update positions 
 		
@@ -318,7 +318,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			if( pC->is_out_of_domain == false && pC->is_movable)
 			{ pC->update_position(time_since_last_mechanics); }
 		}
-		std::cout << "Running 10" << std::endl;
+		//std::cout << "Running 10" << std::endl;
 		// When somebody reviews this code, let's add proper braces for clarity!!! 
 		
 		// Update cell indices in the container
@@ -327,7 +327,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 				(*all_cells)[i]->update_voxel_in_container();
 		last_mechanics_time=t;
 	}
-	std::cout << "Running 11" << std::endl;
+	//std::cout << "Running 11" << std::endl;
 	initialzed=true;
 	return;
 }

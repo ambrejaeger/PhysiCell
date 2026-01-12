@@ -679,6 +679,7 @@ bool Cell::assign_position(double x, double y, double z)
 	get_container()->register_agent(this);
 	if( !get_container()->underlying_mesh.is_position_valid(x,y,z) )
 	{	
+		std::cout << "Invalid position" << std::endl;
 		is_out_of_domain = true; 
 		is_active = false; 
 		is_movable = false; 
