@@ -123,3 +123,65 @@ def evaluate_membrane_int_perm(xml_file, param_treepaths, param_values, toleranc
             shutil.rmtree(temp_output_folder)
 
     return output_storage_perm, output_storage_int
+
+def main():
+
+    param = [["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "membrane"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "attracted"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "attracted", "membrane"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "membrane", "conjonctif"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "conjonctif", "membrane"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity", "conjonctif", "conjonctif"],
+    ["cell_definitions/cell_definition/phenotype/motility/speed", "attracted"],
+    ["cell_definitions/cell_definition/phenotype/volume/total", "attracted"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/attachment_rate", "membrane"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/attachment_rate", "conjonctif"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_cell_repulsion_strength", "attracted"],
+    ["cell_definitions/cell_definition/phenotype/mechanics/cell_cell_repulsion_strength", "membrane"]
+    ]
+
+    bounds = [[0.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [1.0, 5.0],
+            [3000, 5500],
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [10.0, 100.0],
+            [10.0, 100.0]
+            ]
+
+    names = [";".join(p) for p in param]
+    num_vars = len(param)
+    groups = ['Group_m1', 'Group_m2', 'Group_m2', 'Group_m3', 'Group_m3', 'Group_c1', 'Group_sattr', 'Group_vattr', 'Group_m_att', 'Group_c_att', 'Group_at_rep', 'Group_m_rep']
+    param_values = define_set_param(num_vars, names, bounds, groups = groups, sample_size = 256)
+
+    
+    #Saving sensibility analysis sobol results groups
+    result_file = "./output_perm_stable/membrane_integrity.txt"
+    param_names_file = "./output_perm_stable/param_names.txt"
+    param_values_file = "./output_perm_stable/param_values_membrane_int_perm.txt"
+
+    #Si = analyze_sobol(result_file, param_names_file, bounds, groups = groups, column=1)
+    #save_dataframes_to_txt([Si.to_df()[0], Si.to_df()[1], Si.to_df()[2]], "./output_sensibility_analysis/membrane_permeability_stable/data_sensibility_analysis_integrity.txt")
+
+    #Si.plot()
+    #plt.show()
+
+    #Combine file with header
+    output_path = "./output_sensibility_analysis/membrane_permeability_stable/result_summary_integrity.txt"
+    combine_files_with_header_2(result_file, param_values_file, output_path, groups, 'cross_time', 'nbr_breaks')
+    
+    #Plotting scatter plot groupped variable
+    output_file = "./output_sensibility_analysis/membrane_permeability_stable/result_summary_integrity.txt" 
+    X, Y = extract_X_Y(output_file, 'Group_c1', Y_column='cross_time')
+    plot_scatter_sets(Y, X, set_names=['Group_c1'], xlabel="adhesion affinity membrane membrane", title="Number of breaks in function of adhesion affinity")
+    
+    
+
+if __name__ == '__main__':
+    main()
+   

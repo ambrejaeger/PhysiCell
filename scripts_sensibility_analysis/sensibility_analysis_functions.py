@@ -249,7 +249,7 @@ def define_set_param(num_vars, names, bounds, groups=[], sample_size=32, seed=0)
     param_values = sample(problem, sample_size, seed=seed) #Génère N*(2+D) jeux de paramètres avec D le nombre de paramètres et N un multiple de 2 fourni en argument
     return param_values
 
-def analyze_sobol(result_file, param_names_file, bounds, groups=[]):
+def analyze_sobol(result_file, param_names_file, bounds, groups=[], column = 1):
     import ast
     with open(param_names_file, 'r') as f:
         names = [ast.literal_eval(line.strip()) for line in f if line.strip()]
@@ -262,7 +262,7 @@ def analyze_sobol(result_file, param_names_file, bounds, groups=[]):
         lines = f.readlines()
 
     sorted_lines = sorted(lines, key=lambda x: int(x.split()[0]))
-    Y = np.asarray([float(line.split()[1]) for line in sorted_lines])
+    Y = np.asarray([float(line.split()[column]) for line in sorted_lines])
     print("Array:", Y)
     print("Length:", len(Y))
     
@@ -352,6 +352,41 @@ def combine_files_with_header(file1_path, file2_path, output_path, column_names,
             nbr_breaks_list[row_idx] = row[column_1]
         
     df_combined = pd.DataFrame({column_1: nbr_breaks_list})
+    df_combined = pd.concat([df_combined, df2.reset_index(drop=True)], axis=1)
+        
+    df_combined.to_csv(output_path, sep='\t', index=False, float_format='%.6e')
+        
+    print(f"Combined file created: {output_path}")
+    print(f"Shape of combined data: {df_combined.shape}")
+    print(f"Rows from file1 assigned: {len(df1[df1['row_idx'] < len(df2)])}")
+        
+    return df_combined
+
+def combine_files_with_header_2(file1_path, file2_path, output_path, column_names, column_1, column_2):
+    
+    df1 = pd.read_csv(file1_path, sep=r'\s+', header=None, names=['row_idx', column_1, column_2])
+    df2 = pd.read_csv(file2_path, sep=r'\s+', header=None)
+
+    print(df1)
+        
+    if len(column_names) == df2.shape[1]:
+        df2.columns = column_names
+    
+    else:
+        print(f"Warning: column_names has {len(column_names)} items, but file2 has {df2.shape[1]} columns")
+        df2.columns = [f"col_{i+1}" for i in range(df2.shape[1])]
+        
+    value_column1_list = [0.0] * len(df2)
+    value_common2_list = [0.0] * len(df2)
+        
+    for idx, row in df1.iterrows():
+        row_idx = int(row['row_idx'])  
+        if 0 <= row_idx < len(df2):  
+            value_column1_list[row_idx] = row[column_1]
+            value_common2_list[row_idx] = row[column_2]
+
+        
+    df_combined = pd.DataFrame({column_1: value_column1_list, column_2:value_common2_list })
     df_combined = pd.concat([df_combined, df2.reset_index(drop=True)], axis=1)
         
     df_combined.to_csv(output_path, sep='\t', index=False, float_format='%.6e')
