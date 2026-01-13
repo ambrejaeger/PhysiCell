@@ -1,0 +1,74 @@
+=== DataFrame 1 ===
+                    ST   ST_conf
+Group_m1      0.921811  0.325106
+Group_m2      0.638683  0.217890
+Group_m3      0.928395  0.388862
+Group_c1      0.974486  0.298880
+Group_sattr   1.060082  0.520448
+Group_vattr   0.651852  0.274817
+Group_m_att   0.941564  0.359918
+Group_c_att   0.783539  0.294527
+Group_at_rep  0.671605  0.392607
+Group_m_rep   0.816461  0.211981
+
+=== DataFrame 2 ===
+                    S1   S1_conf
+Group_m1      0.018201  0.069454
+Group_m2      0.049677  0.048739
+Group_m3      0.098284  0.134930
+Group_c1      0.060812  0.134495
+Group_sattr  -0.060704  0.286030
+Group_vattr   0.020235  0.044743
+Group_m_att   0.050641  0.073517
+Group_c_att   0.019271  0.050406
+Group_at_rep  0.022269  0.079479
+Group_m_rep   0.059848  0.070277
+
+=== DataFrame 3 ===
+                                   S2   S2_conf
+(Group_m1, Group_m2)        -0.073981  0.094013
+(Group_m1, Group_m3)        -0.021306  0.091544
+(Group_m1, Group_c1)        -0.060812  0.117922
+(Group_m1, Group_sattr)     -0.021306  0.194771
+(Group_m1, Group_vattr)     -0.047643  0.089879
+(Group_m1, Group_m_att)     -0.060812  0.107161
+(Group_m1, Group_c_att)     -0.034474  0.084447
+(Group_m1, Group_at_rep)    -0.021306  0.138918
+(Group_m1, Group_m_rep)     -0.073981  0.088766
+(Group_m2, Group_m3)        -0.060812  0.079232
+(Group_m2, Group_c1)         0.031369  0.212730
+(Group_m2, Group_sattr)     -0.060812  0.104622
+(Group_m2, Group_vattr)     -0.034474  0.093946
+(Group_m2, Group_m_att)     -0.087149  0.101227
+(Group_m2, Group_c_att)     -0.008137  0.133139
+(Group_m2, Group_at_rep)    -0.073981  0.083105
+(Group_m2, Group_m_rep)     -0.047643  0.082777
+(Group_m3, Group_c1)        -0.064988  0.238622
+(Group_m3, Group_sattr)      0.264230  0.374499
+(Group_m3, Group_vattr)     -0.012313  0.153667
+(Group_m3, Group_m_att)     -0.078157  0.125413
+(Group_m3, Group_c_att)      0.027193  0.187336
+(Group_m3, Group_at_rep)    -0.038650  0.169929
+(Group_m3, Group_m_rep)     -0.091325  0.169122
+(Group_c1, Group_sattr)      0.078905  0.363409
+(Group_c1, Group_vattr)     -0.000108  0.112562
+(Group_c1, Group_m_att)      0.013061  0.125262
+(Group_c1, Group_c_att)      0.065736  0.168625
+(Group_c1, Group_at_rep)     0.052567  0.189132
+(Group_c1, Group_m_rep)     -0.052782  0.122943
+(Group_sattr, Group_vattr)   0.280504  0.381323
+(Group_sattr, Group_m_att)   0.267335  0.451056
+(Group_sattr, Group_c_att)   0.267335  0.363536
+(Group_sattr, Group_at_rep)  0.333179  0.434566
+(Group_sattr, Group_m_rep)   0.254167  0.347841
+(Group_vattr, Group_m_att)   0.058670  0.189983
+(Group_vattr, Group_c_att)   0.005995  0.175915
+(Group_vattr, Group_at_rep) -0.033511  0.111973
+(Group_vattr, Group_m_rep)  -0.046680  0.113257
+(Group_m_att, Group_c_att)  -0.044753  0.139299
+(Group_m_att, Group_at_rep) -0.031584  0.201606
+(Group_m_att, Group_m_rep)  -0.044753  0.139299
+(Group_c_att, Group_at_rep)  0.011027  0.104925
+(Group_c_att, Group_m_rep)  -0.028479  0.089803
+(Group_at_rep, Group_m_rep) -0.042611  0.104401
+
