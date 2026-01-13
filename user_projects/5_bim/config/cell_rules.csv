@@ -1,0 +1,25 @@
+epi_basal,growth_factor,increases,transform to epi_inter,1.,0.3,400,0
+epi_inter,growth_factor,increases,transform to epi_sup,1.,0.65,400,0
+epi_sup,growth_factor,increases,apoptosis,1.0,0.75,400,0
+cancer,growth_factor,increases,apoptosis,1.0,0.75,400,0
+cancer,contact with TCell,increases,apoptosis,0.0000001,0.2,4,0
+TCell,growth_factor,increases,apoptosis,1.0,0.75,400,0
+//macrophage,cancer_factor,increases,transform to CAM,0.00005,0.2,4,0
+//epi_basal,CAM_factor,increases,transform to cancer,0.000001,0.2,4,0
+//epi_inter,CAM_factor gradient,increases,transform to cancer,0.000001,0.2,4,0
+//epi_sup,CAM_factor gradient,increases,transform to cancer,0.000001,0.5,2,0
+epi_basal,contact with conjonctif,increases,apoptosis,1.0,0.5,40,0
+//fibroblast,cancer_factor,increases,transform to CAF,0.00001,0.2,4,0
+epi_basal,CAF_factor,increases,transform to cancer,0.000001,0.2,4,0
+epi_inter,CAF_factor,increases,transform to cancer,0.000001,0.2,4,0
+epi_sup,CAF_factor,increases,transform to cancer,0.000001,0.2,4,0
+epi_inter,contact with conjonctif,increases,apoptosis,1.,0.5,40,0
+epi_basal,death_factor,increases,apoptosis,1.,0.82,400,0
+epi_inter,death_factor,increases,apoptosis,1.,0.75,400,0
+conjonctif,growth_factor,increases,apoptosis,1.,0.165,400,0
+//membrane,mmp_factor,decreases,adhesive affinity to membrane,0.,0.5,10.,0
+//membrane,contact with cancer_mes,increases,apoptosis,0.05,0.1,4,0
+//cancer_mes,contact with TCell,increases,apoptosis,0.000001,0.2,4,0
+//membrane,contact with cancer,increases,apoptosis,0.05,0.1,4,0
+//conjonctif,mmp_factor,decreases,adhesive affinity to conjonctif,0.,0.5,10,0
+membrane,growth_factor,increases,apoptosis,1.0,0.3,400,0
