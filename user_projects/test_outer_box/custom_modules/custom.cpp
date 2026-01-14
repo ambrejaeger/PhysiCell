@@ -923,29 +923,32 @@ void position_epithelium_cells() {
 	Cell_Definition *pCD_e = find_cell_definition("epi_basal");
 	Cell_Definition *pCD_m = find_cell_definition("membrane");
 
-	double conjonctive_layer_thickness = 100;
+	double conjonctive_layer_thickness = 150;
 	double epi_basal_layer_thickness = pCD_e->phenotype.geometry.radius * 2;
 	double membrane_layer_thickness = pCD_m->phenotype.geometry.radius * 4;
 
 	//Get size of the microenvironment
 	double xmin = default_microenvironment_options.X_range[0];
+	std::cout << "xmin: " << xmin << std::endl;
 	double xmax = default_microenvironment_options.X_range[1];
 	double ymin = default_microenvironment_options.Y_range[0];
 	double ymax = default_microenvironment_options.Y_range[1];
 
-	double xmin_ob = microenvironment.mesh.inner_bounding_box[0];
-	double xmax_ob = microenvironment.mesh.inner_bounding_box[1];
+	double xmin_ib = microenvironment.mesh.inner_bounding_box[0];
+	double xmax_ib = microenvironment.mesh.inner_bounding_box[3];
+	double ymin_ib = microenvironment.mesh.inner_bounding_box[1];
+	double ymax_ib = microenvironment.mesh.inner_bounding_box[4];
 
 	//Creating conjonctive layer
-	std::vector<double> bounds_c = {xmin,ymin,xmax,ymin + conjonctive_layer_thickness};
+	std::vector<double> bounds_c = {xmin_ib,ymin_ib,xmax_ib,ymin_ib + conjonctive_layer_thickness - pCD_c->phenotype.geometry.radius};
 	random_fill_rectangle(bounds_c, pCD_c);
 
 	//Creating membrane layer
-	std::vector<double> bounds_m = {xmin_ob, ymin + conjonctive_layer_thickness, 0, xmax_ob, ymin + conjonctive_layer_thickness + membrane_layer_thickness, 0};
+	std::vector<double> bounds_m = {xmin, ymin_ib + conjonctive_layer_thickness, 0, xmax, ymin_ib + conjonctive_layer_thickness + membrane_layer_thickness, 0};
 	fill_rectangle(bounds_m, pCD_m);
 
 	//Creating epi_basal layer
-	std::vector<double> bounds_e = {xmin,ymin + conjonctive_layer_thickness + membrane_layer_thickness - (pCD_e->phenotype.geometry.radius * 0.5), 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness + epi_basal_layer_thickness, 0};
+	std::vector<double> bounds_e = {xmin_ib,ymin_ib + conjonctive_layer_thickness + membrane_layer_thickness - (pCD_e->phenotype.geometry.radius * 0.5), 0, xmax_ib, ymin_ib + conjonctive_layer_thickness + membrane_layer_thickness + epi_basal_layer_thickness, 0};
 	fill_rectangle(bounds_e, pCD_e);
 	
 	

@@ -1,8 +1,8 @@
 <PhysiCell_settings version="devel-version">
 
     <domain>
-        <x_min>-400</x_min>
-        <x_max>400</x_max>
+        <x_min>-500</x_min>
+        <x_max>500</x_max>
         <y_min>-400</y_min>
         <y_max>400</y_max>
         <z_min>-10</z_min>
@@ -14,7 +14,7 @@
     </domain>
 
     <overall>
-        <max_time units="min">10</max_time>
+        <max_time units="min">30000</max_time>
         <time_units>min</time_units>
         <space_units>micron</space_units>
         <dt_diffusion units="min">0.01</dt_diffusion>
@@ -29,11 +29,11 @@
     <save>
         <folder>output</folder>
         <full_data>
-            <interval units="min">1</interval>
+            <interval units="min">300</interval>
             <enable>true</enable>
         </full_data>
         <SVG>
-            <interval units="min">1</interval>
+            <interval units="min">300</interval>
             <enable>true</enable>
             <plot_substrate enabled="false" limits="false">
                 <min_conc />
@@ -155,7 +155,7 @@
                     <maximum_number_of_attachments>12</maximum_number_of_attachments>
                 </mechanics>
                 <motility>
-                    <speed units="micron/min">1.0</speed>
+                    <speed units="micron/min">0.0</speed>
                     <persistence_time units="min">5.0</persistence_time>
                     <migration_bias units="dimensionless">0.5</migration_bias>
                     <options>
@@ -293,7 +293,7 @@
                     <maximum_number_of_attachments>12</maximum_number_of_attachments>
                 </mechanics>
                 <motility>
-                    <speed units="micron/min">1.0</speed>
+                    <speed units="micron/min">0.0</speed>
                     <persistence_time units="min">5.0</persistence_time>
                     <migration_bias units="dimensionless">0.5</migration_bias>
                     <options>
@@ -431,7 +431,7 @@
                     <maximum_number_of_attachments>12</maximum_number_of_attachments>
                 </mechanics>
                 <motility>
-                    <speed units="micron/min">1.0</speed>
+                    <speed units="micron/min">0.0</speed>
                     <persistence_time units="min">5.0</persistence_time>
                     <migration_bias units="dimensionless">0.5</migration_bias>
                     <options>
@@ -571,7 +571,7 @@
                     <maximum_number_of_attachments>12</maximum_number_of_attachments>
                 </mechanics>
                 <motility>
-                    <speed units="micron/min">1.0</speed>
+                    <speed units="micron/min">0.0</speed>
                     <persistence_time units="min">5.0</persistence_time>
                     <migration_bias units="dimensionless">0.5</migration_bias>
                     <options>
