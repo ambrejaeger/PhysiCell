@@ -160,8 +160,38 @@ void setup_microenvironment( void )
 	// extra Dirichlet nodes here. 
 	
 	// initialize BioFVM 
-	
+
 	initialize_microenvironment(); 
+	if (evaluate_inner_bounding_box_parameters())
+	{
+		for (int i=0; i<3; i++)
+			{
+				if (microenvironment.mesh.inner_bounding_box[i] < microenvironment.mesh.bounding_box[i]) {
+					std::cout << "Inner box bigger than bounding box, resizing inner box to box" << std::endl;
+					microenvironment.mesh.inner_bounding_box[i] = microenvironment.mesh.bounding_box[i];}
+			}
+			for (int i=3; i<6; i++)
+			{
+				if (microenvironment.mesh.inner_bounding_box[i] > microenvironment.mesh.bounding_box[i]) {microenvironment.mesh.inner_bounding_box[i] = microenvironment.mesh.bounding_box[i];}
+			}	
+		std::cout << "Inner bounding box enabled and parametrized" << std::endl;
+		std::cout << "Bounds: " << microenvironment.mesh.inner_bounding_box[0] << ", "
+		<< microenvironment.mesh.inner_bounding_box[1] << ", "
+		<< microenvironment.mesh.inner_bounding_box[2] << ", "
+		<< microenvironment.mesh.inner_bounding_box[3] << ", "
+		<< microenvironment.mesh.inner_bounding_box[4] << ", "
+		<< microenvironment.mesh.inner_bounding_box[5] << ", " << std::endl;
+
+	}
+	else{
+		std::cout << "Inner bounding box disabled " << std::endl;
+		microenvironment.mesh.inner_bounding_box[0] = microenvironment.mesh.bounding_box[0];
+		microenvironment.mesh.inner_bounding_box[1] = microenvironment.mesh.bounding_box[1];
+		microenvironment.mesh.inner_bounding_box[2] = microenvironment.mesh.bounding_box[2];
+		microenvironment.mesh.inner_bounding_box[3] = microenvironment.mesh.bounding_box[3];
+		microenvironment.mesh.inner_bounding_box[4] = microenvironment.mesh.bounding_box[4];
+		microenvironment.mesh.inner_bounding_box[5] = microenvironment.mesh.bounding_box[5];
+	}
 	if (evaluate_start_stop_parameters() != -1) {
 		std::cout << "Evaluate start stop parameters completed" << std::endl;
 	}
@@ -173,9 +203,12 @@ void setup_microenvironment( void )
 void setup_tissue( void )
 {
 	std::vector<std::vector<double>> positions;
+	
+	
 	//Check first if cells are initialized as to end of other simulation
-	if ( auto_stop_param["read_init"] )
+	if ( parameters.bools("read_init") )
 	{
+		std::cout << "Should not be running" << std::endl;
 		std::string csv_fname = parameters.strings("init_cells_filename");
 		positions = read_cells_positions(csv_fname, '\t', true);
 		if (positions.empty()) 
@@ -197,6 +230,7 @@ void setup_tissue( void )
 	}
 	else
 	{
+		//std::cout << "correct size?: " <<  << std::endl;
 		//Check if cells have to be initialized by csv
 		bool loaded = load_cells_from_pugixml();
 		if (loaded) 
@@ -703,6 +737,119 @@ bool auto_stop() {
     return stop;
 }
 
+
+/*****************************************/
+/*     OUTER BOUNDING BOX FUNCTIONS      */
+/*****************************************/
+
+std::unordered_map<std::string, bool> inner_box_param = {{"inner_box", false}, {"inner_box_bounds", false},{"inner_cell_types", false}};
+
+bool load_outer_cell_type()
+{
+	std::string cell_types;
+	if (parameters.bools("inner_box"))
+	{
+		if (parameters.strings.size() > 0) {
+			if ( parameters.strings.find_index("outer_cell_types") != -1 ) {
+				std::string cell_types = parameters.strings("outer_cell_types");
+
+				std::string token;
+				std::stringstream ss(cell_types);
+				while (std::getline( ss, token, ',')) {
+        			outer_cell_types.push_back(token);
+				}
+				if (outer_cell_types.size() > 0) {
+					std::cout << outer_cell_types.size() << " type(s) has been defined" << std::endl;
+					inner_box_param["outer_cell_types"] = true;
+					return true;
+				}
+			}
+			else {
+				std::cout << "No outer cell type has been defined, inner_cell_box disabled" << std::endl;
+				inner_box_param["outer_cell_types"] = false;
+			}
+		}
+		else {
+			std::cout << "No outer cell type has been defined, inner_cell_box disabled" << std::endl;
+			inner_box_param["outer_cell_types"] = false;
+		}
+	}
+	else {
+		std::cout << "Outer box is disabled, loading_inner_cell_type is not availbale. Modify .xml if needed" << std::endl;
+	}
+	return false;
+	
+}
+
+std::vector<float> load_inner_box_bounds() {
+	std::vector<float> bounds;
+	std::string bounds_string;
+
+	if (parameters.bools("inner_box"))
+	{
+		if (parameters.strings.size() > 0) {
+			if ( parameters.strings.find_index("inner_box_bounds") != -1 ) {
+				std::string bounds_string = parameters.strings("inner_box_bounds");
+				std::string token;
+				std::stringstream ss(bounds_string);
+				while (std::getline( ss, token, ',')) {
+        			bounds.push_back(std::stof(token));
+				}
+				if (bounds.size() == 6.0) {
+					std::cout << "Inner box bounds have been found" << std::endl;
+					inner_box_param["inner_box_bounds"] = true;
+					return bounds;
+				}
+				else {
+					std::cout << "Inner box bounds is not defined properly, it should be of the form: xmin,ymin,zmin,xmax,ymax,zmax" << std::endl;
+					inner_box_param["inner_box_bounds"] = false;
+				}
+			}
+			else {
+				std::cout << "No inner box bounds have been defined, inner_cell_box disabled" << std::endl;
+				inner_box_param["inner_box_bounds"] = false;
+			}
+		}
+		else {
+			std::cout << "No inner box bounds have been defined, inner_cell_box disabled" << std::endl;
+			inner_box_param["inner_box_bounds"] = false;
+		}
+	}
+	else {
+		std::cout << "Inner box is disabled, load_inner_box_bounds is not availbale. Modify .xml if needed" << std::endl;
+	}
+	return {-1.0};
+}
+
+bool evaluate_inner_bounding_box_parameters() {
+	int result = 1;
+	//outer box parameters should be boolean or string in the user_parameters section of your .xml config files
+	std::cout << "inner_bounding_box user parameters evaluation: " << std::endl;
+	
+	if (parameters.bools.size() > 0) {
+		if ( parameters.bools.find_index("inner_box") != -1 ) {
+			inner_box_param["inner_box"] = parameters.bools("inner_box"); 
+		}
+		else { return false;}
+	}
+	//Check that inner_cell_types are defined
+	if (load_outer_cell_type()) {
+		std::vector<float> bounds = load_inner_box_bounds();
+		if ( bounds.size() == 6 ) {
+			microenvironment.mesh.inner_bounding_box[0] = bounds[0];
+			microenvironment.mesh.inner_bounding_box[1] = bounds[1];
+			microenvironment.mesh.inner_bounding_box[2] = bounds[2];
+			microenvironment.mesh.inner_bounding_box[3] = bounds[3];
+			microenvironment.mesh.inner_bounding_box[4] = bounds[4];
+			microenvironment.mesh.inner_bounding_box[5] = bounds[5];
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 /*****************************************/
 /*  FUNCTIONS TO CREATE PRE-EPITHELIUM  */
 /*****************************************/
@@ -776,30 +923,32 @@ void position_epithelium_cells() {
 	Cell_Definition *pCD_e = find_cell_definition("epi_basal");
 	Cell_Definition *pCD_m = find_cell_definition("membrane");
 
-	double conjonctive_layer_thickness = 100;
+	double conjonctive_layer_thickness = 150;
 	double epi_basal_layer_thickness = pCD_e->phenotype.geometry.radius * 2;
 	double membrane_layer_thickness = pCD_m->phenotype.geometry.radius * 4;
 
 	//Get size of the microenvironment
 	double xmin = default_microenvironment_options.X_range[0];
+	std::cout << "xmin: " << xmin << std::endl;
 	double xmax = default_microenvironment_options.X_range[1];
 	double ymin = default_microenvironment_options.Y_range[0];
 	double ymax = default_microenvironment_options.Y_range[1];
 
-	double xmin_ob = microenvironment.mesh.inner_bounding_box[0];
-	double xmax_ob = microenvironment.mesh.inner_bounding_box[1];
-
+	double xmin_ib = microenvironment.mesh.inner_bounding_box[0];
+	double xmax_ib = microenvironment.mesh.inner_bounding_box[3];
+	double ymin_ib = microenvironment.mesh.inner_bounding_box[1];
+	double ymax_ib = microenvironment.mesh.inner_bounding_box[4];
 
 	//Creating conjonctive layer
-	std::vector<double> bounds_c = {xmin,ymin,xmax,ymin + conjonctive_layer_thickness};
+	std::vector<double> bounds_c = {xmin_ib,ymin_ib,xmax_ib,ymin_ib + conjonctive_layer_thickness - pCD_c->phenotype.geometry.radius};
 	random_fill_rectangle(bounds_c, pCD_c);
 
 	//Creating membrane layer
-	std::vector<double> bounds_m = {xmin, ymin + conjonctive_layer_thickness, 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness, 0};
+	std::vector<double> bounds_m = {xmin, ymin_ib + conjonctive_layer_thickness, 0, xmax, ymin_ib + conjonctive_layer_thickness + membrane_layer_thickness, 0};
 	fill_rectangle(bounds_m, pCD_m);
 
 	//Creating epi_basal layer
-	std::vector<double> bounds_e = {xmin,ymin + conjonctive_layer_thickness + membrane_layer_thickness - (pCD_e->phenotype.geometry.radius * 0.5), 0, xmax, ymin + conjonctive_layer_thickness + membrane_layer_thickness + epi_basal_layer_thickness, 0};
+	std::vector<double> bounds_e = {xmin_ib,ymin_ib + conjonctive_layer_thickness + membrane_layer_thickness - (pCD_e->phenotype.geometry.radius * 0.5), 0, xmax_ib, ymin_ib + conjonctive_layer_thickness + membrane_layer_thickness + epi_basal_layer_thickness, 0};
 	fill_rectangle(bounds_e, pCD_e);
 	
 	

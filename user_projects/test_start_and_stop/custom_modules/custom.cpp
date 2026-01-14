@@ -160,8 +160,25 @@ void setup_microenvironment( void )
 	// extra Dirichlet nodes here. 
 	
 	// initialize BioFVM 
-	
+	load_outer_cell_type(parameters.strings("outer_cell_types"));
+
 	initialize_microenvironment(); 
+	if (parameters.bools("outer_box"))
+	{
+		std::string token;
+		std::stringstream ss(parameters.strings("outer_box_bounds"));
+		std::vector<float> result;
+		while (std::getline( ss, token, ',')) {
+        	result.push_back(std::stof(token));
+		}
+		std::cout << result[0] << "," << result[1] << std::endl;
+		microenvironment.mesh.outer_bounding_box[0] = result[0];
+		microenvironment.mesh.outer_bounding_box[1] = result[1];
+		microenvironment.mesh.outer_bounding_box[2] = result[2];
+		microenvironment.mesh.outer_bounding_box[3] = result[3];
+		microenvironment.mesh.outer_bounding_box[4] = result[4];
+		microenvironment.mesh.outer_bounding_box[5] = result[5];
+	}
 	if (evaluate_start_stop_parameters() != -1) {
 		std::cout << "Evaluate start stop parameters completed" << std::endl;
 	}

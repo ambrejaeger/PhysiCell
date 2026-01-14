@@ -33,7 +33,7 @@
 #                                                                             #
 # BSD 3-Clause License (see https://opensource.org/licenses/BSD-3-Clause)     #
 #                                                                             #
-# Copyright (c) 2015-2025, Paul Macklin and the PhysiCell Project             #
+# Copyright (c) 2015-2021, Paul Macklin and the PhysiCell Project             #
 # All rights reserved.                                                        #
 #                                                                             #
 # Redistribution and use in source and binary forms, with or without          #
@@ -64,104 +64,105 @@
 #                                                                             #
 ###############################################################################
 */
+#ifndef __custom_h__
+#define __custom_h__
 
-#ifndef __PhysiCell_geometry_h__
-#define __PhysiCell_geometry_h__
-
-#include <string>
-#include <vector>
 #include <sstream>
+#include <vector>
+#include <string>
+#include <deque>
 
 #include "../core/PhysiCell.h"
-#include "./PhysiCell_settings.h"
+#include "../modules/PhysiCell_standard_modules.h" 
+#include "../addons/start_and_stop/start_and_stop.h"
+
+using namespace BioFVM; 
+using namespace PhysiCell;
+
+// setup functions to help us along 
+
+void create_cell_types( void );
+void setup_tissue( void );
+void setup_tissue_input(void); //Necessary to restrat simulation from input
+
+// set up the BioFVM microenvironment 
+void setup_microenvironment( void ); 
+
+// custom pathology coloring function 
+
+std::vector<std::string> my_coloring_function( Cell* );
+
+/**********************/ 
+/* CUSTOM FUNCTIONS   */ 
+/**********************/ 
 
 
-namespace PhysiCell
-{
-// loaders 
-	
-void load_cells_csv_v1( std::string filename ); // done 
+//functions for initialization
+
+// helper function to read init files
+std::vector<std::vector<double>>  read_cells_positions(std::string filename, char delimiter, bool header);
+
+// helper function to create a sphere of cells of a given radius
+std::vector<std::vector<double>> create_cell_sphere_positions(double cell_radius, double sphere_radius);
+
+// helper function to create a disc of cells of a given radius
+std::vector<std::vector<double>> create_cell_disc_positions(double cell_radius, double disc_radius);
+
+// helper function that calculates phere volume
+inline float sphere_volume_from_radius(float radius) {return 4/3 * PhysiCell_constants::pi * std::pow(radius, 3);}
+
+// helper function to inject density surrounding a spheroid
+void inject_density_sphere(int density_index, double concentration, double membrane_lenght);
+
+// helper function to remove a density
+void remove_density( int density_index );
+
+void phenotype_function( Cell* pCell, Phenotype& phenotype, double dt );
+void custom_function( Cell* pCell, Phenotype& phenotype , double dt );
+
+void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& phenoOther , double dt ); 
+
+std::vector<std::string> heterogeneity_coloring_function( Cell* );
+
+void tumor_cell_phenotype_with_oncoprotein( Cell* pCell, Phenotype& phenotype, double dt ); 
+double total_live_cell_count();
+
+// count the number of total dead cells at current time step
+double total_dead_cell_count();
+
+// functions to parametrize the puter bounding box
+extern std::unordered_map<std::string, bool> inner_box_param;
+
+bool load_outer_cell_type(void);
+std::vector<float> load_inner_box_bounds(void);
+bool evaluate_inner_bounding_box_parameters(void);
 
 
-std::vector<std::string> split_csv_labels( std::string labels_line ); // done 
-Cell* process_csv_v2_line( std::string line , std::vector<std::string> labels ); // done 
-void load_cells_csv_v2( std::string filename ); // done 
+// function to auto stop the simulation
+extern std::unordered_map<std::string, bool> auto_stop_param;
 
+int evaluate_start_stop_parameters(void);
+bool auto_stop_resistance(int alive_cells, int resistant_cells);    
+bool auto_stop_epi_size(std::vector<double> vector_epi_pos, double epi_max_size);
+bool auto_stop_epi_stable(std::vector<double> vector_epi_pos, std::deque<double> &deque_epi_average_size, double steps, double tolerance);
+bool auto_stop_alive(int alive_cells);
+int save_resistant_cells(std::ofstream& file_resistant);
+bool auto_stop();
 
-void load_cells_csv( std::string filename ); 
+//Functions to create an pre-epithelium
+void create_pre_epithelium(int argc, char* argv[]);
+void create_epithelium_csv(int nbr, std::string func);
+void position_epithelium_cells(void);
+void random_fill_rectangle (BioFVM::gradient bounds, PhysiCell::Cell_Definition *pCD, double confluence = 1.0);
+void save_cells_csv(std::string filename);
 
+//Functions for divisions orientation
+double cell_neighbor_distance(Cell* pC1, Cell*pC2);
+std::vector<Cell*> find_closest_neighbors(const std::vector<Cell*>& cells, Cell* pC); // Not tested yet
 
+std::vector<double> custom_division_orientation(Cell* pC);
 
-void load_cells_mat( std::string filename ); 
-void load_cells_physicell( std::string filename ); 
-
-bool load_cells_from_pugixml( pugi::xml_node root ); 
-bool load_cells_from_pugixml( void ); // load cells based on default config XML root
-
-bool load_outer_cell_type(std::string cell_types);
-
-void set_parameters_from_distributions( const pugi::xml_node root );
-void set_parameters_from_distributions(void);
-void set_distributed_parameters(pugi::xml_node node, Cell_Definition *pCD);
-void set_distributed_parameter(pugi::xml_node node_dist, Cell_Definition *pCD);
-void set_distributed_parameter(Cell_Definition *pCD, std::string behavior, std::string type, pugi::xml_node node_dist);
-
-void get_log_normal_bounds(pugi::xml_node node_dist, std::string behavior, Cell_Definition *pCD, double &lb, double &ub, double base_value, bool check_base);
-void set_distributed_parameter(Cell* pCell, std::string behavior, double val);
-void print_drawing_expectations(double mu, double sigma, double lb, double ub, int n);
-
-bool is_in(std::string x, std::vector<std::string> A);
-bool strcmpi(std::string x, std::string y);
-
-//	
-// 2D functions 
-//
-void fill_circle( std::vector<double> center , double radius , Cell_Definition* pCD , double compression ); 
-void fill_circle( std::vector<double> center , double radius , Cell_Definition* pCD ); 
-
-void fill_circle( std::vector<double> center , double radius , int cell_type , double compression );
-void fill_circle( std::vector<double> center , double radius , int cell_type ); 
-
-
-void fill_annulus( std::vector<double> center , double outer_radius , double inner_radius, Cell_Definition* pCD , double compression ); 
-void fill_annulus( std::vector<double> center , double outer_radius , double inner_radius, Cell_Definition* pCD ); 
-
-void fill_annulus( std::vector<double> center , double outer_radius , double inner_radius, int cell_type , double compression );
-void fill_annulus( std::vector<double> center , double outer_radius , double inner_radius, int cell_type ); 
-
-
-// bounds = { xmin, ymin, zmin, xmax, ymax, zmax } 
-void fill_rectangle( std::vector<double> bounds , Cell_Definition* pCD , double compression ); 
-void fill_rectangle( std::vector<double> bounds , Cell_Definition* pCD ); 
-
-void fill_rectangle( std::vector<double> bounds , int cell_type , double compression );  
-void fill_rectangle( std::vector<double> bounds , int cell_type ); 
-
-
-//
-// 3D functions
-//
-void fill_sphere( std::vector<double> center , double radius , Cell_Definition* pCD , double compression ); 
-void fill_sphere( std::vector<double> center , double radius , Cell_Definition* pCD ); 
-
-void fill_sphere( std::vector<double> center , double radius , int cell_type , double compression ); 
-void fill_sphere( std::vector<double> center , double radius , int cell_type ); 
-
-// bounds = { xmin, ymin, zmin, xmax, ymax, zmax } 
-void fill_box( std::vector<double> bounds , Cell_Definition* pCD , double compression ); 
-void fill_box( std::vector<double> bounds , Cell_Definition* pCD ); 
-
-void fill_box( std::vector<double> bounds , int cell_type , double compression ); 
-void fill_box( std::vector<double> bounds , int cell_type ); 
-
-void draw_line( std::vector<double> start , std::vector<double> end , Cell_Definition* pCD , double compression ); 
-void draw_line( std::vector<double> start , std::vector<double> end , Cell_Definition* pCD ); 
-
-void draw_line( std::vector<double> start , std::vector<double> end , int cell_type , double compression ); 
-void draw_line( std::vector<double> start , std::vector<double> end , int cell_type ); 
-
-
-
-};
+//Linear regression
+std::vector<double> linreg(int n, std::vector<double> X, std::vector<double> Y);
 
 #endif

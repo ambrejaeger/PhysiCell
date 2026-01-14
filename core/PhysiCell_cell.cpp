@@ -98,6 +98,8 @@ std::vector<Cell_Definition*> cell_definitions_by_index;
 std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 std::unordered_map<int,int> cell_definition_indices_by_type; 
 
+std::vector<std::string> outer_cell_types;
+
 
 Cell* standard_instantiate_cell()
 { return new Cell; }
@@ -601,7 +603,7 @@ Cell* Cell::divide( )
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
-	if( !get_container()->underlying_mesh.is_position_valid(position[0], position[1], position[2]))
+	if( !get_container()->underlying_mesh.is_position_valid(position[0], position[1], position[2], this->type_name,outer_cell_types))
 	{
 		is_out_of_domain = true;
 		is_active = false;
@@ -639,6 +641,11 @@ bool Cell::assign_position(std::vector<double> new_position)
 	return assign_position(new_position[0], new_position[1], new_position[2]);
 }
 
+bool Cell::assign_position(std::vector<double> new_position, std::vector<std::string> outer_cell_types)
+{
+	return assign_position(new_position[0], new_position[1], new_position[2], outer_cell_types);
+}
+
 void Cell::set_previous_velocity(double xV, double yV, double zV)
 {
 	previous_velocity[0] = xV;
@@ -670,9 +677,9 @@ bool Cell::assign_position(double x, double y, double z)
 	}
 
 	get_container()->register_agent(this);
-	
 	if( !get_container()->underlying_mesh.is_position_valid(x,y,z) )
 	{	
+		std::cout << "Invalid position" << std::endl;
 		is_out_of_domain = true; 
 		is_active = false; 
 		is_movable = false; 
@@ -682,6 +689,50 @@ bool Cell::assign_position(double x, double y, double z)
 	
 	return true;
 }
+
+bool Cell::assign_position(double x, double y, double z, std::vector<std::string> outer_cell_types)
+{
+	if (std::find(outer_cell_types.begin(), outer_cell_types.end(), this->type_name) != outer_cell_types.end())
+	{ 
+		//std::cout << "Former assign position running" << std::endl;
+		return assign_position(x,y,z) ;
+	}
+	else {
+		position[0]=x;
+		position[1]=y;
+		position[2]=z;
+		
+		// update microenvironment current voxel index
+		update_voxel_index(this->type_name, outer_cell_types);
+		// update current_mechanics_voxel_index
+		current_mechanics_voxel_index= get_container()->underlying_mesh.nearest_voxel_index( position );
+
+		// Since it is most likely our first position, we update the max_cell_interactive_distance_in_voxel
+		// which was not initialized at cell creation
+		if( get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
+			phenotype.geometry.radius * phenotype.mechanics.relative_maximum_adhesion_distance )
+		{
+			// get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius*parameters.max_interaction_distance_factor;
+			get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = phenotype.geometry.radius
+				* phenotype.mechanics.relative_maximum_adhesion_distance;
+		}
+
+		get_container()->register_agent(this);
+		if( !get_container()->underlying_mesh.is_position_valid(x,y,z,this->type_name, outer_cell_types) )
+		{	
+			//in this case we evaluate the mesh not the underlying mesh
+			
+			is_out_of_domain = true; 
+			is_active = false; 
+			is_movable = false; 
+			
+			return false;
+		}
+		
+		return true;
+	}
+}
+	
 
 void Cell::set_total_volume(double volume)
 {
@@ -847,7 +898,7 @@ void Cell::update_position( double dt )
 	previous_velocity = velocity; 
 	
 	velocity[0]=0; velocity[1]=0; velocity[2]=0;
-	if(get_container()->underlying_mesh.is_position_valid(position[0],position[1],position[2]))
+	if(get_container()->underlying_mesh.is_position_valid(position[0],position[1],position[2], type_name, outer_cell_types))
 	{
 		updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( position );
 	}
@@ -1092,7 +1143,6 @@ Cell* create_cell( Cell_Definition& cd )
 	pNew->assign_orientation();
 	
 	pNew->set_total_volume( pNew->phenotype.volume.total ); 
-	
 	return pNew; 
 }
 
@@ -1694,7 +1744,6 @@ void build_cell_definitions_maps( void )
 
 	cell_definitions_by_name_constructed = true; 
 	
-	std::cout << "This also ran to the end" << std::endl;
 	return;
 }
 
