@@ -1,0 +1,2 @@
+epi_basal,contact with membrane,decreases,transform to epi_inter,0.0,0.1,4,0
+epi_basal,div_inhib,decreases,exit from cycle phase 0,0.0,1.0,4,0

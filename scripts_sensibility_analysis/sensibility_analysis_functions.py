@@ -71,48 +71,51 @@ def parse_physicell_metadata(xml_file):
         return {}
 
 
-def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def=""):
+def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="", variable_name=""):
     """Modify XML file with error handling for incorrect paths and names"""
     try:
         if not os.path.exists(xml_file):
             raise FileNotFoundError(f"XML file '{xml_file}' does not exist")
         
+        target_interaction = None
+        subroot = None
+        path_to_attribute = ""
+        element = None
+
         modified = False
         tree = ET.parse(xml_file)
         root = tree.getroot()
 
-        if name_cell_def == "":
-            element = root.find(path)
-            if element is None:
-                raise ValueError(f"Path '{path}' not found in XML structure")
-            element.text = str(value)
-            modified = True
+        if variable_name != "":
+            path_to_variable = path.split("variable/", 2)[0]
+            path_to_attribute = "./" + path.split("variable/", 2)[1]
+            
+            if root.find(path_to_variable) is None:
+                raise ValueError(f"Path: '{path_to_variable}' not found in XML structure")
+            
+            for var in root.findall(os.path.join(path_to_variable,"variable")):
+                if var.get("name") == variable_name:
+                    subroot = var
+                    break
 
-        else: 
+            if subroot is None:
+                raise ValueError(f"Variable: '{variable_name}' not found in XML structure")
+
+        if name_cell_def != "": 
             path_to_cell_def = path.split("cell_definition/", 2)[0]
             path_to_attribute = "./" + path.split("cell_definition/", 2)[1]
             
             if root.find(path_to_cell_def) is None:
                 raise ValueError(f"Path: '{path_to_cell_def}' not found in XML structure")
             
-            subroot = None
             for cell_def in root.findall(os.path.join(path_to_cell_def,"cell_definition")):
-                #print(cell_def.get("name"))
                 if cell_def.get("name") == name_cell_def:
                     subroot = cell_def
                     break
             if subroot is None:
                 raise ValueError(f"Cell definition: '{name_cell_def}' not found in XML structure")
             
-            if name_interact_cell_def == "":
-                element = subroot.find(path_to_attribute)
-                if element is None:
-                    raise ValueError(f"Attribute path '{path_to_attribute}' not found in cell definition '{name_cell_def}'")
-                element.text = str(value)
-                modified = True
-            else:
-
-                target_interaction = None
+            if name_interact_cell_def != "":
                 for interact_cell_def in subroot.findall(path_to_attribute):
                     if interact_cell_def.get("name") == name_interact_cell_def:
                         target_interaction = interact_cell_def
@@ -121,9 +124,18 @@ def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="
                 if target_interaction is None:
                     error_msg = f"Interaction cell definition '{name_interact_cell_def}' not found in cell definition '{name_cell_def}' at path '{path_to_attribute}'"
                     raise ValueError(error_msg)
-                
-                target_interaction.text = str(value)
+    
+        if target_interaction:
+            target_interaction.text = str(value)
+            modified = True
+        elif subroot != None and (path_to_attribute != ""):
+            element = subroot.find(path_to_attribute)
+            if element != None:
+                element.text = str(value)
                 modified = True
+            else:
+                raise ValueError("Invalid path in the xml")
+
 
         if modified:
             tree.write(xml_file)
