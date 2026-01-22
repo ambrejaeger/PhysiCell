@@ -20,6 +20,8 @@ param_values = define_set_param(num_vars, names, bounds, sample_size=128)
 
 indexes = list(range(1,param_values.shape[0],50))
 
+print(param_values)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
