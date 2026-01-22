@@ -672,7 +672,7 @@
         <rulesets>
             <ruleset protocol="CBHG" version="3.0" format="csv" enabled="true">
                 <folder>./config</folder>
-                <filename>cell_rules_pre_epi.csv</filename>
+                <filename>cell_rules.csv</filename>
             </ruleset>
         </rulesets>
         <settings />

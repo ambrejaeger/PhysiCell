@@ -27,8 +27,6 @@ def compute_epi_stability(mat_files, xml_file, sort = False):
     growth_rates = []
     for i in range(1, len(sizes)):
         growth_rates.append(sizes[i] - sizes[i-1])
-        #print(sizes[i] - sizes[i-1])
-        print("Size: ", sizes[i-1])
     return np.average(growth_rates)
 
 #Write a function to track the number of the cells type
@@ -113,11 +111,13 @@ def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_fol
     tree = ET.parse(xml_file)
     root = tree.getroot()
     filepath = ''
-    if root.find('./cell_rules/rulesets/ruleset/folder'):
+    if root.find('./cell_rules/rulesets/ruleset/folder') != None:
         folder = root.find('./cell_rules/rulesets/ruleset/folder').text 
         file = root.find('./cell_rules/rulesets/ruleset/filename').text
+        print(file)
+        print(folder)
         filepath = os.path.join(folder,file)
-    
+        print(filepath)
 
     if not os.path.isdir(temp_output_folder):
         os.makedirs(temp_output_folder, exist_ok=False)
@@ -178,7 +178,7 @@ def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_fol
     #Changing output folder
     modify_xml(temp_xml_file, "save/folder", temp_output)
 
-    for i in range(start_file, end_file): 
+    for i in range(end_file - start_file): 
         for j, val in enumerate(param_values[i,:]):
             name_cell_def = ''
             name_interact_cell_def = ''
@@ -229,9 +229,9 @@ def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_fol
         
         shutil.copyfile(f"{temp_output_folder}/out.gif", f"{output_folder}/out_{i}.gif")
         with open(output_storage_file, "a") as f:
-            f.write(f"{i} {output_growth_rates[i]} {output_epi_sizes[i]}\n")
+            f.write(f"{i + start_file} {output_growth_rates[i]} {output_epi_sizes[i]}\n")
         with open(output_storage_cell_pop, "a") as f:
-            f.write(f"{i} {output_cell_pop[i]}\n")
+            f.write(f"{i + start_file} {output_cell_pop[i]}\n")
         with open(save_output, "a") as f:
             f.write(process0.stdout)
         with open(save_output, "a") as f:
