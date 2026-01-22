@@ -55,6 +55,51 @@ def compute_number_cells_over_time(mat_files, xml_file, tracked_types):
     return pop_dict
 #Write a function to evaluate the membrane thickness
 
+
+def modify_csv(file_path, cell_rule, value):
+    # Validate cell_rule format
+    if len(cell_rule) != 3 or cell_rule[0] != 'cell_rules':
+        raise ValueError("cell_rule must be in format: ['cell_rule', row_index, col_index]")
+    
+    # Get row and column indices
+    row_idx = cell_rule[1]
+    col_idx = cell_rule[2]
+    
+    # Read all lines from the file
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    
+    # Check if row index is valid
+    if row_idx < 0 or row_idx >= len(lines):
+        raise IndexError(f"Row index {cell_rule[1]} is out of range. File has {len(lines)} rows.")
+    
+    # Split the line by commas and modify the specific column
+    line_parts = lines[row_idx].strip().split(',')
+    
+    # Check if column index is valid
+    if col_idx < 0 or col_idx >= len(line_parts):
+        raise IndexError(f"Column index {cell_rule[2]} is out of range. Row {cell_rule[1]} has {len(line_parts)} columns.")
+    
+    # Modify the specific cell
+    line_parts[col_idx] = str(value)
+    
+    # Reconstruct the line
+    lines[row_idx] = ','.join(line_parts) + '\n'
+    
+    # Create the output file path
+    folder = os.path.dirname(file_path)
+    output_path = os.path.join(folder, 'temp_cell_rules.csv')
+    
+    # Write all lines to the new file
+    with open(output_path, 'w') as file:
+        file.writelines(lines)
+    
+    print(f"Modified copy saved to: {output_path}")
+    print(f"Modified cell at row {cell_rule[1]}, column {cell_rule[2]} to value: {value}")
+    
+    return output_path
+
+
 def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_folder, temp_output, restart=False, restart_int = 0, end_int = 0): 
     output_folder = os.path.join(os.getcwd(), save_output_folder)
     save_output = os.path.join(output_folder, "run_output.txt")
@@ -63,6 +108,16 @@ def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_fol
     temp_output_folder = os.path.join(os.getcwd(), temp_output)
     temp_xml_file = os.path.join(temp_output_folder, os.path.basename(xml_file))
     start_file = 0
+
+    #Identify the cell_rules file if defined
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+    filepath = ''
+    if root.find('./cell_rules/rulesets/ruleset/folder'):
+        folder = root.find('./cell_rules/rulesets/ruleset/folder').text 
+        file = root.find('./cell_rules/rulesets/ruleset/filename').text
+        filepath = os.path.join(folder,file)
+    
 
     if not os.path.isdir(temp_output_folder):
         os.makedirs(temp_output_folder, exist_ok=False)
@@ -125,25 +180,46 @@ def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_fol
 
     for i in range(start_file, end_file): 
         for j, val in enumerate(param_values[i,:]):
+            name_cell_def = ''
+            name_interact_cell_def = ''
+            variable_name = ''
+            substrate = ''
 
-            modify_xml(temp_xml_file, param_treepaths[j][0], 
-                val, name_cell_def=param_treepaths[j][1], 
-                name_interact_cell_def=param_treepaths[j][2]) 
+            if len(param_treepaths[j]) > 1:
+                name_cell_def = param_treepaths[j][1]
+            if len(param_treepaths[j]) > 2:
+                name_interact_cell_def = param_treepaths[j][2]
+            if len(param_treepaths[j]) > 3:
+                variable_name = param_treepaths[j][3]
+            if len(param_treepaths[j]) > 4:
+                substrate = param_treepaths[j][4]
+
+
+            if param_treepaths[j][0] == "cell_rules":
+                modify_csv(filepath,param_treepaths[j], val)
+                modify_xml(temp_xml_file, './cell_rules/rulesets/ruleset/filename', 'temp_cell_rules.csv')
+            else:
+                modify_xml(temp_xml_file, param_treepaths[j][0], 
+                    val, name_cell_def=name_cell_def, 
+                    name_interact_cell_def=name_interact_cell_def,
+                    variable_name = variable_name,
+                    substrate = substrate) 
 
         #Running simulation 
         process0 = subprocess.run(
-                        ["./heterogeneity", temp_xml_file],
+                        ["./test_death", temp_xml_file],
                         capture_output=True, 
                         text=True)
 
         #Outputs analysis
+        label_file = os.path.join(temp_output_folder, 'initial.xml')
         mat_files = get_output_files(temp_output_folder)
         #Average growth rate of epi_inter layer over the run
-        output_growth_rates[i] = np.average(compute_epi_stability(mat_files, temp_xml_file))
+        output_growth_rates.append(np.average(compute_epi_stability(mat_files, label_file)))
         #Size of the epi_inter layer at the last time step
-        output_epi_sizes[i] = compute_epi_thickness(mat_files[-1], temp_xml_file)
+        output_epi_sizes.append(compute_epi_thickness(mat_files[-1], label_file))
         #Cells population size
-        output_cell_pop[i] = compute_number_cells_over_time(mat_files, xml_file, [0, 1])
+        output_cell_pop.append(compute_number_cells_over_time(mat_files, label_file, [0, 1]))
         print("Run ", i, " completed")
 
         process1 = subprocess.run(
@@ -174,13 +250,12 @@ def main():
     #print(compute_epi_thickness(mat_file, xml_file))
     #print(compute_epi_stability(mat_files, xml_file, sort = True))
     #compute_number_cells_over_time(mat_files, xml_file, [0, 1])
-    param = [
-             ["microenvironment_setup/variable/physical_parameter_set/decay_rate", "", "", "div_inhib"]
-            ]
-    value = 2.0
-    path = param[0][0]
-    modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="", variable_name=param[0][3])
+    param = [['cell_rules',1,5]]
+    value = 4.0
+    #modify_xml(xml_file, path, value, name_cell_def=param[0][1], name_interact_cell_def="", variable_name="", substrate=param[0][4])
+    filepath = './config/cell_rules.csv'
 
+    modify_csv(filepath, param[0],0.5)
 
 if __name__ == "__main__":
     main()

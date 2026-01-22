@@ -3,18 +3,20 @@ import argparse
 
 param = [["cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate", "epi_inter"],
          ["microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient" , "", "", "div_inhib"],
-         ["microenvironment_setup/variable/physical_parameter_set/decay_rate", "", "", "div_inhib"]
-        ]
+         ["microenvironment_setup/variable/physical_parameter_set/decay_rate", "", "", "div_inhib"]]
 
-bounds = [[1.0, 1000.0],
+param_bounds = [[1.0, 1000.0],
           [500.0, 1500.0],
           [0.05, 0.5]]
 
-names = ["_".join(p) for p in param]
-num_vars = len(param)
+cell_rules = []
+cell_rules_bounds = []
+
+names = ["_".join(p) for p in param] + ["_".join(r) for r in cell_rules]
+num_vars = len(param) + len(cell_rules)
+bounds = param_bounds + cell_rules_bounds
 xml_file = "./config/PhysiCell_settings.xml"
 param_values = define_set_param(num_vars, names, bounds, sample_size=128)
-tolerance = 5.0
 
 indexes = list(range(1,param_values.shape[0],50))
 

@@ -71,7 +71,7 @@ def parse_physicell_metadata(xml_file):
         return {}
 
 
-def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="", variable_name=""):
+def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="", variable_name="", substrate=""):
     """Modify XML file with error handling for incorrect paths and names"""
     try:
         if not os.path.exists(xml_file):
@@ -85,6 +85,9 @@ def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="
         modified = False
         tree = ET.parse(xml_file)
         root = tree.getroot()
+
+        if root.find(path) is not None:
+            element = root.find(path)
 
         if variable_name != "":
             path_to_variable = path.split("variable/", 2)[0]
@@ -115,6 +118,19 @@ def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="
             if subroot is None:
                 raise ValueError(f"Cell definition: '{name_cell_def}' not found in XML structure")
             
+            if substrate != "":
+                path_to_substrate = "./" + path_to_attribute.split("substrate/", 2)[0]
+                path_to_attribute = "./" + path.split("substrate/", 2)[1]
+                
+                if subroot.find(path_to_substrate) is None:
+                    raise ValueError(f"Path: '{path_to_substrate}' not found in XML structure")
+                
+                for sub in subroot.findall(os.path.join(path_to_substrate,"substrate")):
+                    if sub.get("name") == substrate:
+                        subroot = sub
+                        break
+
+            
             if name_interact_cell_def != "":
                 for interact_cell_def in subroot.findall(path_to_attribute):
                     if interact_cell_def.get("name") == name_interact_cell_def:
@@ -125,16 +141,20 @@ def modify_xml(xml_file, path, value, name_cell_def="", name_interact_cell_def="
                     error_msg = f"Interaction cell definition '{name_interact_cell_def}' not found in cell definition '{name_cell_def}' at path '{path_to_attribute}'"
                     raise ValueError(error_msg)
     
+        #if (name_cell_def == "") & (name_interact_cell_def == "") & (variable_name == "") & (substrate == ""):
+
         if target_interaction:
             target_interaction.text = str(value)
             modified = True
         elif subroot != None and (path_to_attribute != ""):
             element = subroot.find(path_to_attribute)
-            if element != None:
-                element.text = str(value)
-                modified = True
-            else:
-                raise ValueError("Invalid path in the xml")
+            
+        
+        if element != None:
+            element.text = str(value)
+            modified = True
+        else:
+            raise ValueError("Invalid path in the xml")
 
 
         if modified:
