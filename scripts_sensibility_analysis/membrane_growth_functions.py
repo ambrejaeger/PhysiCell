@@ -179,7 +179,7 @@ def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_fol
     modify_xml(temp_xml_file, "save/folder", temp_output)
 
     for i in range(end_file - start_file): 
-        for j, val in enumerate(param_values[i,:]):
+        for j, val in enumerate(param_values[i + start_file,:]):
             name_cell_def = ''
             name_interact_cell_def = ''
             variable_name = ''
