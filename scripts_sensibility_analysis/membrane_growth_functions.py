@@ -227,7 +227,7 @@ def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_fol
                         capture_output=True,
                         text=True)
         
-        shutil.copyfile(f"{temp_output_folder}/out.gif", f"{output_folder}/out_{i}.gif")
+        shutil.copyfile(f"{temp_output_folder}/out.gif", f"{output_folder}/out_{i + start_file}.gif")
         with open(output_storage_file, "a") as f:
             f.write(f"{i + start_file} {output_growth_rates[i]} {output_epi_sizes[i]}\n")
         with open(output_storage_cell_pop, "a") as f:
