@@ -220,7 +220,7 @@ def evaluate_epi_growth(xml_file, param_treepaths, param_values, save_output_fol
         output_epi_sizes.append(compute_epi_thickness(mat_files[-1], label_file))
         #Cells population size
         output_cell_pop.append(compute_number_cells_over_time(mat_files, label_file, [0, 1]))
-        print("Run ", i, " completed")
+        print("Run ", i + start_file, " completed")
 
         process1 = subprocess.run(
                         ["make", "gif", f"OUTPUT={temp_output_folder}"],
