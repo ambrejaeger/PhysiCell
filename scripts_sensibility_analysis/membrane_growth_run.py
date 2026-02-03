@@ -9,7 +9,7 @@ param_bounds = [[1.0, 1000.0],
           [500.0, 1500.0],
           [0.05, 0.5]]
 
-cell_rules = [['cell_rules',1, 5]]
+cell_rules = [['cell_rule',1, 5]]
 cell_rules_bounds = [[0.01, 4]]
 
 names = ["_".join(p) for p in param] + ["_".join(str(r)) for r in cell_rules]
@@ -64,4 +64,4 @@ if __name__ == "__main__":
                 print("Please enter yes or no.")
         else:
             completed = True
-            evaluate_epi_growth(xml_file, param, param_values, output, temp_output, restart=restart,restart_int=start, end_int=end)
+            evaluate_epi_growth(xml_file, total_param, param_values, output, temp_output, restart=restart,restart_int=start, end_int=end)
