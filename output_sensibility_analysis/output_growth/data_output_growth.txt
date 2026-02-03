@@ -1,0 +1,23 @@
+=== DataFrame 1 ===
+                                                                                                               ST   ST_conf
+cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib  5.418582e-03  0.009935
+microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib             6.502501e-05  0.000148
+microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib                        5.238454e-07  0.000001
+cell_rules;1;5                                                                                       8.973821e-01  0.200514
+
+=== DataFrame 2 ===
+                                                                                                           S1   S1_conf
+cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib  0.003938  0.009427
+microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib             0.000420  0.000960
+microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib                       -0.000038  0.000086
+cell_rules;1;5                                                                                       0.903839  0.395694
+
+=== DataFrame 3 ===
+                                                                                                                                                                                                       S2   S2_conf
+(cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib, microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib)  0.000075  0.007935
+(cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib, microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib)             0.000075  0.007935
+(cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib, cell_rules;1;5)                                                                           -0.002563  0.009682
+(microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib, microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib)                       -0.000420  0.000960
+(microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib, cell_rules;1;5)                                                                                      -0.000420  0.000960
+(microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib, cell_rules;1;5)                                                                                                  0.000038  0.000086
+

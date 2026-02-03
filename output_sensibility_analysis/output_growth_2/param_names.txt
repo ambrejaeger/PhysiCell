@@ -1,0 +1,3 @@
+['cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate', 'epi_inter', '', '', 'div_inhib']
+['microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient', '', '', 'div_inhib']
+['microenvironment_setup/variable/physical_parameter_set/decay_rate', '', '', 'div_inhib']
