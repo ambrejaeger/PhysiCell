@@ -39,7 +39,6 @@ def cell_below(position, heights):
             else:
                 return False
         else:
-            print("This ain't right")
             return ValueError
     else:
         return False

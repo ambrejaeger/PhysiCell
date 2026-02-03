@@ -46,7 +46,7 @@ def check_membrane_neighbors(cells_info, membrane_type, membrane_neighbors_0, X_
     return avg_dist
 
 
-def compute_membrane_integrity(mat_files, temp_output_folder, membrane_type, tolerance, X_min=-10000, X_max=10000):
+def compute_membrane_integrity(mat_files, temp_output_folder, membrane_type, tolerance = 5.0, X_min=-10000, X_max=10000):
     '''Only compute at the last step of the run '''
     mat_file = os.path.join(temp_output_folder,"first_save_cells.mat")
     initial_xml_file = os.path.join(temp_output_folder,"initial.xml")
