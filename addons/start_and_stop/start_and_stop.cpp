@@ -89,7 +89,7 @@ void save_cell_microenv_data(Cell_Container* cell_container, std::string saved_f
 	file_microenv << microenvironment;
 
 	// add header to pos file
-	cell_pos_file << "x	y	z" << endl;
+	cell_pos_file << "x	y z" << endl;
 
 	// Iterate through all cells
 	for (int i = 0; i < (*all_cells).size(); i++)
@@ -232,11 +232,8 @@ void reset_cell(double last_cell_cycle_time, std::string saved_files_folder, std
 		// state
         input_file_cells >> pCell->state;
 		
-		
 		//parameters
 		input_file_cells >> pCell->parameters;
-
-		
 
 		string line;
 		

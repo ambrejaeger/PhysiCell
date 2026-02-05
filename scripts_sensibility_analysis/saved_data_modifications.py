@@ -52,7 +52,6 @@ def modify_cell_data(file_path :str, condition_key: str, condition_val: str, tar
                 val = line.split(":")[-1].strip()
                 if val == str(condition_val):
                     cell_matches = True
-                    print("Cell modified")
                     break
 
         if not cell_matches:
@@ -105,7 +104,7 @@ def modify_cell_data(file_path :str, condition_key: str, condition_val: str, tar
 
     return False
 
-
+"""
 def extract_data_xml(
     xml_file:str,
     path:str,
@@ -114,7 +113,7 @@ def extract_data_xml(
     variable_name:str ="",
     substrate:str ="",
 ) -> str | None:
-    """Extract a value from a PhysiCell XML settings file.
+    Extract a value from a PhysiCell XML settings file.
 
     The function supports several lookup modes: direct path lookup, searching
     for a named variable under a ``variable/`` section, or searching for a
@@ -139,7 +138,7 @@ def extract_data_xml(
         The function will catch common errors (missing file, parse errors,
         and lookup failures), print a short descriptive message and return
         ``None``.
-    """
+    
     try:
         if not os.path.exists(xml_file):
             raise FileNotFoundError(f"XML file '{xml_file}' does not exist")
@@ -242,17 +241,10 @@ def extract_data_xml(
         print(f"Unexpected error: {e}")
         return None
 
+"""
 
 if __name__ == "__main__":
-    print(
-        extract_data_xml(
-            "./config/PhysiCell_settings.xml",
-            "cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate",
-            name_cell_def="epi_inter",
-            substrate="div_inhib",
-        )
-    )
-
+ 
     """print(modify_cell_data(
     file_path='./addons/start_and_stop/start_and_stop_scripts/cell_data.txt', 
     condition_key='type', 

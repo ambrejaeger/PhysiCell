@@ -1,4 +1,5 @@
 from membrane_growth_functions import *
+from saved_data_modifications import *
 import argparse
 
 param = [
@@ -21,14 +22,21 @@ param = [
         "",
         "div_inhib",
     ],
+    [
+        "cell_definitions/cell_definition/phenotype/death/model/death_rate",
+        "epi_inter",
+        "",
+        "",
+        "",
+    ]
 ]
 
-saved_data_path = [["Secretion/Secretion 1/Secretion_Rate", "type", 1], [], []]
+saved_data_path = [["Secretion/Secretion 1/Secretion_Rate", "type", 1], [], [], ["Death/Model 0/Rate", "type", 1]]
 
-param_bounds = [[1.0, 1000.0], [500.0, 1500.0], [0.05, 100]]
+param_bounds = [[1.0, 1000.0], [500.0, 1500.0], [0.05, 100], [0.000001, 0.001]]
 
-cell_rules = []
-cell_rules_bounds = []
+cell_rules = [['cell_rule',1, 5], ['cell_rule',2, 5]]
+cell_rules_bounds = [[0.01, 4], [0.01, 4]]
 
 names = ["_".join(p) for p in param] + ["_".join(str(r)) for r in cell_rules]
 num_vars = len(param) + len(cell_rules)
@@ -149,12 +157,12 @@ def evaluate_epi_growth_2(
     modify_xml(
         temp_xml_file,
         "user_parameters/saving_folder",
-        os.path.join(temp_output_folder, "start_and_stop_saving_files"),
+        os.path.join(temp_output_folder, "start_and_stop_saving_files/"),
     )
     modify_xml(
         temp_xml_file,
         "user_parameters/init_cells_filename",
-        os.path.join(temp_output_folder, "start_and_stop_saving_files/"),
+        os.path.join(temp_output_folder, "start_and_stop_saving_files/initial.tsv"),
     )
 
     for i in range(end_file - start_file):
@@ -173,7 +181,7 @@ def evaluate_epi_growth_2(
             if len(param_treepaths[j]) > 4:
                 substrate = param_treepaths[j][4]
 
-            if param_treepaths[j][0] == "cell_rules":
+            if param_treepaths[j][0] == "cell_rule":
                 modify_csv(cell_rule_file, param_treepaths[j], val)
                 modify_xml(
                     temp_xml_file,
@@ -199,17 +207,16 @@ def evaluate_epi_growth_2(
             # After modifying the .xml we need to modify the saved start_and_stop files for proper initialization
             # modify_cell_data(os.path.join(temp_output_folder, 'start_and_stop_saving_files'),)
             if param_treepaths[j][0].find("cell_definition") != -1:
-                print("This runs")
-                print(val)
-                cell_data_file = os.path.join(
-                    temp_output_folder, "start_and_stop_saving_files/cell_data.txt"
-                )
+                #cell_data_file = os.path.join(
+                 #   temp_output_folder, "start_and_stop_saving_files/cell_data.txt"
+                #)
+                cell_data_file = os.path.join(temp_output_folder, "start_and_stop_saving_files/cell_data.txt")
                 path = saved_data_paths[j]
                 print(path[1])
                 print(path[2])
                 print(path[0])
                 print(modify_cell_data(cell_data_file, path[1], path[2], path[0], val))
-
+        
         # Running simulation
         process0 = subprocess.run(
             ["./test_death", temp_xml_file], capture_output=True, text=True
@@ -229,16 +236,14 @@ def evaluate_epi_growth_2(
             compute_number_cells_over_time(mat_files, label_file, [0, 1])
         )
         print("Run ", i + start_file, " completed")
+        
+        dest_fin_svg = os.path.join(output_folder, f"final_{i + start_file}.svg")
+        dest_init_svg = os.path.join(output_folder, f"initial_{i + start_file}.svg")
+        initial_svg = os.path.join(temp_output_folder, "initial.svg")
+        final_svg = os.path.join(temp_output_folder, "final.svg")
+        shutil.copyfile(initial_svg, dest_init_svg)
+        shutil.copyfile(final_svg, dest_fin_svg)
 
-        process1 = subprocess.run(
-            ["make", "gif", f"OUTPUT={temp_output_folder}"],
-            capture_output=True,
-            text=True,
-        )
-
-        shutil.copyfile(
-            f"{temp_output_folder}/out.gif", f"{output_folder}/out_{i + start_file}.gif"
-        )
         with open(output_storage_file, "a") as f:
             f.write(
                 f"{i + start_file} {output_growth_rates[i]} {output_epi_sizes[i]}\n"
@@ -247,8 +252,8 @@ def evaluate_epi_growth_2(
             f.write(f"{i + start_file} {output_cell_pop[i]}\n")
         with open(save_output, "a") as f:
             f.write(process0.stdout)
-        with open(save_output, "a") as f:
-            f.write(process1.stdout)
+        #with open(save_output, "a") as f:
+            #f.write(process1.stdout)
 
     # delete temp output at the end of the run
     if os.path.isdir(temp_output_folder):
@@ -315,7 +320,7 @@ if __name__ == "__main__":
             completed = True
             evaluate_epi_growth_2(
                 xml_file,
-                param,
+                total_param,
                 param_values,
                 output,
                 temp_output,

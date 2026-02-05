@@ -235,6 +235,7 @@ def modify_xml(
             element.text = str(value)
             modified = True
         else:
+            print(path)
             raise ValueError("Invalid path in the xml")
 
         if modified:
