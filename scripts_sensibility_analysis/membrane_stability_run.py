@@ -35,7 +35,7 @@ saved_data_path = [["Secretion/Secretion 1/Secretion_Rate", "type", 1], [], [], 
 
 param_bounds = [[1.0, 1000.0], [500.0, 1500.0], [0.05, 100], [0.000001, 0.001]]
 
-cell_rules = [['cell_rule',1, 5], ['cell_rule',2, 5]]
+cell_rules = [['cell_rule',"1", "5"], ['cell_rule',"2", "5"]]
 cell_rules_bounds = [[0.01, 4], [0.01, 4]]
 
 names = ["_".join(p) for p in param] + ["_".join(str(r)) for r in cell_rules]
@@ -65,7 +65,7 @@ def evaluate_epi_growth_2(
     temp_output_folder = os.path.join(os.getcwd(), temp_output)
     temp_xml_file = os.path.join(temp_output_folder, os.path.basename(xml_file))
     start_file = 0
-
+    print(param_treepaths)
     if not os.path.isdir(temp_output_folder):
         os.makedirs(temp_output_folder, exist_ok=False)
 
@@ -182,6 +182,7 @@ def evaluate_epi_growth_2(
                 substrate = param_treepaths[j][4]
 
             if param_treepaths[j][0] == "cell_rule":
+                print(param_treepaths)
                 modify_csv(cell_rule_file, param_treepaths[j], val)
                 modify_xml(
                     temp_xml_file,
@@ -191,7 +192,7 @@ def evaluate_epi_growth_2(
                 modify_xml(
                     temp_xml_file,
                     "./cell_rules/rulesets/ruleset/filename",
-                    "temp_cell_rules.csv",
+                    "cell_rules.csv",
                 )
             else:
                 modify_xml(

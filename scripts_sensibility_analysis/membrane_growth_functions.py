@@ -70,8 +70,8 @@ def modify_csv(file_path, cell_rule, value):
         )
 
     # Get row and column indices
-    row_idx = cell_rule[1]
-    col_idx = cell_rule[2]
+    row_idx = int(cell_rule[1])
+    col_idx = int(cell_rule[2])
 
     # Read all lines from the file
     with open(file_path, "r") as file:
