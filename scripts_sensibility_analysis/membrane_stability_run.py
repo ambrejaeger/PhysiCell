@@ -42,7 +42,7 @@ names = ["_".join(p) for p in param] + ["_".join(str(r)) for r in cell_rules]
 num_vars = len(param) + len(cell_rules)
 bounds = param_bounds + cell_rules_bounds
 xml_file = "./config/PhysiCell_settings.xml"
-param_values = define_set_param(num_vars, names, bounds, sample_size=128)
+param_values = define_set_param(num_vars, names, bounds, sample_size=64)
 
 total_param = param + cell_rules
 
