@@ -33,7 +33,7 @@ total_param = param + cell_rules
 
 #Initialize saved cell data properly
 save_path = ["Secretion/Secretion 1/Secretion_Rate", "type", 1]
-cell_data_path = "/home/ajaeger/Documents/PhysiCell/config/start_and_stop_saving_files/cell_data.txt"
+cell_data_path = "./config/start_and_stop_saving_files/cell_data.txt"
 val = read_value_in_settings_file(xml_file, "cell_definitions/cell_definition[@name='epi_inter']/phenotype/secretion/substrate[@name='div_inhib']/secretion_rate")
 if val:
     print(modify_cell_data(cell_data_path, save_path[1], save_path[2], save_path[0], val))
