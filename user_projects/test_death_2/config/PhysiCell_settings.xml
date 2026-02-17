@@ -14,7 +14,7 @@
     </domain>
 
     <overall>
-        <max_time units="min">2500</max_time>
+        <max_time units="min">10000</max_time>
         <time_units>min</time_units>
         <space_units>micron</space_units>
         <dt_diffusion units="min">0.01</dt_diffusion>
@@ -29,11 +29,11 @@
     <save>
         <folder>output</folder>
         <full_data>
-            <interval units="min">50</interval>
+            <interval units="min">500</interval>
             <enable>true</enable>
         </full_data>
         <SVG>
-            <interval units="min">50</interval>
+            <interval units="min">500</interval>
             <enable>true</enable>
             <plot_substrate enabled="true" limits="false">
             <substrate>div_inhib</substrate>
@@ -74,7 +74,7 @@
         </variable>
         <variable name="div_inhib" units="dimensionless" ID="1">
             <physical_parameter_set>
-                <diffusion_coefficient units="micron^2/min">100.0</diffusion_coefficient>
+                <diffusion_coefficient units="micron^2/min">1000.0</diffusion_coefficient>
                 <decay_rate units="1/min">0.1</decay_rate>
             </physical_parameter_set>
             <initial_condition units="mmHg">0</initial_condition>
@@ -170,7 +170,7 @@
                     <attachment_elastic_constant units="1/min">0.05</attachment_elastic_constant>
                     <attachment_rate units="1/min">0.0</attachment_rate>
                     <detachment_rate units="1/min">0.0</detachment_rate>
-                    <maximum_number_of_attachments>12</maximum_number_of_attachments>
+                    <maximum_number_of_attachments>6</maximum_number_of_attachments>
                 </mechanics>
                 <motility>
                     <speed units="micron/min">0.0</speed>
@@ -251,7 +251,10 @@
                 </cycle>
                 <death>
                     <model code="100" name="apoptosis">
-                        <death_rate units="1/min">0.00532</death_rate>
+                        <death_rate units="1/min">0.0000532</death_rate>
+                        <phase_durations units="min">
+							<duration index="0" fixed_duration="true">516</duration>
+						</phase_durations>
                         <parameters>
                             <unlysed_fluid_change_rate units="1/min">0.05</unlysed_fluid_change_rate>
                             <lysed_fluid_change_rate units="1/min">0</lysed_fluid_change_rate>
@@ -305,7 +308,7 @@
                     <attachment_elastic_constant units="1/min">0.01</attachment_elastic_constant>
                     <attachment_rate units="1/min">0.0</attachment_rate>
                     <detachment_rate units="1/min">0.0</detachment_rate>
-                    <maximum_number_of_attachments>12</maximum_number_of_attachments>
+                    <maximum_number_of_attachments>6</maximum_number_of_attachments>
                 </mechanics>
                 <motility>
                     <speed units="micron/min">0.0</speed>
@@ -449,7 +452,7 @@
                     <attachment_elastic_constant units="1/min">0.05</attachment_elastic_constant>
                     <attachment_rate units="1/min">1.0</attachment_rate>
                     <detachment_rate units="1/min">0.0</detachment_rate>
-                    <maximum_number_of_attachments>12</maximum_number_of_attachments>
+                    <maximum_number_of_attachments>6</maximum_number_of_attachments>
                 </mechanics>
                 <motility>
                     <speed units="micron/min">0.0</speed>
@@ -589,7 +592,7 @@
                     <attachment_elastic_constant units="1/min">0.01</attachment_elastic_constant>
                     <attachment_rate units="1/min">1.0</attachment_rate>
                     <detachment_rate units="1/min">0.0</detachment_rate>
-                    <maximum_number_of_attachments>12</maximum_number_of_attachments>
+                    <maximum_number_of_attachments>6</maximum_number_of_attachments>
                 </mechanics>
                 <motility>
                     <speed units="micron/min">0.0</speed>

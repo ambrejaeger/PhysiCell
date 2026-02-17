@@ -98,20 +98,16 @@ def modify_csv(file_path, cell_rule, value):
     # Reconstruct the line
     lines[row_idx] = ",".join(line_parts) + "\n"
 
-    # Create the output file path
-    folder = os.path.dirname(file_path)
-    output_path = os.path.join(folder, "temp_cell_rules.csv")
-
     # Write all lines to the new file
-    with open(output_path, "w") as file:
+    with open(file_path, "w") as file:
         file.writelines(lines)
 
-    print(f"Modified copy saved to: {output_path}")
+    print(f"Modified copy saved to: {file_path}")
     print(
         f"Modified cell at row {cell_rule[1]}, column {cell_rule[2]} to value: {value}"
     )
 
-    return output_path
+    return file_path
 
 
 def evaluate_epi_growth(

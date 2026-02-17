@@ -25,6 +25,7 @@ def modify_cell_data(file_path :str, condition_key: str, condition_val: str, tar
     :rtype: bool
     """
     if not os.path.exists(file_path):
+        print(f"Error: File '{file_path}' does not exist.")
         return False
 
     with open(file_path, "r") as f:
@@ -58,10 +59,21 @@ def modify_cell_data(file_path :str, condition_key: str, condition_val: str, tar
             continue
 
         # 2. If matched, navigate the target path
-        # Target path format: "Section/SubSection/Key"
+        # Target path format: "Section/SubSection/Key" optionally with an
+        # index for list entries, e.g. "Section/Key[2]" to modify the 3rd
+        # whitespace-separated token on that line.
         path_parts = target_path.split("/")
-        target_key = path_parts[-1]
+        raw_target_key = path_parts[-1]
         sections = path_parts[:-1]
+
+        # Detect optional index in the target key (e.g. Key[2])
+        list_index = None
+        m = re.match(r"^(?P<key>.+)\[(?P<idx>\d+)\]$", raw_target_key)
+        if m:
+            target_key = m.group("key")
+            list_index = int(m.group("idx"))
+        else:
+            target_key = raw_target_key
 
         current_line_idx = 0
         search_range_start = 0
@@ -90,7 +102,34 @@ def modify_cell_data(file_path :str, condition_key: str, condition_val: str, tar
                 pass
 
             if f"{target_key}:" in lines[i]:
-                lines[i] = f"{target_key}: {new_value}"
+                # Extract existing value part after the colon
+                parts = lines[i].split(":", 1)
+                if len(parts) == 2:
+                    prefix = parts[0].strip()
+                    value_part = parts[1].strip()
+                else:
+                    prefix = parts[0].strip()
+                    value_part = ""
+
+                # If an index was requested and the value is a whitespace-separated list,
+                # replace only that token and keep others unchanged.
+                if list_index is not None and value_part != "":
+                    tokens = value_part.split()
+                    if 0 <= list_index < len(tokens):
+                        tokens[list_index] = str(new_value)
+                        new_value_str = " ".join(tokens)
+                    else:
+                        # If index out of range, pad with zeros up to that index
+                        # then set the requested index.
+                        while len(tokens) <= list_index:
+                            tokens.append("0")
+                        tokens[list_index] = str(new_value)
+                        new_value_str = " ".join(tokens)
+                else:
+                    # Replace the whole value as before
+                    new_value_str = str(new_value)
+
+                lines[i] = f"{prefix}: {new_value_str}"
                 modifications_made = True
                 break
 
@@ -245,10 +284,10 @@ def extract_data_xml(
 
 if __name__ == "__main__":
  
-    """print(modify_cell_data(
+    print(modify_cell_data(
     file_path='./addons/start_and_stop/start_and_stop_scripts/cell_data.txt', 
     condition_key='type', 
-    condition_val=1, 
-    target_path='Secretion/Secretion 1/Secretion_Rate', 
-    new_value=9.99
-))"""
+    condition_val="1", 
+    target_path='Mechanics/cell_adhesion_affinities[1]', 
+    new_value="9.99"
+))

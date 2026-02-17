@@ -553,53 +553,79 @@ def combine_files_with_header(
 
 
 def combine_files_with_header_2(
-    file1_path:str, file2_path:str, output_path:str, column_names:list, column_1:str, 
-    column_2:str) -> pd.DataFrame:
+    file1_path: str,
+    file2_path: str,
+    output_path: str,
+    column_names: list,
+    *insert_columns,
+) -> pd.DataFrame:
 
-    """Combine two files where file1 provides two named columns to insert.
+    """Combine two files where `file1` provides N named columns to insert.
 
-    Similar to :func:`combine_files_with_header` but extracts two value
-    columns from file1 (specified by column_1 and column_2) and inserts
-    them into the combined output.
+    This generalizes the earlier two-column function: you can pass any number
+    of `insert_columns` names (positional arguments) or a single list/tuple of
+    names. The first column of `file1` is expected to be a zero-based row
+    index; the subsequent columns correspond to the inserted values.
 
-    :param file1_path: Path to the first file.
-    :param file2_path: Path to the second file.
+    :param file1_path: Path to the first file (row_idx + value columns).
+    :param file2_path: Path to the second file (tabular data).
     :param output_path: Path where the combined file will be saved.
-    :param column_names: Column names for file2.
-    :param column_1: Column name in file1 for the first inserted value.
-    :param column_2: Column name in file1 for the second inserted value.
+    :param column_names: Column names to apply to file2 if provided.
+    :param insert_columns: One or more names (str) for the columns taken from
+        file1. You may pass them as separate positional args or as a single
+        list/tuple.
     :returns: The combined DataFrame.
     """
 
-    df1 = pd.read_csv(
-        file1_path, sep=r"\s+", header=None, names=["row_idx", column_1, column_2]
-    )
-    df2 = pd.read_csv(file2_path, sep=r"\s+", header=None)
+    # Normalize insert_columns: allow passing a single list/tuple
+    if len(insert_columns) == 1 and isinstance(insert_columns[0], (list, tuple)):
+        insert_cols = list(insert_columns[0])
+    else:
+        insert_cols = list(insert_columns)
 
-    print(df1)
+    if not insert_cols:
+        raise ValueError("No insert column names provided for file1")
+
+    # Read file1 with unknown number of value columns (first column is row_idx)
+    df1 = pd.read_csv(file1_path, sep=r"\s+", header=None)
+    if df1.shape[1] < 2:
+        raise ValueError("file1 must contain at least two columns (row_idx and value columns)")
+
+    # Build column names for df1: first is row_idx, then assign provided names or generic names
+    expected_vals = df1.shape[1] - 1
+    if expected_vals != len(insert_cols):
+        # If counts differ, adapt: if fewer provided names, create generic names; if more provided, ignore extras
+        if expected_vals > len(insert_cols):
+            # extend with generic names
+            insert_cols = insert_cols + [f"col_{i+1}" for i in range(len(insert_cols), expected_vals)]
+        else:
+            # more names provided than columns in file: trim the list
+            insert_cols = insert_cols[:expected_vals]
+
+    df1.columns = ["row_idx"] + insert_cols
+
+    df2 = pd.read_csv(file2_path, sep=r"\s+", header=None)
 
     if len(column_names) == df2.shape[1]:
         df2.columns = column_names
-
     else:
         print(
             f"Warning: column_names has {len(column_names)} items, but file2 has {df2.shape[1]} columns"
         )
         df2.columns = [f"col_{i+1}" for i in range(df2.shape[1])]
 
-    value_column1_list = [0.0] * len(df2)
-    value_common2_list = [0.0] * len(df2)
+    # Prepare lists for each inserted column
+    insert_lists = {name: [0.0] * len(df2) for name in insert_cols}
 
-    for idx, row in df1.iterrows():
-        row_idx = int(row["row_idx"])
+    for _, row in df1.iterrows():
+        row_idx = int(row[0])
         if 0 <= row_idx < len(df2):
-            value_column1_list[row_idx] = row[column_1]
-            value_common2_list[row_idx] = row[column_2]
+            for name in insert_cols:
+                insert_lists[name][row_idx] = row[name]
 
-    df_combined = pd.DataFrame(
-        {column_1: value_column1_list, column_2: value_common2_list}
-    )
-    df_combined = pd.concat([df_combined, df2.reset_index(drop=True)], axis=1)
+    # Build DataFrame with inserted columns in the specified order
+    df_insert = pd.DataFrame(insert_lists)
+    df_combined = pd.concat([df_insert, df2.reset_index(drop=True)], axis=1)
 
     df_combined.to_csv(output_path, sep="\t", index=False, float_format="%.6e")
 
