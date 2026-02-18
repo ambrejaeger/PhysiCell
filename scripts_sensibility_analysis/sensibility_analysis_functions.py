@@ -425,7 +425,7 @@ def define_set_param(num_vars, names, bounds, groups=[], sample_size=32, seed=0)
     return param_values
 
 
-def analyze_sobol(result_file, param_names_file, bounds, groups=[], column=1):
+def analyze_sobol(result_file, param_names_file, bounds, groups=[], column=1, replace_nan=None):
     import ast
 
     with open(param_names_file, "r") as f:
@@ -440,6 +440,12 @@ def analyze_sobol(result_file, param_names_file, bounds, groups=[], column=1):
 
     sorted_lines = sorted(lines, key=lambda x: int(x.split()[0]))
     Y = np.asarray([float(line.split()[column]) for line in sorted_lines])
+    # replace NaN entries with the mean of the non-NaN values when requested
+    if replace_nan:
+        mask = np.isnan(Y)
+        print(mask)
+        if np.any(mask):
+            Y[mask] = replace_nan
     print("Array:", Y)
     print("Length:", len(Y))
 

@@ -1,0 +1,3 @@
+['cell_definitions/cell_definition/phenotype/death/model/death_rate', 'epi_inter', '', '', '']
+['cell_rule', '2', '5']
+['cell_rule', '2', '6']

@@ -24,6 +24,26 @@ def compute_median_apoptosis_position(label_file, mat_files):
 
     return len(dead_y_pos), np.median(list(dead_y_pos.values())), median_type_1, median_type_0
 
+def compute_mean_type_pos(label_file, mat_file, type):
+    df = get_cells_data(label_file, mat_file)
+    type_mask = df.loc['cell_type'] == type
+    if not type_mask.any():
+        raise ValueError(f"No cells of type {type} found in the data.")
+    type_cells_df = df.loc[:, type_mask]
+
+    mean_pos = np.mean(type_cells_df.loc["position_2", :])
+    return mean_pos
+
+def compute_max_type_pos(label_file, mat_file, type):
+    df = get_cells_data(label_file, mat_file)
+    type_mask = df.loc['cell_type'] == type
+    if not type_mask.any():
+        raise ValueError(f"No cells of type {type} found in the data.")
+    type_cells_df = df.loc[:, type_mask]
+
+    mean_pos = np.max(type_cells_df.loc["position_2", :])
+    return mean_pos
+
 if __name__ == "__main__":
 
     param = [
@@ -35,8 +55,9 @@ if __name__ == "__main__":
         "",
     ]
     ]
+
     #Parameters that were initialized differently when generating the pre-epithelium
-    saved_data_path = [["Secretion/Secretion 1/Secretion_Rate", "type", 1], [], [], ["Death/Model 0/Rate", "type", 1]]
+    saved_data_path = [["Death/Model 0/Rate", "type", 1]]
 
     param_bounds = [[0.000001, 0.001]]
 
@@ -44,33 +65,46 @@ if __name__ == "__main__":
     cell_rules = [['cell_rule',"2", "5"], ['cell_rule',"2", "6"]]
     cell_rules_bounds = [[0.0, 6.0], [1.0, 5.0]]
 
-
-    names = ["_".join(p) for p in param] + ["_".join(str(r)) for r in cell_rules]
+    names = ["_".join(p) for p in param] + ["_".join(r) for r in cell_rules]
     num_vars = len(param) + len(cell_rules)
     bounds = param_bounds + cell_rules_bounds
     xml_file = "./config/PhysiCell_settings.xml"
     param_values = define_set_param(num_vars, names, bounds, sample_size=64)
 
     total_param = param + cell_rules
-    
-    result_file = "./output_sensibility_analysis/membrane_stability/epi_growth.txt"
-    process_file(result_file, result_file)
-    param_names_file = "./output_stable/param_names.txt"
-    param_values_file = "./output_stable/param_values.txt"
+
+    result_file = "./output_sensibility_analysis/membrane_apoptosis_4/epi_apoptosis.txt"
+    #process_file(result_file, result_file)
+    param_names_file = "./output_apoptosis_4/param_names.txt"
+    param_values_file = "./output_apoptosis_4/param_values.txt"
 
     #Combine file with header
-    output_path = "./output_sensibility_analysis/membrane_stability/result_summary_growth.txt"
-    #combine_files_with_header_2(result_file, param_values_file, output_path, names, 'growth_rate', 'epi_size')
+    output_path = "./output_sensibility_analysis/membrane_apoptosis_4/result_summary_apoptosis.txt"
+    #combine_files_with_header_2(result_file, param_values_file, output_path, names, 'nbr_apoptosis', 'mean_pos_apop', 'epi_size')
 
+    #Compute mean position of epi_inter cells
+    #Run again the simulation
+    #process0 = subprocess.run(
+    #        ["./test_death"], capture_output=True, text=True
+    #    )
+    #compute mean position at beginning simulation
+    label_file= "/home/ajaeger/Documents/PhysiCell/output/initial.xml"
+    mat_file = "output/output00000107_cells.mat"
+    mean_pos = compute_mean_type_pos(label_file, mat_file, 1)
+    max_pos = compute_max_type_pos(label_file, mat_file, 1)
+    print(max_pos)
+    
 
-    Si = analyze_sobol(result_file, param_names_file, bounds, column=1)
-    save_dataframes_to_txt([Si.to_df()[0], Si.to_df()[1], Si.to_df()[2]], "./output_sensibility_analysis/membrane_stability/data_output_growth.txt")
+    #Sobol Analysis
+    #Si = analyze_sobol(result_file, param_names_file, bounds, column=2, replace_nan=mean_pos)
+    #save_dataframes_to_txt([Si.to_df()[0], Si.to_df()[1], Si.to_df()[2]], "./output_sensibility_analysis/membrane_apoptosis_4/data_output_apoptosis.txt")
     #Si.plot()
     #plt.show()
 
     #Plotting scatter plot groupped variable 
-    X, Y = extract_X_Y(output_path, names[3], Y_column='growth_rate')
-    plot_scatter_sets(Y, X, set_names="", xlabel="Death rate", title ="Epithelium growth rate in function of death rate", ylabel="Growth rate")
+    #X, Y = extract_X_Y(output_path, names[2], Y_column='mean_pos_apop')
+    #plot_scatter_sets(Y, X, set_names="", xlabel="rule hp", title ="Mean apoptosis position in function of rule 2 hp", ylabel="mean apop pos")
+
 """x
     param = [
         [

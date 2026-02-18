@@ -1,0 +1,18 @@
+=== DataFrame 1 ===
+                                                                                      ST   ST_conf
+cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;  0.400636  0.213056
+cell_rule;2;5                                                                   0.937232  0.469965
+cell_rule;2;6                                                                   0.729218  0.349677
+
+=== DataFrame 2 ===
+                                                                                      S1   S1_conf
+cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;; -0.004370  0.203810
+cell_rule;2;5                                                                   0.050811  0.354527
+cell_rule;2;6                                                                   0.244015  0.258628
+
+=== DataFrame 3 ===
+                                                                                                       S2   S2_conf
+(cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;, cell_rule;2;5) -0.081238  0.383975
+(cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;, cell_rule;2;6) -0.261255  0.296031
+(cell_rule;2;5, cell_rule;2;6)                                                                  -0.395250  0.589492
+

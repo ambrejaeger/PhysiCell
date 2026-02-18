@@ -1,0 +1,2 @@
+['cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity', 'epi_inter', 'epi_inter', '', '']
+['cell_rule', '2', '5']
