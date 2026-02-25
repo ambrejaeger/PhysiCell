@@ -1,5 +1,5 @@
-from sensibility_analysis_functions import *
-from saved_data_modifications import *
+from scripts_sensibility_analysis.sensibility_analysis_functions import *
+from scripts_sensibility_analysis.saved_data_modifications import *
 import subprocess
 
 
@@ -64,14 +64,22 @@ def compute_number_cells_over_time(mat_files, xml_file, tracked_types):
 
 def modify_csv(file_path, cell_rule, value):
     # Validate cell_rule format
-    if len(cell_rule) != 3 or cell_rule[0] != "cell_rule":
-        raise ValueError(
-            "cell_rule must be in format: ['cell_rule', row_index, col_index]"
-        )
+    if type(cell_rule) == list:
+        if len(cell_rule) != 3 or cell_rule[0] != "cell_rule":
+            raise ValueError(
+                "list cell_rule must be in format: ['cell_rule', row_index, col_index]"
+            )
 
-    # Get row and column indices
-    row_idx = int(cell_rule[1])
-    col_idx = int(cell_rule[2])
+        # Get row and column indices
+        row_idx = int(cell_rule[1])
+        col_idx = int(cell_rule[2])
+    elif type(cell_rule) == str:
+        if len(cell_rule.split("/")) != 3 or cell_rule.split("/")[0] != "cell_rule":
+            raise ValueError(
+                "string cell_rule must be in format: 'cell_rule/row_index/col_index'"
+            )
+        row_idx = int(cell_rule.split("/")[1])
+        col_idx = int(cell_rule.split("/")[2])
 
     # Read all lines from the file
     with open(file_path, "r") as file:

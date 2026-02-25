@@ -1,19 +1,19 @@
-from sensibility_analysis_functions import *
-from membrane_growth_functions import *
+from scripts_sensibility_analysis.sensibility_analysis_functions import *
+from scripts_sensibility_analysis.membrane_growth_functions import *
 
 def compute_median_apoptosis_position(label_file, mat_files):
     dead_y_pos = {} 
-    
+    med_pos = None
+
     for file in mat_files:
         df = get_cells_data(label_file, file)
-
-        
         dead_mask = df.loc['dead'] == 1
         dead_cells_df = df.loc[:, dead_mask]
-
-        for cell_id in dead_cells_df.columns:
-            if cell_id not in dead_y_pos:
-                dead_y_pos[cell_id] = dead_cells_df.at["position_2", cell_id]
+        if dead_mask.any():
+            for cell_id in dead_cells_df.columns:
+                if cell_id not in dead_y_pos:
+                    dead_y_pos[cell_id] = dead_cells_df.at["position_2", cell_id]
+            med_pos = np.median(list(dead_y_pos.values()))
 
     df = get_cells_data(label_file, mat_files[-1])           
     mask_1 = df.loc['cell_type'] == 1
@@ -22,7 +22,7 @@ def compute_median_apoptosis_position(label_file, mat_files):
     mask_0 = df.loc['cell_type'] == 0
     median_type_0 = df.loc['position_2', mask_0].median()
 
-    return len(dead_y_pos), np.median(list(dead_y_pos.values())), median_type_1, median_type_0
+    return len(dead_y_pos), med_pos, median_type_1, median_type_0
 
 def compute_mean_type_pos(label_file, mat_file, type):
     df = get_cells_data(label_file, mat_file)
