@@ -1,0 +1,14 @@
+=== DataFrame 1 ===
+                                                                                                                                  ST  ST_conf
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_inter;;  0.994991  0.22018
+cell_rule;2;5                                                                                                               0.000000  0.00000
+
+=== DataFrame 2 ===
+                                                                                                                                 S1  S1_conf
+cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_inter;;  1.01884    0.331
+cell_rule;2;5                                                                                                               0.00000    0.000
+
+=== DataFrame 3 ===
+                                                                                                                                                   S2   S2_conf
+(cell_definitions/cell_definition/phenotype/mechanics/cell_adhesion_affinities/cell_adhesion_affinity;epi_inter;epi_inter;;, cell_rule;2;5) -0.047698  0.492979
+

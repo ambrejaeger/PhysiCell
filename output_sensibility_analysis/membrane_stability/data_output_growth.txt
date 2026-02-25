@@ -1,0 +1,36 @@
+=== DataFrame 1 ===
+                                                                                                           ST   ST_conf
+cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib  0.000000  0.000000
+microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib             0.000000  0.000000
+microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib                        0.000000  0.000000
+cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;                       0.324512  0.379979
+cell_rule;1;5                                                                                        0.000000  0.000000
+cell_rule;2;5                                                                                        0.116618  0.062887
+
+=== DataFrame 2 ===
+                                                                                                           S1   S1_conf
+cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib  0.000000  0.000000
+microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib             0.000000  0.000000
+microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib                        0.000000  0.000000
+cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;                       0.213325  0.360704
+cell_rule;1;5                                                                                        0.000000  0.000000
+cell_rule;2;5                                                                                        0.219759  0.440969
+
+=== DataFrame 3 ===
+                                                                                                                                                                                                           S2       S2_conf
+(cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib, microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib)  0.000000e+00  0.000000e+00
+(cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib, microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib)             0.000000e+00  0.000000e+00
+(cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib, cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;)            0.000000e+00  7.505175e-17
+(cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib, cell_rule;1;5)                                                                             0.000000e+00  0.000000e+00
+(cell_definitions/cell_definition/phenotype/secretion/substrate/secretion_rate;epi_inter;;;div_inhib, cell_rule;2;5)                                                                             2.775558e-17  7.963676e-17
+(microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib, microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib)                        0.000000e+00  0.000000e+00
+(microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib, cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;)                       0.000000e+00  7.505175e-17
+(microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib, cell_rule;1;5)                                                                                        0.000000e+00  0.000000e+00
+(microenvironment_setup/variable/physical_parameter_set/diffusion_coefficient;;;div_inhib, cell_rule;2;5)                                                                                        2.775558e-17  7.963676e-17
+(microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib, cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;)                                  0.000000e+00  7.505175e-17
+(microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib, cell_rule;1;5)                                                                                                   0.000000e+00  0.000000e+00
+(microenvironment_setup/variable/physical_parameter_set/decay_rate;;;div_inhib, cell_rule;2;5)                                                                                                   2.775558e-17  7.963676e-17
+(cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;, cell_rule;1;5)                                                                                                  2.315722e-01  5.846918e-01
+(cell_definitions/cell_definition/phenotype/death/model/death_rate;epi_inter;;;, cell_rule;2;5)                                                                                                 -8.030270e-02  7.020441e-01
+(cell_rule;1;5, cell_rule;2;5)                                                                                                                                                                   2.775558e-17  7.963676e-17
+
