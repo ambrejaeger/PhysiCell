@@ -196,11 +196,25 @@ Along with each indices, ST, S1, and S2 we have a corresponding confidence inter
 ![Schematic Representation of the Sobol Method](figures/sobol_schema.png) (Schematic representation from [Weerasinghe] ).
 The method implemented in SaLib is not the original Sobol algorithm published in 1990 [Sobol Citation] but rather an improved more recent version of the algorithm (Saltelli 2010)
 1. We define a space of inputs, parameters or group of parameters and their bounds. We consider the model as a black box, written above as the function F, therefore GSA works with any form model from ODE to ABM.
-2. Then a quasi-random sampling method is used to obtain a independent uniformly distributely set of inputs within the hypercube. This enables to write the model output as:
-$$ Y=F_{0}+\sum _{i=1}^{d}F_{i}(x_{i})+\sum _{i;j}^{d}F_{ij}(x_{i},x_{j})+\cdots +F_{1,2,\dots ,d}(x_{1},x_{2},\dots ,x_{N}) $$
+2. This is rendering correctly in VS Code but not in GitHub. Why? Then a quasi-random sampling method is used to obtain an independent uniformly distributed set of inputs within the hypercube. This enables us to write the model output as:
+
+$$Y = F_0 + \sum_{i=1}^{d} F_i(x_i) + \sum_{i<j}^{d} F_{ij}(x_i, x_j) + \cdots + F_{1,2,\dots,d}(x_1, x_2, \dots, x_N)$$
+
 From this equation we can derive the variance of the output:
-$$ V(Y) = \sum V_i + \sum _i\sum_{i<j}V_{ij} + \dots + V_{1,2,\dots,N} $$ and also compute the partial variance which for the first order is written as: $$ V_i = V_{x_i}[E_{x_{\sim i}}(x_i)]$$ where $x_{\sim i}$ indicates all the variables except $x_i$.<br>
-This gives as sobol index of the 1st order: $$S_{i}={\frac {V_{i}}{{Var} (Y)}}$$ Sobol indices of higher order are of the same form partial variance over global variance. The form of these indices displays the importance of evaluating independent parameters or groups of parameters.  
+
+$$V(Y) = \sum V_i + \sum_i \sum_{i<j} V_{ij} + \cdots + V_{1,2,\dots,N}$$
+
+and also compute the partial variance which for the first order is written as:
+
+$$V_i = V_{x_i}[E_{x_{\sim i}}(x_i)]$$
+
+where $x_{\sim i}$ indicates all the variables except $x_i$.
+
+This gives the Sobol index of the first order:
+
+$$S_i = \frac{V_i}{\text{Var}(Y)}$$
+
+Sobol indices of higher order are of the same form (partial variance over global variance). The form of these indices displays the importance of evaluating independent parameters or groups of parameters.
 
 ### Experiments
 We are going to run a number of sensitivity analysis, one per property of the epithelium we aim to recreate:
