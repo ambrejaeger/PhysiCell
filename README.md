@@ -199,7 +199,7 @@ The method implemented in SaLib is not the original Sobol algorithm published in
 1. We define a space of inputs, parameters or group of parameters and their bounds. We consider the model as a black box, written above as the function F, therefore GSA works with any form model from ODE to ABM.
 2. This is rendering correctly in VS Code but not in GitHub. Why? Then a quasi-random sampling method is used to obtain an independent uniformly distributed set of inputs within the hypercube. This enables us to write the model output as:
 
-$$Y = F_0 + \sum_{i=1}^{d} F_i(x_i) + \sum_{i<j}^{d} F_{ij}(x_i, x_j) + \cdots + F_{1,2,\dots,d}(x_1, x_2, \dots, x_N)$$
+$$ Y = F_{0} + \sum_{i=1}^{d}F_{i}(x_{i}) + \sum_{i<j}^{d}F_{ij}(x_{i}, x_{j}) + \cdots + F_{1,2,\dots,d}(x_{1}, x_{2}, \dots , x_{N}) $$
 
 From this equation we can derive the variance of the output:
 
