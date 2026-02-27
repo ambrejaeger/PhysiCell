@@ -217,14 +217,44 @@ $$S_i = \frac{V_i}{\text{Var}(Y)}$$
 Sobol indices of higher order are of the same form (partial variance over global variance). The form of these indices displays the importance of evaluating independent parameters or groups of parameters.
 
 ### Experiments
-We are going to run a number of sensitivity analysis, one per property of the epithelium we aim to recreate:
+We are going to run a number of sensitivity analysis, to identify the parameters essential for the epithelium properties we aim to recreate:
   - Permeability: Cells (like immune cells) should be able to move through the different layers of the epithelium without compromising the overall stratification.
   - Structure: As it grows ( is submitted to other kind of mechanical stimuli), the epithelium should preserve its four distinct layers
   - Localized division: Division should not occur anywhere in the tissue, they should occur predominantly in the basal layer
   -Localized death: Death should occur predominantly at the highest position of the epithlium in a shedding process.
   - Size stability: Balancing of division and death should result in an epithelium of a stable thickness.
 
-To evaluate this different properties, we need to define a number of metrics. Then, we can compute for these metrics the Sobol indices.
+To evaluate these different properties, we need to define a number of metrics. Then, we can compute the Sobol indices for these metrics.
+ - Structure: 
+   - Conservation of membrane agents' neighbors: The basement membrane should be able to deform but not rupture. As it is modelled like a layer of two agent thickness, we expect the membrane agents to not reorganized drastically in space relatively to one another. 
+   - Non-mixing of cell types: Conjonctives cell should not be neighbors with upper layers cell types.
+   - Basal Cell positions: Basal cells are expected to be in the neighborhood of membrane cells
+
+Those metrics return boolean value. They are evaluated in growing epithelium. Division exhert forces on the surrounding cells which lead to loss of stratification.
+
+- Permeability:
+  - Speed of crossing: The time a cell attracted to a chemotactic signal takes to cross the basemement membrane.
+
+- Localized division: 
+  - Position of the division events
+
+- Localized death:
+  - Median position of cell death events
+  - Number of apoptosis events
+
+- Stability:
+  - Cells count
+  - Thickness of the epithelium when simulation ends
+  - Mean growth rate
+
+The structure metrics also need to be computed. Permeability doesn't is not relevant in a non-stratified tissue.
+
+
+   
+   
+Metrics returning boolean values are not ideal for sensitivity analysis with Sobol. It could be worth identifying addtional metrics.
+
+
 ### In practice the scripts
 
 To run such a pipeline we define a number of scripts defned in `scripts_sensitivity_analysis`. We have a scripts with all general functions, a script for plotting univariate hill functions. Then, we have a number of functions and associated run scripts, repectively used to define specific metrics to each sensitivity analysis and to execute the said analysis.<br>
