@@ -161,15 +161,16 @@ The agent's position is then updated using the second-order Adam's Bashforth dis
 Phenotype updates, cell cycle progression, death, and movement.
 
 ### PhysiCell in practice
-The architecture of the repository, configuration of a simulation (XML, cell rules CSV, position CSV), user projects and how to use them, and simulation outputs.
 
 I made modifications to the PhysiCell 1.14.2 (see [changes.md](changes.md)) to integrate the PhysiS&S module, prevent crashes at runtime, constrain cell types in the simulated space, and modified XML parsing to facilitate user interaction. I also created a number of custom functions to initialize simulations and to choose the orientation of division. However, **any project working for the published version of PhysiCell 1.14.2 should compile and run in this version as well** and produce the same results.
 
-## Running Epithelium Simulations
 You can look at this presentation, from a 2023 PhysiCell workshop, to understand the structure of the PhysiCell repository, it is up to date with the 1.14.2 version (no major changes): [Working with
 PhysiCell Projects](https://github.com/physicell-training/ws2023/blob/main/sessions/session_01/PhysiCell_ws2023_Session01.pdf)
 
-Moreover, you can look at this file: [Running epithelium simulations](tuto/)
+Moreover, you can look at this file: [Running epithelium simulations](tutorial/epithelium_simulation.md)
+
+## Running Epithelium Simulations
+
 
 ### The different user projects
 
@@ -199,10 +200,22 @@ The method implemented in SaLib is not the original Sobol algorithm published in
 $$ Y=F_{0}+\sum _{i=1}^{d}F_{i}(x_{i})+\sum _{i;j}^{d}F_{ij}(x_{i},x_{j})+\cdots +F_{1,2,\dots ,d}(x_{1},x_{2},\dots ,x_{N}) $$
 From this equation we can derive the variance of the output:
 $$ V(Y) = \sum V_i + \sum _i\sum_{i<j}V_{ij} + \dots + V_{1,2,\dots,N} $$ and also compute the partial variance which for the first order is written as: $$ V_i = V_{x_i}[E_{x_{\sim i}}(x_i)]$$ where $x_{\sim i}$ indicates all the variables except $x_i$.<br>
-This gives as sobol index of the 1st order: $$S_{i}={\frac {V_{i}}{\operatorname {Var} (Y)}}$$ Sobol indices of higher order are of the same form partial variance over global variance. The form of these indices displays the importance of evaluating independent parameters or groups of parameters.  
-### In practice the scripts
+This gives as sobol index of the 1st order: $$S_{i}={\frac {V_{i}}{{Var} (Y)}}$$ Sobol indices of higher order are of the same form partial variance over global variance. The form of these indices displays the importance of evaluating independent parameters or groups of parameters.  
 
 ### Experiments
+We are going to run a number of sensitivity analysis, one per property of the epithelium we aim to recreate:
+  - Permeability: Cells (like immune cells) should be able to move through the different layers of the epithelium without compromising the overall stratification.
+  - Structure: As it grows ( is submitted to other kind of mechanical stimuli), the epithelium should preserve its four distinct layers
+  - Localized division: Division should not occur anywhere in the tissue, they should occur predominantly in the basal layer
+  -Localized death: Death should occur predominantly at the highest position of the epithlium in a shedding process.
+  - Size stability: Balancing of division and death should result in an epithelium of a stable thickness.
+
+To evaluate this different properties, we need to define a number of metrics. Then, we can compute for these metrics the Sobol indices.
+### In practice the scripts
+
+To run such a pipeline we define a number of scripts defned in `scripts_sensitivity_analysis`. We have a scripts with all general functions, a script for plotting univariate hill functions. Then, we have a number of functions and associated run scripts, repectively used to define specific metrics to each sensitivity analysis and to execute the said analysis.<br>
+One sensitivity analysis run can be parallelized. We execute multiple instances of one project for different sets of parameters. This is accomplished with a bash file `launch_run.sh`.
+
 ### Results
 ### Perpectives 
 If Sobol method was chosen as a first approach, because it is commonly used in analysis for GSA in biological models, it could be worth investigating other approaches. If it appears that different methods converge on the identification of the dominant parameters, they differ in their computational cost and quantitative abilities. [Crusenberry citation]
