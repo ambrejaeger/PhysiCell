@@ -119,9 +119,10 @@ Diffusive biotransport occurs at relatively fast time scales (on the order of 0.
 #### Agents mechanics
 
 As defined in PhysiCell and a previous model presenting agent-based cell mechanics , we consider that the unknown cell morphology can be approximated by a spherical cell of equivalent volume. Cells are able to adhere or be repelled by other agents in a radius Ra. Each cell is attributed the position of its center, a velocity and a radius, that can evolve in time. To account for cell deformation, they are able to partially overlap with other agents. The user can set the deformability ability for each cell type. Cells can move at a user defined speed, and the direction of migration depends on chemotactics signals and stochastic brownian movement. Cells’ velocity is modified upon interactions. We consider inertia negligible, as it has been observed experimentally for cells. Hence, we make the assumption:
-$m_i v̇_i ≈ 0 (1)$
 
-Thus, once an agent is no longer subjected to forces, its motion ceases in the order of a timestep.
+$m_{i} \dot v_{i} \approx 0$
+
+Thus, once an agent is no longer subjected to forces, its motion stops in the order of a timestep.
 
 #### How do agents move in time?
 At each timestep, we determine the position of an agent by computing its velocity. To solve for each agent's velocity, we use Newton's second law of motion:
@@ -134,7 +135,7 @@ $m_i * dv_i/dt = Σ(F_{cca}^{ij} + F_{ccr}^{ij}) + F_{loc}^i + F_{drag}^i$
 
 where the first sum represents cell-cell interactions (adhesion and repulsion forces) and the second sum represents cell-fibre interactions.
 
-We take *i* a cell among the *N(t)* agents at time *t*, with a velocity **$v_i$** and a mass $*m_i*$.  $F_{cca}^{ij}$ and **$F_{ccr}^{ij}$** are respectively the force of adhesion and repulsion on *i* exerted by a cell agent *j* in proximity of *i*. For details about cell-cell interactions, we refer you to Macklin & al. DCIS model in which they were defined. **$F_{loc}^i$** corresponds to the motility force of cell's *i*. **$F_{drag}^i$** represents the drag of the microenvironment, that we can describe as **$F_{drag}^i = -ν_iv_i. ν_i$** was not explicitly described in PhysiCell. The user is rather expected to adjust the different cell's mechanic parameter to account for it.
+We take *i* a cell among the *N(t)* agents at time *t*, with a velocity **$v_i$** and a mass $m_i$.  $F_{cca}^{ij}$ and **$F_{ccr}^{ij}$** are respectively the force of adhesion and repulsion on *i* exerted by a cell agent *j* in proximity of *i*. For details about cell-cell interactions, we refer you to Macklin & al. DCIS model in which they were defined. **$F_{loc}^i$** corresponds to the motility force of cell's *i*. **$F_{drag}^i$** represents the drag of the microenvironment, that we can describe as **$F_{drag}^i = -ν_iv_i. ν_i$** was not explicitly described in PhysiCell. The user is rather expected to adjust the different cell's mechanic parameter to account for it.
 
 Given the equations above and the inertialess assumption, we obtain:
 
@@ -197,7 +198,7 @@ The method implemented in SaLib is not the original Sobol algorithm published in
 1. We define a space of inputs, parameters or group of parameters and their bounds. We consider the model as a black box, written above as the function F, therefore GSA works with any form model from ODE to ABM.
 2. Then a quasi-random sampling method is used to obtain an independent uniformly distributed set of inputs within the hypercube. This enables us to write the model output as:
 
-$$Y = F_0 + \sum_{i=1}^{d} F_i(x_i) + \sum_{i<j}^{d} F_{ij}(x_i, x_j) + \cdots + F_{1,2,\dots,d}(x_1, x_2, \dots, x_N)$$
+$$ Y = F_{0} + \sum_{i=1}^{d}F_{i}(x_{i}) + \sum_{i<j}^{d}F_{ij}(x_{i}, x_{j}) + \cdots + F_{1,2,\dots,d}(x_{1}, x_{2}, \dots , x_{N}) $$
 
 From this equation we can derive the variance of the output:
 
