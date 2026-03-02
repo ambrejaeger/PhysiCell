@@ -55,37 +55,23 @@ The oral epithelium is complex stratified tissue formed of multiple layers of di
 ![Schematic representation of the oral epithelium](figures/epi_schema.png) *Shematic representation of oral mucose structure from Int. J. Mol. Sci. 2021, 22, 7821. [https://doi.org/10.3390/ijms22157821](https://doi.org/10.3390/ijms22157821)*
 
 ### Structure and composition
-In keratinized oral mucosa, the epithelium stratifies into four layers (stratum basale, stratum spinosum, stratum granulosum, and stratum corneum), while on the other hand, it consists of three layers (stratum basale, stratum filamentosum, and stratum distendum) in non-keratinized tissue. (Mu, 2024). In this model, we will focus on non-keratinized epithelhium. Moreover, we will focus on a simplified model of this epithelium. We will consider 2 layers in the epithelium (2 cells type) rather than 3, dividing epithelium basal cell and differentiated epithelium cells. It is also important to not that we will not take into account morphological deformations of cells that elongates as they differentiate. Indeed, PhysiCell only allows for spherical cell agents. This difference in morphology will certainly affect the dynamics of homeostasis, however we assume this difference should not prevent the emergence of homeostasis and robustness under similar cues. 
+In keratinized oral mucosa, the epithelium stratifies into four layers (stratum basale, stratum spinosum, stratum granulosum, and stratum corneum), while on the other hand, it consists of three layers (stratum basale, stratum filamentosum, and stratum distendum) in non-keratinized tissue. (Mu, 2024). In this model, we will focus on non-keratinized epithelhium. Moreover, we will focus on a simplified model of this epithelium. We will consider 2 layers in the epithelium (2 cells type) rather than 3, dividing epithelium basal cell and differentiated epithelium cells. It is also important to note that we will not take into account morphological deformations of cells that elongates as they differentiate. Indeed, PhysiCell only allows for spherical cell agents. This difference in morphology will certainly affect the dynamics of homeostasis, however we assume this difference should not prevent the emergence of homeostasis and robustness under similar cues.<br>
+Underneath the epithelium, there is a layer of connective tissue called the lamina propria composed of blood vessels, nerves, fibroblasts, macrophages, mast cells, and inflammatory cells fibers all immersed in an amorphous substance formed by proteoglycans and glycoproteins.[citation Brizuela] We can distinguish two layers in the connective tissue. On the top we find thin collangen fiber irregularly oriented, connecting with th eepithelium. Below, we find thicker collagen fiber oriented parallel to the surface.[citation Brizuela]<br>
 
-### Properties
-(Describe physical, mechanical and biochemical properties here.)
+### Key Mechanisms in Epithelium Homeostasis
 
-## Key Mechanisms in Epithelium Homeostasis
+The oral epithelial cells are frequently replaced by cell division, around each 14 to 21 days. This is because the oral cavity is constantly exposed to high functional demands, which necessitate frequent turnover. The replenishment process starts in the basal layer and then a differentiation and migration process. Proliferation drives the delamination of nearby cells through a density dependent mechanisms. This coordination of behaviors is thought to maintain stem cell numbers and local density over time, allowing constitutive stem cell divisions to be compensated by the later exit of neighboring cells via delamination.[mesa citation] Tissue homeostasis requires differentiation and desquamation at the epithelial surface to be matched by cell division. Many factors, including aging and disease, can alter this balance so that an epithelium may become thicker (hyperplastic) or thinner (atrophic) than normal.[squier citation]
 
-### Division model
-To maintain a constant number of proliferating cells, on average each cell division must generate one daughter that will go on to divide and one that will differentiate after first exiting the cell cycle. However, the nature  of the dividing cell population was subjected to controversy:
-
+#### Division and differentiation
+To maintain a constant number of proliferating cells, on average each cell division must generate one daughter that will go on to divide and one that will differentiate after first exiting the cell cycle. However, the nature  of the dividing cell population was subjected to controversy.
 Lineage tracing has ruled out older deterministic models of a proliferative hierarchy of asymmetrically dividing stem cells generating ‘transit amplifying’ cells that undergo a fixed number of divisions prior to differentiation.
+Tracking of labeled cells in transgenic mice revealed that the most likely division model was the **single progenitor division hypothesis**: All dividing keratinocytes are functionally equivalent and generate dividing and differentiating daughters with equal probability.<br>
 
-Tracking of labeled cells in transgenic mice revealed that the most likely division model was the **single progenitor division hypothesis**: 
+Additionally, **the orientation of these divisions are not random, they occur predominantly in the basal layer**. Cells that exits the basal layer eventually differentiate. This stratification occurs trough a mechanical process, cells are squizzed out from the basal layer due to other division occuring in the basal layer. The switch between division and differentiation is modulated by the presence of multiple factors, such as extracellular calcium[squier citation]. Cells in the basal layer are attached by integrin-containing focal adhesions, and differentiation involves migration with a loss of integrin expression and an increase in cadherin-mediated adhesion via close intercellular junctions or desmosomes. **Therefore, here we assume that stratification is the main driver of differentiation,** even though basal layer cell can differentiate at a fixed rate.
 
-All dividing keratinocytes are functionally equivalent and generate dividing and differentiating daughters with equal probability
-
-Additionally, **the orientation of these divisions are not random, they occur predominantly in the basal layer**. Cells that exits the basal layer eventually differentiate. This stratification occurs trough a mechanical process, cells are squizzed out from the basal layer due to other division occuring in the basal layer. **Therefore, here we assume that stratification is the main driver of differentiation,** even though basal layer cell can differentiate at a fixed rate**.**
-
-### Treadmill Movement
-The effect of crowding, hence the need for an ABM which models mechanical interactions.
-
-### Differentiation
-Uncertain mechanisms; the important gradient; phenotypic modifications of cells as they migrate upward; the role of cell-cell and cell-matrix adhesion in stemness and differentiation.
-
-### Death Regulation
-We assume that cell death occurs predominantly through **anoikis, and apoptosis**:
-
-Anoikis = upon cell detachment of the ECM, in our model the other cells and the tissue it self, cell can die
-
-Additionally, epithelium cell can undergo apoptosis. 
-
+#### Death Regulation
+We assume that cell death occurs predominantly through **anoikis, and apoptosis**. Anoikis is a subset of apoptosis triggered by inadequate or inappropriate cell–matrix contacts. It maintains the correct cell number of high-turnover epithelial tissues. [Frisch citation]The cell–ECM and cell–cell adhesion is mediated by cell surface adhesion molecules. Integrins are major adhesion molecules that mediate cell–ECM contact. These molecules can sense the mechanical forces arising from ECM and convert the stimuli to downstream signals modulating cell viability. Furthermore, integrins regulate the activity of many growth factor receptors (GFR). On the other hand, GFR
+engagement also cross-talk with the integrin-activated survival signaling. Cooperative function between integrins and GFR is believed to be necessary for proper cell survival and tissue homeostasis [1]. In the absence of attachment to ECM, cells undergo an intrinsically programmed cell death.[zhong citation]
 Moreover, the number of cell in the epithelium is regulated through differentiation signal, differentiated cells favor stem cell differentiation, therefore in absence of a sufficient number of differentiated cells, division of basal cell will be favored.
 
 ## PhysiCell Overview
@@ -124,7 +110,6 @@ Diffusive biotransport occurs at relatively fast time scales (on the order of 0.
 ### Agents and Interactions
 
 #### More details about PhysiCell agents
-Definition of an agent in PhysiCell: state, phenotype, internal variables, and behaviors.
 <p align="center">
   <img src="figures/cell_rules_1.png" alt="Agent in PhysiCell" style="width:50%;" />
 </p>
@@ -171,11 +156,25 @@ Moreover, you can look at this file: [Running epithelium simulations](tutorial/e
 
 ## Running Epithelium Simulations
 
-
 ### The different user projects
+User projects store different configurations. The cell types and the environment remain the cell but the cells position, the cell rule files and some parameters differ. Fpr every case, we model four different types of agent:
+- conjonctif: These represent the connective tisue below the epithelium.
+- membrane: These represent the top layer of the connective tissue below the epthelium. It is primarly composed of collagen fibers.
+- epi_basal: These are the epithelium stem cell. They are attached to the agents representing the basement membrane, they are the only cells dividing. Divisions occur preferentially parallel to the basement mebrane.
+- epi_inter: These represent the differentiated cells, they lose there ability to divide. They can undergo apoptosis. 
+
+Additionally, whe have a div_inhib substrate that can be secreted by the epi_inter cells.<br>
+
+test_start_and_stop models a growing epithelium, permeability only the membrane agents. Tthe other projects simulate full epithelium, with a setting file to generate a four layer epithelium and save the data when the epithelium reaches the desired size and an other setting file to run the simulation from he saved data.
+
 
 ### Analysing simulations
 ![Pipeline Scheme](figures/scheme_pipe.png)
+
+### In practice the scripts
+
+To run such a pipeline we define a number of scripts defned in `scripts_sensitivity_analysis`. We have a script with all general functions, a script for plotting univariate hill functions. Then, we have a number of functions and associated run scripts, repectively used to define specific metrics to each sensitivity analysis and to execute the said analysis.<br>
+One sensitivity analysis run can be parallelized. We execute multiple instances of one project for different sets of parameters. This is accomplished with a bash file `launch_run.sh`. This bash file enable to run different instances of the same exe file usingonly one PhysiCell repository. It workks by copying files that will be modified in temporary folders and then regrouping the results in one output folder.
 
 ## Sensitivity Analysis
 For one simulation in PhysiCell, more than one hundred parameters needs to be set. The number of parameters directly depends from the complexity of the model, specifically the number of cell types. Here we will focus on only 4 cell types, which corresponds to about 120 parameters. For each parameter, we use at start default PhysiCell values, those are set from litterature or from experiments with PhysiCell. We therefore need to drastically reduce model dimensionality to be able to explore parameter space and establish conditions of healthy epithelium stability. To do so, we will perform Global Sensitivity Analysis (GSA). We establish a pipeline following the above scheme for sensitivity analysis. Sensitivity analysis is “the study of how the uncertainty in the output of a mathematical model or system (numerical or otherwise) can be apportioned to
@@ -196,7 +195,7 @@ Along with each indices, ST, S1, and S2 we have a corresponding confidence inter
 ![Schematic Representation of the Sobol Method](figures/sobol_schema.png) (Schematic representation from [Weerasinghe] ).
 The method implemented in SaLib is not the original Sobol algorithm published in 1990 [Sobol Citation] but rather an improved more recent version of the algorithm (Saltelli 2010)
 1. We define a space of inputs, parameters or group of parameters and their bounds. We consider the model as a black box, written above as the function F, therefore GSA works with any form model from ODE to ABM.
-2. This is rendering correctly in VS Code but not in GitHub. Why? Then a quasi-random sampling method is used to obtain an independent uniformly distributed set of inputs within the hypercube. This enables us to write the model output as:
+2. Then a quasi-random sampling method is used to obtain an independent uniformly distributed set of inputs within the hypercube. This enables us to write the model output as:
 
 $$Y = F_0 + \sum_{i=1}^{d} F_i(x_i) + \sum_{i<j}^{d} F_{ij}(x_i, x_j) + \cdots + F_{1,2,\dots,d}(x_1, x_2, \dots, x_N)$$
 
@@ -231,70 +230,339 @@ To evaluate these different properties, we need to define a number of metrics. T
    - Basal Cell positions: Basal cells are expected to be in the neighborhood of membrane cells
 
 Those metrics return boolean value. They are evaluated in growing epithelium. Division exhert forces on the surrounding cells which lead to loss of stratification.
-
 - Permeability:
   - Speed of crossing: The time a cell attracted to a chemotactic signal takes to cross the basemement membrane.
-
+The structure metrics also need to be computed. Permeability is not relevant in a non-stratified tissue
 - Localized division: 
   - Position of the division events
-
 - Localized death:
   - Median position of cell death events
   - Number of apoptosis events
-
 - Stability:
   - Cells count
   - Thickness of the epithelium when simulation ends
   - Mean growth rate
 
-The structure metrics also need to be computed. Permeability doesn't is not relevant in a non-stratified tissue.
-
-
-   
-   
 Metrics returning boolean values are not ideal for sensitivity analysis with Sobol. It could be worth identifying addtional metrics.
 
+We won't run sobol analysis on all possible parameter. For each epithelium property, we use information from the litterature to choose a set of potentially relevant parameters. A file summarizing all the parameters tested, their bounds can be found [here](scripts_sensibility_analysis/parameters_output_description.md).
 
-### In practice the scripts
+#### For structure: 
+We ran one set of seven parameters. From litterature [citation], we expect adhesion structure between the different cell types to be essential in stratification maintenance. We evaluate the importance of **cell adhesion affinities** between the different cell types. As described in the supplemental information of the PhysiCell artcle [citation PhysiCell], cell-cell adhesive forces are described as:
+$$F^{ij}_{cca} = −C_{cca}A_iA_j \nabla \phi_{n_{cca},R_{i,A}+R_{j,A}} (x_j − x_i)$$
+where $\phi _{n,R_a}(r)$ is a potential function for adhesive interactions dependant of distance between cells, $R_a$ is the maximum adhesion distance
+Cell adhesion affinity is used to compute the effective adhesion coefficient. It controls how much cells forming an adhesion stay close to one an other.  Moreover, it controls the probability of attachment of cells.For each cell $j$ in the neighbors list, it forms an attachment with probability: 
+  
+$$\textrm{Prob attach } i \textrm{ to cell } j = \textrm{adhesion affinity}_j \cdot \textrm{attachment rate}_i \cdot \Delta t$$
+    
+The attachment is only formed if both cell $i$ and $j$ have not exceeded their maximum number of attachments.
 
-To run such a pipeline we define a number of scripts defned in `scripts_sensitivity_analysis`. We have a scripts with all general functions, a script for plotting univariate hill functions. Then, we have a number of functions and associated run scripts, repectively used to define specific metrics to each sensitivity analysis and to execute the said analysis.<br>
-One sensitivity analysis run can be parallelized. We execute multiple instances of one project for different sets of parameters. This is accomplished with a bash file `launch_run.sh`.
+We fix the other adhesion parameters, such as maximum adhesive interaction distance, adhesion strength.
 
-### Results
+We evaluate these parameters in a growing epithelium:
+<p style="display:flex; gap:2%; align-items:flex-start;">
+  <img src="figures/loss_integrity.gif" alt="Loss integrity gif" style="width:30%; height:auto;" />
+  <img src="figures/integrity.gif" alt="Integrity preserved gif" style="width:30%; height:auto;" />
+</p>
+
+We need to simulate a growing epithlium that keeps its layers, so that we can generate a stable epithlium to start simulation from. We use as a metric the number of membrane breaks, a break event corresponds to a loss of neighborhood for a membrane cell.<br>
+**Results:**<br>
+
+**Total-order indices (ST)**
+
+| Parameter | ST | ST_conf |
+|---|---:|---:|
+| adhesion affinity epi_basal epi_basal | 0.053483 | 0.043232 |
+| adhesion affinity epi_basal epi_inter | 0.043062 | 0.028244 |
+| adhesion affinity epi_inter epi_basal | 0.043012 | 0.025796 |
+| adhesion affinity epi_basal membrane | 0.172296 | 0.109545 |
+| adhesion affinity membrane epi_basal | 0.153518 | 0.080007 |
+| adhesion affinity membrane membrane | 0.740994 | 0.279493 |
+| adhesion affinity membrane conjonctif | 0.094185 | 0.059679 |
+| adhesion affinity conjonctif membrane | 0.095021 | 0.051743 |
+
+**First-order indices (S1)**
+
+| Parameter | S1 | S1_conf |
+|---|---:|---:|
+| adhesion affinity epi_basal epi_basal | 0.024983 | 0.045464 |
+| adhesion affinity epi_basal epi_inter | -0.026464 | 0.026157 |
+| adhesion affinity epi_inter epi_basal | -0.021823 | 0.032449 |
+| adhesion affinity epi_basal membrane | 0.037489 | 0.058834 |
+| adhesion affinity membrane epi_basal | -0.007186 | 0.058452 |
+| adhesion affinity membrane membrane | 0.585717 | 0.224913 |
+| adhesion affinity membrane conjonctif | 0.031189 | 0.054848 |
+| adhesion affinity conjonctif membrane | 0.062607 | 0.051264 |
+
+**Second-order indices (S2):**
+
+| Parameter pair | S2 | S2_conf |
+|---|---:|---:|
+| (adhesion affinity epi_basal epi_basal, adhesion affinity epi_basal epi_inter) | 0.026376 | 0.045729 |
+| (adhesion affinity epi_basal epi_basal, adhesion affinity epi_inter epi_basal) | 0.038370 | 0.052539 |
+| (adhesion affinity epi_basal epi_basal, adhesion affinity epi_basal membrane) | 0.034536 | 0.053524 |
+| (adhesion affinity epi_basal epi_basal, adhesion affinity membrane epi_basal) | 0.021657 | 0.054782 |
+| (adhesion affinity epi_basal epi_basal, adhesion affinity membrane membrane) | -0.062009 | 0.076652 |
+| (adhesion affinity epi_basal epi_basal, adhesion affinity membrane conjonctif) | 0.013398 | 0.051786 |
+| (adhesion affinity epi_basal epi_basal, adhesion affinity conjonctif membrane) | 0.010449 | 0.053976 |
+| (adhesion affinity epi_basal epi_inter, adhesion affinity epi_inter epi_basal) | 0.045803 | 0.049770 |
+| (adhesion affinity epi_basal epi_inter, adhesion affinity epi_basal membrane) | 0.040690 | 0.057924 |
+| (adhesion affinity epi_basal epi_inter, adhesion affinity membrane epi_basal) | 0.043837 | 0.048685 |
+| (adhesion affinity epi_basal epi_inter, adhesion affinity membrane membrane) | 0.020143 | 0.086420 |
+| (adhesion affinity epi_basal epi_inter, adhesion affinity membrane conjonctif) | 0.031252 | 0.048591 |
+| (adhesion affinity epi_basal epi_inter, adhesion affinity conjonctif membrane) | 0.030662 | 0.054175 |
+| (adhesion affinity epi_inter epi_basal, adhesion affinity epi_basal membrane) | 0.044334 | 0.050421 |
+| (adhesion affinity epi_inter epi_basal, adhesion affinity membrane epi_basal) | 0.054166 | 0.065728 |
+| ( adhesion affinity epi_inter epi_basal,  adhesion affinity membrane membrane) | -0.004233 | 0.084227 |
+| ( adhesion affinity epi_inter epi_basal,  adhesion affinity membrane conjonctif) | 0.040303 | 0.050912 |
+| ( adhesion affinity epi_inter epi_basal,  adhesion affinity conjonctif membrane) | 0.054067 | 0.059146 |
+| ( adhesion affinity epi_basal membrane,  adhesion affinity membrane epi_basal) | 0.018064 | 0.106036 |
+| ( adhesion affinity epi_basal membrane,  adhesion affinity membrane membrane) | 0.001941 | 0.140764 |
+| ( adhesion affinity epi_basal membrane,  adhesion affinity membrane conjonctif) | -0.005040 | 0.100469 |
+| ( adhesion affinity epi_basal membrane,  adhesion affinity conjonctif membrane) | -0.006023 | 0.102180 |
+| ( adhesion affinity membrane epi_basal,  adhesion affinity membrane membrane) | 0.235555 | 0.331385 |
+| ( adhesion affinity membrane epi_basal,  adhesion affinity membrane conjonctif) | 0.116889 | 0.158891 |
+| ( adhesion affinity membrane epi_basal,  adhesion affinity conjonctif membrane) | 0.143828 | 0.197991 |
+| ( adhesion affinity membrane membrane,  adhesion affinity membrane conjonctif) | 0.139392 | 0.403463 |
+| ( adhesion affinity membrane membrane,  adhesion affinity conjonctif membrane) | 0.067131 | 0.408451 |
+| ( adhesion affinity membrane conjonctif,  adhesion affinity conjonctif membrane) | -0.031389 | 0.086157 |
+
+**Adhesion affinity between membrane cells is the most dominant parameter for layer maintenance.**
+
+#### For permeability:
+We look at the movement of a cell attracted by a chemotactic signal through the membrane alone. We evaluate membrane cell adhesion affinity, attracted cell adhesion affinity, migration bias and attracted cell's volume.
+
+<p style="display:flex; gap:2%; align-items:flex-start;">
+  <img src="figures/no_crossing.gif" alt="No crossing gif" style="width:30%; height:auto;" />
+  <img src="figures/crossing.gif" alt="Crossing gif" style="width:30%; height:auto;" />
+</p>
+
+**Total-order indices (ST):**
+
+| Parameter | ST | ST_conf |
+|---|---:|---:|
+| adhesion_affinity membrane membrane | 0.312576 | 0.117755 |
+| adhesion_affinity membrane attracted | 0.250061 | 0.109815 |
+| adhesion_affinity attracted membrane | 0.375092 | 0.120881 |
+| migration_bias attracted | 0.922100 | 0.166867 |
+| volume total attracted | 0.328205 | 0.128530 |
+
+**First-order indices (S1):**
+
+| Parameter | S1 | S1_conf |
+|---|---:|---:|
+| adhesion_affinity membrane membrane | -0.036142 | 0.151516 |
+| adhesion_affinity membrane attracted | -0.043468 | 0.131743 |
+| adhesion_affinity attracted membrane | -0.038584 | 0.154831 |
+| migration_bias attracted | 0.798291 | 0.187767 |
+| volume total attracted | -0.024176 | 0.142589 |
+
+**Second-order indices (S2):**
+
+| Parameter pair | S2 | S2_conf |
+|---|---:|---:|
+| (membrane membrane, membrane attracted) | 0.103297 | 0.196148 |
+| (membrane membrane, attracted membrane) | 0.103297 | 0.194847 |
+| (membrane membrane, migration_bias attracted) | -0.084249 | 0.184272 |
+| (membrane membrane, volume total attracted) | 0.072039 | 0.198889 |
+| (membrane attracted, attracted membrane) | 0.072283 | 0.198822 |
+| (membrane attracted, migration_bias attracted) | -0.115263 | 0.196659 |
+| (membrane attracted, volume total attracted) | 0.072283 | 0.179976 |
+| (attracted membrane, migration_bias attracted) | -0.136996 | 0.191302 |
+| (attracte membrane, volume total attracted) | 0.113065 | 0.190951 |
+| (migration_bias attracted, volume total attracted) | -0.026618 | 0.221700 |
+
+The only parameter which seem to have an influence is the migration bias. Mechanical properties don't come into play and hinder the attracted cells movement when considering only the membrane. This is because cells are in "the void" per say. There is no drag exherted by the environment only by the other cells.
+
+**We do the same in a complete epithelium**. We look therefore at more adhesion affinities parameter, volume and speed of the migrating cell, and additionally repulsion strength coefficient, and attachment rate.
+We define groups for the equivalent parameters:
+
+- Group_m1: adhesion_affinity membrane membrane" 
+- Group_m2: adhesion affinity membrane attracted, adhesion affinity attracted membrane
+- Group_m3: adhesion_affinity membrane conjonctif, adhesion_affinity conjonctif membrane
+- Group_c1: adhesion_affinity conjonctif conjonctif
+- Group_sattr: speed attracted
+- Group_vattr: volume total attracted
+- Group_m_att: attachment_rate membrane
+- Group_c_att: attachment_rate conjonctif
+- Group_at_rep: cell_cell_repulsion_strength attracted 
+- Group_m_rep: cell_cell_repulsion_strength membrane
+
+**Total-order indices (ST):**
+
+| Parameter | ST | ST_conf |
+|---|---:|---:|
+| Group_m1 | 0.921811 | 0.325106 |
+| Group_m2 | 0.638683 | 0.217890 |
+| Group_m3 | 0.928395 | 0.388862 |
+| Group_c1 | 0.974486 | 0.298880 |
+| Group_sattr | 1.060082 | 0.520448 |
+| Group_vattr | 0.651852 | 0.274817 |
+| Group_m_att | 0.941564 | 0.359918 |
+| Group_c_att | 0.783539 | 0.294527 |
+| Group_at_rep | 0.671605 | 0.392607 |
+| Group_m_rep | 0.816461 | 0.211981 |
+
+**First-order indices (S1):**
+
+| Parameter | S1 | S1_conf |
+|---|---:|---:|
+| Group_m1 | 0.018201 | 0.069454 |
+| Group_m2 | 0.049677 | 0.048739 |
+| Group_m3 | 0.098284 | 0.134930 |
+| Group_c1 | 0.060812 | 0.134495 |
+| Group_sattr | -0.060704 | 0.286030 |
+| Group_vattr | 0.020235 | 0.044743 |
+| Group_m_att | 0.050641 | 0.073517 |
+| Group_c_att | 0.019271 | 0.050406 |
+| Group_at_rep | 0.022269 | 0.079479 |
+| Group_m_rep | 0.059848 | 0.070277 |
+
+**Second-order indices (S2):**
+
+| Parameter pair | S2 | S2_conf |
+|---|---:|---:|
+| (Group_m1, Group_m2) | -0.073981 | 0.094013 |
+| (Group_m1, Group_m3) | -0.021306 | 0.091544 |
+| (Group_m1, Group_c1) | -0.060812 | 0.117922 |
+| (Group_m1, Group_sattr) | -0.021306 | 0.194771 |
+| (Group_m1, Group_vattr) | -0.047643 | 0.089879 |
+| (Group_m1, Group_m_att) | -0.060812 | 0.107161 |
+| (Group_m1, Group_c_att) | -0.034474 | 0.084447 |
+| (Group_m1, Group_at_rep) | -0.021306 | 0.138918 |
+| (Group_m1, Group_m_rep) | -0.073981 | 0.088766 |
+| (Group_m2, Group_m3) | -0.060812 | 0.079232 |
+| (Group_m2, Group_c1) | 0.031369 | 0.212730 |
+| (Group_m2, Group_sattr) | -0.060812 | 0.104622 |
+| (Group_m2, Group_vattr) | -0.034474 | 0.093946 |
+| (Group_m2, Group_m_att) | -0.087149 | 0.101227 |
+| (Group_m2, Group_c_att) | -0.008137 | 0.133139 |
+| (Group_m2, Group_at_rep) | -0.073981 | 0.083105 |
+| (Group_m2, Group_m_rep) | -0.047643 | 0.082777 |
+| (Group_m3, Group_c1) | -0.064988 | 0.238622 |
+| (Group_m3, Group_sattr) | 0.264230 | 0.374499 |
+| (Group_m3, Group_vattr) | -0.012313 | 0.153667 |
+| (Group_m3, Group_m_att) | -0.078157 | 0.125413 |
+| (Group_m3, Group_c_att) | 0.027193 | 0.187336 |
+| (Group_m3, Group_at_rep) | -0.038650 | 0.169929 |
+| (Group_m3, Group_m_rep) | -0.091325 | 0.169122 |
+| (Group_c1, Group_sattr) | 0.078905 | 0.363409 |
+| (Group_c1, Group_vattr) | -0.000108 | 0.112562 |
+| (Group_c1, Group_m_att) | 0.013061 | 0.125262 |
+| (Group_c1, Group_c_att) | 0.065736 | 0.168625 |
+| (Group_c1, Group_at_rep) | 0.052567 | 0.189132 |
+| (Group_c1, Group_m_rep) | -0.052782 | 0.122943 |
+| (Group_sattr, Group_vattr) | 0.280504 | 0.381323 |
+| (Group_sattr, Group_m_att) | 0.267335 | 0.451056 |
+| (Group_sattr, Group_c_att) | 0.267335 | 0.363536 |
+| (Group_sattr, Group_at_rep) | 0.333179 | 0.434566 |
+| (Group_sattr, Group_m_rep) | 0.254167 | 0.347841 |
+| (Group_vattr, Group_m_att) | 0.058670 | 0.189983 |
+| (Group_vattr, Group_c_att) | 0.005995 | 0.175915 |
+| (Group_vattr, Group_at_rep) | -0.033511 | 0.111973 |
+| (Group_vattr, Group_m_rep) | -0.046680 | 0.113257 |
+| (Group_m_att, Group_c_att) | -0.044753 | 0.139299 |
+| (Group_m_att, Group_at_rep) | -0.031584 | 0.201606 |
+| (Group_m_att, Group_m_rep) | -0.044753 | 0.139299 |
+| (Group_c_att, Group_at_rep) | 0.011027 | 0.104925 |
+| (Group_c_att, Group_m_rep) | -0.028479 | 0.089803 |
+| (Group_at_rep, Group_m_rep) | -0.042611 | 0.104401 |
+
+#### For growth evaluation:
+We want to evaluate how the substrate div_inhib secreted by the epi_inter cells control the growth rate of the epithelium. We look at the property of div_inhib and its secretion.
+
+**Total-order indices (ST):**
+
+| Parameter | ST | ST_conf |
+|---|---:|---:|
+| secretion_rate epi_inter div_inhib | 0.989686 | 1.123561 |
+| diffusion_coefficient div_inhib | 0.531357 | 0.828716 |
+| decay_rate div_inhib | 0.727531 | 1.091096 |
+
+**First-order indices (S1):**
+
+| Parameter | S1 | S1_conf |
+|---|---:|---:|
+| secretion_rate;epi_inter div_inhib | 0.475714 | 0.772000 |
+| diffusion_coefficient div_inhib | -0.000118 | 0.049567 |
+| decay_rate div_inhib | -0.051153 | 0.145835 |
+
+**Second-order indices (S2):**
+
+| Parameter pair | S2 | S2_conf |
+|---|---:|---:|
+| (secretion_rate epi_inter div_inhib, diffusion_coefficient div_inhib) | -0.522589 | 0.753387 |
+| (secretion_rate epi_inter div_inhib, decay_rate div_inhib) | -0.442425 | 0.793593 |
+| (diffusion_coefficient div_inhib, decay_rate div_inhib) | 0.101211 | 0.306338 |
+
+It appears that the secretion rate of div_inhib migth be the most relevant parameters to growth control. We additionaly analyse the rule controlling the effect of div_inhib on the division rate of the epi basal cell.
+The parameter (cell_rules;1;5) corresponds to the base value of the hill function that describes how div_inhib decrease epi_basal cell division rate. 
+
+**Total-order indices (ST):**
+
+| Parameter | ST | ST_conf |
+|---|---:|---:|
+| secretion_rat epi_inter div_inhib | 0.005418582 | 0.009935 |
+| diffusion_coefficient div_inhib | 0.00006502501 | 0.000148 |
+| decay_rate div_inhib | 0.0000005238454 | 0.000001 |
+| cell_rules;1;5 | 0.8973821 | 0.200514 |
+
+**First-order indices (S1):**
+
+| Parameter | S1 | S1_conf |
+|---|---:|---:|
+| secretion_rate epi_inter div_inhib | 0.003938 | 0.009427 |
+| diffusion_coefficient div_inhib | 0.000420 | 0.000960 |
+| decay_rate div_inhib | -0.000038 | 0.000086 |
+| cell_rules;1;5 | 0.903839 | 0.395694 |
+
+**Second-order indices (S2):**
+
+| Parameter pair | S2 | S2_conf |
+|---|---:|---:|
+| (secretion_rate epi_inter div_inhib, diffusion_coefficient div_inhib) | 0.000075 | 0.007935 |
+| (secretion_rate epi_inter div_inhib, decay_rate div_inhib) | 0.000075 | 0.007935 |
+| (secretion_rate epi_inter div_inhib, cell_rules;1;5) | -0.002563 | 0.009682 |
+| (diffusion_coefficient div_inhib, decay_rate div_inhib) | -0.000420 | 0.000960 |
+| (diffusion_coefficient div_inhib, cell_rules;1;5) | -0.000420 | 0.000960 |
+| (decay_rate div_inhib, cell_rules;1;5) | 0.000038 | 0.000086 |
+
+#### For apoptsis evaluation:
+
+We evaluate the effect of the rule controlling the death rate in function of the number of attachment on the median position of apoptosis. 
+
+**Total-order indices (ST):**
+
+| Parameter | ST | ST_conf |
+|---|---:|---:|
+| death_rate epi_inter | 0.400636 | 0.213056 |
+| cell_rule;2;5 | 0.937232 | 0.469965 |
+| cell_rule;2;6 | 0.729218 | 0.349677 |
+
+**First-order indices (S1):**
+
+| Parameter | S1 | S1_conf |
+|---|---:|---:|
+| death_rate epi_inter | -0.004370 | 0.203810 |
+| cell_rule;2;5 | 0.050811 | 0.354527 |
+| cell_rule;2;6 | 0.244015 | 0.258628 |
+
+**Second-order indices (S2):**
+
+| Parameter pair | S2 | S2_conf |
+|---|---:|---:|
+| (death_rate epi_inter, cell_rule;2;5) | -0.081238 | 0.383975 |
+| (death_rate epi_inter, cell_rule;2;6) | -0.261255 | 0.296031 |
+| (cell_rule;2;5, cell_rule;2;6) | -0.395250 | 0.589492 |
+
+It is not possible to draw conclusion from the sensitivity analysis. We should consider the three as relevant in the position of death events.
+
+
 ### Perpectives 
 If Sobol method was chosen as a first approach, because it is commonly used in analysis for GSA in biological models, it could be worth investigating other approaches. If it appears that different methods converge on the identification of the dominant parameters, they differ in their computational cost and quantitative abilities. [Crusenberry citation]
 For our simulations, we are limited by computational time. Simulation runtime are in the order of the minutes to the tens of minutes. Thus, depending on the number of parameters evaluated it can take tens of hours to run all the simulations necessary to compute sobol output. Even then, we can get very poor confidence interval, making it impossible to draw definite conclusion on the most dominant parameter and not allowing any interpretation of the 2nd order indices. **There might be GSA methods requiring less runs to obtain better first order results.**
 
-## Parametrization
-### Gradient Descent
-PhysiCOOL Package
-What is a gradient descent
-The workflow
-The output
-Modification necessary to the current relesed version
-Modification that are done
-What is left to do
 
-### Bayesian Optimization
-What is it?
-Why do we need it ?
-No data? No Problem (for now)
-UQPhysiCell: take the time to make it work and developp new features is 
-worth the time as it is still being developped and maintained
-
-What we can reuse ?
-Necessary development missing in the current version:
-
-
-## Perspectives
-### Implementing Lineage Tracing
-What is lineage tracing
-How to proceed
-How to compare to literature data
-### Implementing Dilution Experiments
-What is a dilution experiment 
-How to proceed
-How to compare to literature data
 
 ## Bibliography
 
