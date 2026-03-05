@@ -119,10 +119,9 @@ Diffusive biotransport occurs at relatively fast time scales (on the order of 0.
 #### Agents mechanics
 
 As defined in PhysiCell and a previous model presenting agent-based cell mechanics , we consider that the unknown cell morphology can be approximated by a spherical cell of equivalent volume. Cells are able to adhere or be repelled by other agents in a radius Ra. Each cell is attributed the position of its center, a velocity and a radius, that can evolve in time. To account for cell deformation, they are able to partially overlap with other agents. The user can set the deformability ability for each cell type. Cells can move at a user defined speed, and the direction of migration depends on chemotactics signals and stochastic brownian movement. Cells’ velocity is modified upon interactions. We consider inertia negligible, as it has been observed experimentally for cells. Hence, we make the assumption:
+$m_i v̇_i ≈ 0 (1)$
 
-$m_{i} \dot v_{i} \approx 0$
-
-Thus, once an agent is no longer subjected to forces, its motion stops in the order of a timestep.
+Thus, once an agent is no longer subjected to forces, its motion ceases in the order of a timestep.
 
 #### How do agents move in time?
 At each timestep, we determine the position of an agent by computing its velocity. To solve for each agent's velocity, we use Newton's second law of motion:
@@ -135,7 +134,7 @@ $m_i * dv_i/dt = Σ(F_{cca}^{ij} + F_{ccr}^{ij}) + F_{loc}^i + F_{drag}^i$
 
 where the first sum represents cell-cell interactions (adhesion and repulsion forces) and the second sum represents cell-fibre interactions.
 
-We take *i* a cell among the *N(t)* agents at time *t*, with a velocity **$v_i$** and a mass $m_i$.  $F_{cca}^{ij}$ and **$F_{ccr}^{ij}$** are respectively the force of adhesion and repulsion on *i* exerted by a cell agent *j* in proximity of *i*. For details about cell-cell interactions, we refer you to Macklin & al. DCIS model in which they were defined. **$F_{loc}^i$** corresponds to the motility force of cell's *i*. **$F_{drag}^i$** represents the drag of the microenvironment, that we can describe as **$F_{drag}^i = -ν_iv_i. ν_i$** was not explicitly described in PhysiCell. The user is rather expected to adjust the different cell's mechanic parameter to account for it.
+We take *i* a cell among the *N(t)* agents at time *t*, with a velocity **$v_i$** and a mass $*m_i*$.  $F_{cca}^{ij}$ and **$F_{ccr}^{ij}$** are respectively the force of adhesion and repulsion on *i* exerted by a cell agent *j* in proximity of *i*. For details about cell-cell interactions, we refer you to Macklin & al. DCIS model in which they were defined. **$F_{loc}^i$** corresponds to the motility force of cell's *i*. **$F_{drag}^i$** represents the drag of the microenvironment, that we can describe as **$F_{drag}^i = -ν_iv_i. ν_i$** was not explicitly described in PhysiCell. The user is rather expected to adjust the different cell's mechanic parameter to account for it.
 
 Given the equations above and the inertialess assumption, we obtain:
 
@@ -198,7 +197,7 @@ The method implemented in SaLib is not the original Sobol algorithm published in
 1. We define a space of inputs, parameters or group of parameters and their bounds. We consider the model as a black box, written above as the function F, therefore GSA works with any form model from ODE to ABM.
 2. Then a quasi-random sampling method is used to obtain an independent uniformly distributed set of inputs within the hypercube. This enables us to write the model output as:
 
-$$ Y = F_{0} + \sum_{i=1}^{d}F_{i}(x_{i}) + \sum_{i<j}^{d}F_{ij}(x_{i}, x_{j}) + \cdots + F_{1,2,\dots,d}(x_{1}, x_{2}, \dots , x_{N}) $$
+$$Y = F_0 + \sum_{i=1}^{d} F_i(x_i) + \sum_{i<j}^{d} F_{ij}(x_i, x_j) + \cdots + F_{1,2,\dots,d}(x_1, x_2, \dots, x_N)$$
 
 From this equation we can derive the variance of the output:
 
@@ -563,6 +562,33 @@ It is not possible to draw conclusion from the sensitivity analysis. We should c
 If Sobol method was chosen as a first approach, because it is commonly used in analysis for GSA in biological models, it could be worth investigating other approaches. If it appears that different methods converge on the identification of the dominant parameters, they differ in their computational cost and quantitative abilities. [Crusenberry citation]
 For our simulations, we are limited by computational time. Simulation runtime are in the order of the minutes to the tens of minutes. Thus, depending on the number of parameters evaluated it can take tens of hours to run all the simulations necessary to compute sobol output. Even then, we can get very poor confidence interval, making it impossible to draw definite conclusion on the most dominant parameter and not allowing any interpretation of the 2nd order indices. **There might be GSA methods requiring less runs to obtain better first order results.**
 
+## Perspectives
+The sensitivity analysis is only the first step of the identification of a parameter space enabling the modelling of a stable epithelium.
+### Exploring parameter space
+
+The PhysiCOOL module [PhysiCool citation] allows users to create a "black-box model" with three main components:
+
+  - A function that updates the PhysiCell configuration file with new input parameters values;
+  - The PhysiCell model;
+  - A function that reads the model outputs and computes the desired output metric.
+
+This allows to easily configure and execute PhysiCell simulations to evaluate the effect of the different parameters on the model output. Moreover, PhysiCOOL implements a multilevel parameter sweep class that is aimed at identifying the parameters that best fit a target data set. The parameter sweep considers two PhysiCell parameters, and the user should provide an initial value for each of them. At each level, MultiLevelSweep creates a search grid based on these two values, the number of points per direction and the percentage per direction. These values should be configured by the user.
+
+However, this module was published in 2021. Since, some python used as been deprecated and needs to be updated. Moreover, some features were not developped in PhysiCOOL. It lacks the possibility to update cell rules and not only the xml settings file. The pipeline doesn't allow for the loading of saved data with start and stop
+
+### Bayesian Optimization
+
+Bayesian optimization is used on problems of the form max $x ∈ X f ( x ) {\textstyle \max _{x\in X}f(x)}$, with $X$ being the set of all possible parameters x {\textstyle x}. Bayesian optimization is useful for problems where f ( x ) {\textstyle f(x)}, with f the objective function, is difficult to evaluate due to its computational cost, which is the case here. The Bayesian strategy is to treat it as a random function and place a prior over it. The prior captures beliefs about the behavior of the function. After gathering the function evaluations, which are treated as data, the prior is updated to form the posterior distribution over the objective function. The posterior distribution, in turn, is used to construct an acquisition function that determines the next query point. <br>
+The UQPhysiCell module provides a Bayesian optimization framework for the calibration of PhysiCell models. The framework is designed to efficiently find optimal parameter configurations that minimize the discrepancy between model predictions and observed experimental data.
+
+Bayesian optimization requires to define feasible bounds for each parameter, define quantities of interests (QoIs) that can be computed on the simulated data and the biological data. The goal is to determine the Pareto-optimal set of parameter. To do so we also need to define distance metrics to measure the discrepancy between model and observed data, and as well a fitness function, to compute a fitnesss value to be maximized.<br>
+These are implemented in the UQ-PhysiCell model, apart from specific QoIs. The most important thing to define is the set of biological data to establish the comparison. 
+
+This module is still being maintained and updated, however it will need to be modified to adapt our simulation as it is not compatible as is. The following modifications are to be made:
+- Enabling cell rule modification
+- Modification of the pipeline to load saved data at the start of the simulation
+- Adding the possibility to modify the saved data
+- Adapting the reading of the output file (indexing problems might arise)
 
 
 ## Bibliography
