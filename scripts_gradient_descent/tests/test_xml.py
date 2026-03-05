@@ -4,7 +4,7 @@ from shutil import copyfile
 from xml.etree import ElementTree
 
 from physicool import pcxml
-from configdata import *
+from tests.configdata import *
 
 
 class ReadDataTest(unittest.TestCase):

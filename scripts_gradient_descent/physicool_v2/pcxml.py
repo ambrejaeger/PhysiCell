@@ -645,11 +645,14 @@ def parse_custom(tree: ElementTree, path: str) -> List[Dict[str, Union[float, st
     ]
 
 def parse_cell_rule(row: List[str]) -> Dict[str, Union[str, float, bool]]:
-    if row[7] == 'True' or row[7] == 'False':
-        apply_to_dead = bool(row[7]) 
+    if row[7] == 'True':
+        apply_to_dead = True
+    elif row[7] == 'False':
+        apply_to_dead = False
     else:
         apply_to_dead = bool(float(row[7]))
-
+    print(apply_to_dead)
+    print(row[7])
     rule = {
         'type': row[0].strip(),
         'signal': row[1].strip(),
@@ -699,7 +702,7 @@ def write_cell_rule(line_index: int, new_rule: Dict[str, Union[str, float, bool]
         'type', 'signal', 'monotony', 'behavior', 
         'base_value', 'half_max', 'hill_power', 'apply_to_dead'
     ]
-    
+    print(new_rule)
     mod_rule = [str(new_rule[key]) for key in keys]
     ruleset[line_index] = mod_rule
     

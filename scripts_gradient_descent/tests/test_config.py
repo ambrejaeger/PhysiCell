@@ -6,7 +6,7 @@ from xml.etree import ElementTree
 from physicool_v2 import config
 from physicool_v2 import pcxml
 import physicool_v2.datatypes as dt
-from configdata import *
+from tests.configdata import *
 
 
 class PhysiCellConfigTest(unittest.TestCase):

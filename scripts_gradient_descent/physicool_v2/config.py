@@ -631,6 +631,10 @@ class CellRuleFileParser:
         # Write each rule as a separate line
         with open(output_path, 'w', encoding='utf-8') as f:
             for rule in self.ruleset:
+                if rule[7] == "True":
+                    rule[7] = "1"
+                elif rule[7] == "False":
+                    rule[7] = "0"
                 f.write(f"{','.join(rule)}\n")
     
     def read_ruleset(self) -> dt.RuleSet:
@@ -663,6 +667,7 @@ class CellRuleFileParser:
     def write_cell_rules(self, rule_index: int, new_rule: dt.Rule, update_file: bool = True) -> None:
         print("The ruleset is: ", self.ruleset)
         if 0 <= rule_index < len(self.ruleset):
+            print(new_rule)
             pcxml.write_cell_rule(rule_index, new_rule.model_dump(), self.ruleset)
         print("The ruleset is: ", self.ruleset)
         if update_file:

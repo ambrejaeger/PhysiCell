@@ -15,6 +15,7 @@ def update_ruleset(ruleset: dt.RuleSet, new_values: list[tuple[int, str, float]]
     """Updates the numerical values for a RuleSet class."""
     for value in new_values:
         rule_index, parameter, new_value = value
+        print(len(ruleset.rules))
         if rule_index < len(ruleset.rules):
             rule = ruleset.rules[rule_index]
             if hasattr(rule, parameter):
@@ -233,7 +234,6 @@ class ParamsUpdater(ABC):
         """Creates the ConfigFileParser instance to be accessed by the class."""
         self.parser = ConfigFileParser(path=self.config_path)
 
-    @classmethod
     @abstractmethod
     def update(self, new_values: Dict[str, float]) -> None:
         """Updates the XML file with the values passed as input."""
@@ -292,21 +292,19 @@ class MicroenvironmentUpdater(ParamsUpdater):
         self.parser.write_substance_params(substance)
 
 @dataclass
-class RulesetUpdater(ABC):
-    ruleset_path: Union[str, Path] = field(init=False)
-    rules_parser: CellRuleFileParser= field(init=False)
-    pu: ParamsUpdater
+class RulesetUpdater:
+    ruleset_parser: CellRuleFileParser = field(init=False)
+    cfp: ConfigFileParser
 
     def __post_init__(self):
         """Creates the RuleFileParser instance to be accessed by the class."""
-        ruleset_filepath = Path(self.pu.parser.read_ruleset_params().folder) / self.pu.parser.read_ruleset_params().filename
-        self.ruleset_path = ruleset_filepath
-        self.ruleset_parser = CellRuleFileParser(path=self.ruleset_path)
-        
+        ruleset_filepath = Path.cwd() / Path(self.cfp.read_ruleset_params().folder) / self.cfp.read_ruleset_params().filename       
+        self.ruleset_parser = CellRuleFileParser(path=ruleset_filepath)
 
-     def update(self, new_values: list[tuple[int, str, float]]) -> None:
-        """Updates the XML file with the values passed as input."""
-        ruleset = self.rules_parser.read_ruleset()
+    def update(self, new_values: list[tuple[int, str, float]]) -> None:
+        """Updates the ruleset file with the values passed as input."""
+        ruleset = self.ruleset_parser.read_ruleset()
         update_ruleset(ruleset, new_values)
-        for i,rule in enumerate(ruleset):
-            self.rules_parser.write_cell_rules(i, rule)
+        # write back each rule to the cell rules file
+        for i, rule in enumerate(ruleset.rules):
+            self.ruleset_parser.write_cell_rules(i, rule)
