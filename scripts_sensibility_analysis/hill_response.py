@@ -75,7 +75,7 @@ def read_value_in_settings_file(setting_file,path):
 
 
 if __name__ == "__main__":
-    path = "/home/ajaeger/Documents/PhysiCell/config/temp_cell_rules.csv"
+    path = "/home/ajaeger/Documents/PhysiCell/config/cell_rules.csv"
     setting_file = "/home/ajaeger/Documents/PhysiCell/config/PhysiCell_settings.xml"
     rules = read_rules_file(path)
 
@@ -83,11 +83,16 @@ if __name__ == "__main__":
 
     plt.figure(figsize=(8, 5))
     x = np.linspace(0, 1, 100)
-    path_to_value = "cell_definitions/cell_definition[@name='epi_inter']/phenotype/death/model[@name='apoptosis']/death_rate"
+    #path_to_value = "cell_definitions/cell_definition[@name='epi_inter']/phenotype/death/model[@name='apoptosis']/death_rate"
+    path_to_value = "cell_definitions/cell_definition[@name='epi_basal']/phenotype/cycle/phase_transition_rates/rate"
+    
     b0 = read_value_in_settings_file(setting_file,path_to_value)
     print("bO is equal to: ", b0)
     x, y = rule_to_hill_function(rules[1],x,float(b0))
 
     plt.plot(x, y, label=f'b={rules[1][4]}, hfm={rules[1][5]}, hp={rules[1][6]}', linewidth=2)
-
+    rules[1][5] = 3
+    rules[1][6] = 0.5
+    x, y = rule_to_hill_function(rules[1],x,float(b0))
+    plt.plot(x, y, label=f'b={1}, hfm={rules[1][5]}, hp={rules[1][6]}', linewidth=2)
     plt.show()
