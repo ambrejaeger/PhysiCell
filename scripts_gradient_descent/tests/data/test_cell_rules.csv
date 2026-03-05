@@ -1,3 +1,3 @@
 epi_basal,contact with membrane,decreases,transform to epi_inter,0.0,0.1,4.0,0
 epi_basal,div_inhib,decreases,exit from cycle phase 0,0.0,1.0,4.0,0
-epi_inter,contact with epi_inter,decreases,apoptosis,0.0,0.001,4.0,0
+epi_inter,contact with epi_inter,decreases,apoptosis,1.0,0.001,4.0,1

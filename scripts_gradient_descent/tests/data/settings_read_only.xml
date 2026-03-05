@@ -321,7 +321,7 @@
 	<cell_rules>
         <rulesets>
             <ruleset protocol="CBHG" version="3.0" format="csv" enabled="true">
-                <folder>./data</folder>
+                <folder>./scripts_gradient_descent/tests/data</folder>
                 <filename>cell_rules.csv</filename>
             </ruleset>
         </rulesets>
